@@ -1,3 +1,15 @@
 #!/bin/bash
 
-echo todo
+backupdir=~/.dotfile-backup
+
+test -d $backupdir || mkdir $backupdir
+
+for i in .??*; do
+    if [ -L ~/$i ]; then
+	echo $i untouched
+    else
+	test -e ~/$i && mv -i ~/$i $backupdir
+	ln -s $i ~/$i
+	echo $i linked
+    fi				
+done
