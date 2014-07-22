@@ -56,12 +56,18 @@ fi
 # @$LTGRN\h$CLEAR\
 # :$LTGRN\w\n$YELLOW[\!] \$$CLEAR "
 
+# root gets red prompt
+if [ 0 -eq $EUID ]; then
+    PSCOLOR=${LTRED}
+else
+    PSCOLOR=${BLUE}
+fi
 
 # no prompt command for console
 case $TERM in
     rxvt|xterm*) 
  	PROMPT_COMMAND='echo -ne "\033]0;${USER}@${HOSTNAME}: ${PWD}\007"'
- 	PS1="${BLUE}\u@\h${CLEAR}:${BLUE}\w${CLEAR}\$ "
+ 	PS1="${PSCOLOR}\u@\h${CLEAR}:${PSCOLOR}\w${CLEAR}\$ "
  	;;
 
     screen|vt100)
