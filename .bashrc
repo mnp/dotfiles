@@ -15,14 +15,10 @@ export PERL5LIB
 test -d $HOME/perl/man && export MANPATH=$HOME/perl/man:$MANPATH
 test -d /usr/local/man && export MANPATH=$MANPATH:/usr/local/man
 
-# for gnupod
-export IPOD_MOUNTPOINT=/media/ipod
-
 # For MediaWiki client
 export MVS_BROWSER=firefox
 
-export MIBS=TP-MIB:OSSGW-MIB:SMLC-MIB:LMU-MIB:LG-MIB:WLG-MIB:AGENT-CONFIG-MIB:SNMPv2-MIB:SG-MIB
-export MIBDIRS=$HOME/mibs
+unset MIBS MIBDIRS
 
 case $BASH_VERSION in
     # check the window size after each command and, if necessary,
@@ -34,7 +30,7 @@ BC_ENV_ARGS='-l $HOME/etc/mylib.bc'
 
 # make less more friendly for non-text input files, see lesspipe(1)
 #[ -x /usr/bin/lesspipe ] && eval "$(lesspipe)"
-export LESS=-inX
+export LESS=-inXR
 
 # happy terminal
 if [ -d $HOME/terminfo ]; then
@@ -43,13 +39,13 @@ if [ -d $HOME/terminfo ]; then
   export GREP_OPTIONS=--color=auto 
 fi
 
- YELLOW="\[\033[1;33m\]"
- LTRED="\[\033[0;31m\]"
- LTGRN="\[\033[0;32m\]"
- LTCYN="\[\033[0;36m\]"
- CLEAR="\[\033[0m\]"
- CRTRS="\[\033[01;35m\]"
- BLUE="\[\033[01;34m\]"
+YELLOW="\[\033[1;33m\]"
+LTRED="\[\033[0;31m\]"
+LTGRN="\[\033[0;32m\]"
+LTCYN="\[\033[0;36m\]"
+CLEAR="\[\033[0m\]"
+CRTRS="\[\033[01;35m\]"
+BLUE="\[\033[01;34m\]"
 
 # PS1="$TITLEBAR\
 # $LTGRN\u$CLEAR\
@@ -60,14 +56,14 @@ fi
 if [ 0 -eq $EUID ]; then
     PSCOLOR=${LTRED}
 else
-    PSCOLOR=${BLUE}
+    PS1COLOR=$LTGRN
 fi
 
 # no prompt command for console
 case $TERM in
     rxvt|xterm*) 
- 	PROMPT_COMMAND='echo -ne "\033]0;${USER}@${HOSTNAME}: ${PWD}\007"'
- 	PS1="${PSCOLOR}\u@\h${CLEAR}:${PSCOLOR}\w${CLEAR}\$ "
+# 	PROMPT_COMMAND='echo -ne "${PS1COLOR}${USER}@${HOSTNAME}: ${PWD}\007"'
+ 	PS1="${PS1COLOR}\u@\h${CLEAR}:${BLUE}\w${CLEAR}\$ "
  	;;
 
     screen|vt100)
@@ -168,8 +164,8 @@ m()
 	    ;;
 	*.zip|*.ZIP) unzip -l "$1" | $PAGER ;;
 	*.wav|*.mp3) AUPLAY "$1";;
-	*.wmv|*.mpg|*.WMV|*.rm|*.MPG|*.avi|*.AVI|*.mp4) mplayer "$1";;
-	*.pnm|*.pbm|*.jpg|*.JPG|*.gif|*.GIF) eog "$1";;
+	*.wmv|*.mpg|*.WMV|*.rm|*.MPG|*.avi|*.AVI|*.mp4|*.3gp) mplayer "$1";;
+	*.pnm|*.pbm|*.jpg|*.jpeg|*.JPG|*.gif|*.GIF) eog "$1";;
 	*.jar) jar tvf "$1" | $PAGER ;;
 	*.gz)  zcat "$1" | $PAGER ;;
 	*.bz2) bzcat "$1" | $PAGER ;;
@@ -194,7 +190,8 @@ alias mv='mv -i'
 alias t=tail
 alias acs='apt-cache search'
 alias acss='apt-cache show'
-alias agi='apt-get install'
+alias agu='sudo apt-get update'
+alias agi='sudo apt-get install'
 alias bye='exit'
 alias y='echo Oops\!'
 alias pf='perldoc -f'
@@ -229,7 +226,6 @@ if type git > /dev/null 2>&1; then
     alias gds='git diff --stat'
 fi
 
-
 #
 # ..   - Does a "cd .."
 # .. 3 - Does a "cd ../../.."
@@ -238,8 +234,8 @@ function .. ()
 {
     local arg=${1:-1};
     while [ $arg -gt 0 ]; do
-        cd .. >&/dev/null;
-        arg=$(($arg - 1));
+	cd .. >&/dev/null;
+	arg=$(($arg - 1));
     done
 }
 # function cd_dot_dot
@@ -248,22 +244,33 @@ function .. ()
 clean () 
 { 
     if [ $# -lt 1 ]; then
-        /bin/rm -f ,* *~ .*~ \#*\#;
-        echo ,* *~ .*~ \#*\#;
+	/bin/rm -f ,* *~ .*~ \#*\#;
+	echo ,* *~ .*~ \#*\#;
     else
-        for i in $@;
-        do
-            if [ -d "$i" ]; then
-                echo ---- Cleaning $i ----;
-                ( builtin cd $i;
-                echo ,* *~ .*~ \#*\#;
-                /bin/rm -f ,* *~ .*~ \#*\# );
-            else
-                echo Huh?;
-            fi;
-        done;
+	for i in $@;
+	do
+	    if [ -d "$i" ]; then
+		echo ---- Cleaning $i ----;
+		( builtin cd $i;
+		    echo ,* *~ .*~ \#*\#;
+		    /bin/rm -f ,* *~ .*~ \#*\# );
+	    else
+		echo Huh?;
+	    fi;
+	done;
     fi
 }
+
+# ps grep
+psg () 
+{ 
+    local pid=$(pgrep $1)
+    if [[ -n $pid ]]; then
+	ps l -p $pid
+    else
+	echo None found
+    fi
+} 
 
 # more which
 mw () 
@@ -290,42 +297,30 @@ _xw_sub ()
     local action=$1;
     shift;
     case $(builtin type -type $1) in
-        alias)
-            builtin type -all $1
-        ;;
-        file)
-            path=$(builtin type -path $1);
-            fileres=$(file "$path");
-            case $fileres in
-                *script*)
-                    $action "$path"
-                ;;
-                *text*)
-                    $action "$path"
-                ;;
-                file)
-                    $action "$path"
-                ;;
-                *)
-                    echo $fileres
-                ;;
-            esac
-        ;;
-        *)
-            builtin type $1
-        ;;
+	alias)
+	    builtin type -all $1
+	    ;;
+	file)
+	    path=$(builtin type -path $1);
+	    fileres=$(file "$path");
+	    case $fileres in
+		*script*)
+		    $action "$path"
+		    ;;
+		*text*)
+		    $action "$path"
+		    ;;
+		file)
+		    $action "$path"
+		    ;;
+		*)
+		    echo $fileres
+		    ;;
+	    esac
+	    ;;
+	*)
+	    builtin type $1
+	    ;;
     esac
 }
 
-[[ -f "/home/mperilstein/.config/autopackage/paths-bash" ]] && . "/home/mperilstein/.config/autopackage/paths-bash"
-
-export RUBYOPT="rubygems"
-export PATH=$PATH:/var/lib/gems/1.8/bin
-
-
-
-export PERL_LOCAL_LIB_ROOT="/home/mnp/perl5";
-export PERL_MB_OPT="--install_base /home/mnp/perl5";
-export PERL_MM_OPT="INSTALL_BASE=/home/mnp/perl5";
-export PERL5LIB="/home/mnp/perl5/lib/perl5/x86_64-linux-gnu-thread-multi:/home/mnp/perl5/lib/perl5";
-export PATH="/home/mnp/perl5/bin:$PATH";

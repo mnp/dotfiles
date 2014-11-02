@@ -12,7 +12,7 @@
     (progn
       
       (add-to-list 'package-archives
-		   '("melpa" . "http://melpa.milkbox.net/packages/") t)
+		   '("melpa" . "http://melpa.org/packages/") t)
       (package-initialize)
       (setq package-enable-at-startup nil)
 
@@ -25,6 +25,11 @@
       (require 'google-c-style)
       (require 'git-gutter)
 
+      (use-package aggressive-indent
+	:init (progn
+		(global-aggressive-indent-mode 1)
+		(add-to-list 'aggressive-indent-excluded-modes 'html-mode)))
+
       (use-package bs
 	:bind ("C-x C-b" . bs-show))
 
@@ -35,21 +40,33 @@
       (use-package wikipedia-mode
 	:mode "\\.wiki\\'")
 
+      (use-package markdown-mode
+	:mode "\\.md\\'")
+
       (use-package extended-insert
 	:bind ("C-x i" . extended-insert))
 
+      (use-package frame-cmds
+	:init
+	(bind-key [f11] 'toggle-max-frame))
+      
+      (use-package yasnippet
+	:load-path "~/.emacs.d/snippets"
+	:init (yas-global-mode 1))
+
       (use-package browsekill
 	:bind ("C-x 4 y" . browse-kill-ring))
+
+      (use-package flycheck)
 
       (use-package find-companion-thing
 	:bind ("C-x C-h" . fct/find-file))
       ))
 
-;(autoload 'flymake-mode "flymake")
-
 (if window-system 
     (progn
       
+;      (set-default-font "Mono-10")
 ;;      (set-face-attribute 'default nil :font "terminus-12")
 
       (load-theme 'tangotango t)
@@ -116,7 +133,7 @@
 (add-hook 'org-mode-hook 'turn-on-font-lock)  ; org-mode buffers only
 
 (setq browse-url-browser-function 'browse-url-generic
-      browse-url-generic-program "google-chrome")
+      browse-url-generic-program "firefox")
 
 (defun my-find-file-hook ()
   ;; not good idea along with sshct, which see
@@ -131,13 +148,13 @@
 ;  (hs-minor-mode 1)
   )
 
-
 (defun my-c-mode-common-hook ()
   (google-set-c-style)
   (setq c-basic-offset 4)
   (setq indent-tabs-mode nil) ; force indent with spaces, never TABs
   (setq fill-column 79)
   (git-gutter)
+  (flycheck-mode)
 )
 
 (defun indent-buffer ()
@@ -150,6 +167,21 @@
 
 (add-to-list 'completion-ignored-extensions ".dep")
 
+;; http://endlessparentheses.com/emacs-narrow-or-widen-dwim.html
+(defun narrow-or-widen-dwim (p)
+  "If the buffer is narrowed, it widens. Otherwise, it narrows intelligently.
+Intelligently means: region, subtree, or defun, whichever applies
+first.
+
+With prefix P, don't widen, just narrow even if buffer is already
+narrowed."
+  (interactive "P")
+  (declare (interactive-only))
+  (cond ((and (buffer-narrowed-p) (not p)) (widen))
+        ((region-active-p)
+         (narrow-to-region (region-beginning) (region-end)))
+        ((derived-mode-p 'org-mode) (org-narrow-to-subtree))
+        (t (narrow-to-defun))))
 
 ;; Then do M-x perl-outline-mode after you opened the Perl code
 ;; file. You can then expand and contract subroutines (with C-c @
@@ -168,7 +200,7 @@
 (defun my-perl-mode-hook ()
   (load-library "mycperl")
   (cperl-mode)
-;  (flymake-mode)
+  (flycheck-mode)
   )
 
 (defun my-xml-mode-hook ()
@@ -340,6 +372,7 @@ it.  This will look in parent dirs up to root for it as well."
   (windmove-default-keybindings))
 
 (global-set-key [f1] 		'switch-to-most-recent-org-buffer)
+(global-set-key [f2] 		'narrow-or-widen-dwim)
 (global-set-key [f3]            'my-perldb)
 (global-set-key [f4]            'my-code-search)
 (global-set-key [f5]   		(lambda () (interactive) (revert-buffer t nil)))
@@ -399,11 +432,16 @@ it.  This will look in parent dirs up to root for it as well."
 	(server-start))))
 
 (put 'narrow-to-region 'disabled nil)
+
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(custom-safe-themes (quote ("5d9351cd410bff7119978f8e69e4315fd1339aa7b3af6d398c5ca6fac7fd53c7" default))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(default ((t (:family "Terminus" :foundry "xos4" :slant normal :weight normal :height 120 :width normal))))
- '(cperl-array-face ((t (:background unspecified :foreground "yellow" :weight bold))))
- '(cperl-hash-face ((t (:background unspecified :foreground "green" :slant italic :weight bold)))))
+ )

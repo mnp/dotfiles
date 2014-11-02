@@ -7,6 +7,8 @@ test -d $backupdir || mkdir $backupdir
 for i in .??*; do
     if [ -L ~/$i ]; then
 	echo $i untouched
+    elif [[ $i == *.ignore ]]; then
+	echo $i ignored
     else
 	test -e ~/$i && mv -i ~/$i $backupdir
 	ln -s $i ~/$i
