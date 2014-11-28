@@ -1,6 +1,10 @@
 #!/bin/bash
 
+# link each dotfiles/xxx to ~/.xxx, making backup if needed
+
 backupdir=~/.dotfile-backup
+cd `dirname $0`
+dotfiles=`pwd`
 
 test -d $backupdir || mkdir $backupdir
 
@@ -11,7 +15,7 @@ for i in .??*; do
 	echo $i ignored
     else
 	test -e ~/$i && mv -i ~/$i $backupdir
-	ln -s $i ~/$i
+	ln -s $dotfiles/$i ~/$i
 	echo $i linked
     fi				
 done

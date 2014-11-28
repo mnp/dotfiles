@@ -54,7 +54,7 @@ BLUE="\[\033[01;34m\]"
 
 # root gets red prompt
 if [ 0 -eq $EUID ]; then
-    PSCOLOR=${LTRED}
+    PS1COLOR=${LTRED}
 else
     PS1COLOR=$LTGRN
 fi
@@ -139,18 +139,6 @@ note ()
     echo ===============================================================
 }
 
-office ()
-{
-    prog=$1
-    shift
-
-    if [[ -n $DISPLAY && $OFFICE == "yes" ]]; then
-	$prog "$1" > /dev/null 2>&1 &
-    else
-	note no DISPLAY, using strings; strings "$1"
-    fi
-}
-
 # my do it all superdeal
 m()
 {
@@ -163,15 +151,15 @@ m()
 	    fi
 	    ;;
 	*.zip|*.ZIP) unzip -l "$1" | $PAGER ;;
-	*.wav|*.mp3) AUPLAY "$1";;
+	*.wav|*.mp3) mplayer "$1";;
 	*.wmv|*.mpg|*.WMV|*.rm|*.MPG|*.avi|*.AVI|*.mp4|*.3gp) mplayer "$1";;
 	*.pnm|*.pbm|*.jpg|*.jpeg|*.JPG|*.gif|*.GIF) eog "$1";;
 	*.jar) jar tvf "$1" | $PAGER ;;
 	*.gz)  zcat "$1" | $PAGER ;;
 	*.bz2) bzcat "$1" | $PAGER ;;
-	*.doc|*.DOC|*.docx) office oowriter "$1";;
-        *.odp|*.ppt|*.PPT) office ooimpress "$1";;
-        *.ods|*.xls|*.XLS|.xlsx|*.odt) office oocalc "$1";;
+	*.doc|*.DOC|*.docx) libreoffice "$1";;
+        *.odp|*.ppt|*.PPT)  libreoffice "$1";;
+        *.ods|*.xls|*.XLS|.xlsx|*.odt) libreoffice "$1";;
 	*.djvu|*.ps|*.pdf|*.PDF) evince "$1" > /dev/null 2>&1 & ;;
 	*.png|*.PNG|*.bmp|*.BMP|*.jpg|*.JPG|*.gif|*.GIF) eog "$1";;
 	*) less "$1";;

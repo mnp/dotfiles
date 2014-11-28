@@ -2,7 +2,7 @@
 
 (setq inhibit-startup-message t
       initial-scratch-message nil
-      debug-on-error t)
+      debug-on-error nil)
 
 (add-to-list 'load-path (expand-file-name "~/Elisp"))
 
@@ -23,6 +23,9 @@
 					;(require 'dot-mode)
 					; (require 'workgroups)
       (require 'google-c-style)
+      ;; TODO: rtags does references and c++ well. Note find-tag
+      ;; advice below.
+
       (require 'git-gutter)
 
       (use-package aggressive-indent
@@ -58,6 +61,9 @@
 	:bind ("C-x 4 y" . browse-kill-ring))
 
       (use-package flycheck)
+
+      (use-package xcscope     ;; see ~/.emacs.d/elpa/xcscope-readme.txt
+	:init (cscope-setup))
 
       (use-package find-companion-thing
 	:bind ("C-x C-h" . fct/find-file))
@@ -247,24 +253,7 @@ narrowed."
 
 (ffap-bindings) ;; replaces find-file
 
-(defun find-file-upwards (file dir)
-  "Look for ./FILE, ../FILE, etc ascending until found, returning it or nil."
-  (let* ((dir2 (expand-file-name dir))
-	 (f (concat dir2 "/" file)))
-    (cond ((string-equal "/" dir2) nil)
-	  ((file-exists-p f) f)
-	  (t (find-file-upwards file (concat dir2 "/.."))))))
-
-(defadvice find-tag (before find-tags-table () activate)
-  "find-tag (M-.) will load ./TAGS by default, the first time you use
-it.  This will look in parent dirs up to root for it as well."
-  (or (get-buffer "TAGS")
-      (let ((tagfile (find-file-upwards "TAGS" ".")))
-	(if tagfile
-	    (visit-tags-table tagfile)
-	  (error "Can't find TAGS looking upwards from %s" default-directory)))))
-
-; idea: compile() can look upwards until it finds a makefile
+;; idea: compile() can look upwards until it finds a makefile
 
 ;; make zap-to-char act like zap-up-to-char
 (defadvice zap-to-char (after my-zap-to-char-advice (arg char) activate)
