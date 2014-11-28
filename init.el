@@ -253,6 +253,15 @@ narrowed."
 
 (ffap-bindings) ;; replaces find-file
 
+(defadvice find-tag (before find-tags-table () activate)
+  "find-tag (M-.) will load ./TAGS by default, the first time you use
+it.  This will look in parent dirs up to root for it as well."
+  (or (get-buffer "TAGS")
+      (let ((tagfile (concat (locate-dominating-file (buffer-file-name) "TAGS") "TAGS")))
+	(if tagfile
+	    (visit-tags-table tagfile)
+	  (error "Can't find TAGS looking upwards from %s" default-directory)))))
+
 ;; idea: compile() can look upwards until it finds a makefile
 
 ;; make zap-to-char act like zap-up-to-char
