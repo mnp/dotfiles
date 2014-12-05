@@ -5,6 +5,8 @@
 
 test -d /opt/csw/bin && PATH=/opt/csw/bin:$PATH
 PATH=$HOME/bin:$HOME/hosts:/usr/local/bin:$PATH
+
+test -d $HOME/perl5/bin && PATH=$HOME/perl5/bin:$PATH
 export PATH
 
 for dir in $HOME/perl /usr/local/share/perl/* /usr/local/lib/perl/* /usr/local/lib/perl5/site_perl; do
@@ -34,9 +36,9 @@ export LESS=-inXR
 
 # happy terminal
 if [ -d $HOME/terminfo ]; then
-  export TERMINFO=$HOME/terminfo
-  export TERM=xterm-color
-  export GREP_OPTIONS=--color=auto 
+    export TERMINFO=$HOME/terminfo
+    export TERM=xterm-color
+    export GREP_OPTIONS=--color=auto 
 fi
 
 YELLOW="\[\033[1;33m\]"
@@ -62,7 +64,7 @@ fi
 # no prompt command for console
 case $TERM in
     rxvt|xterm*) 
-# 	PROMPT_COMMAND='echo -ne "${PS1COLOR}${USER}@${HOSTNAME}: ${PWD}\007"'
+	# 	PROMPT_COMMAND='echo -ne "${PS1COLOR}${USER}@${HOSTNAME}: ${PWD}\007"'
  	PS1="${PS1COLOR}\u@\h${CLEAR}:${BLUE}\w${CLEAR}\$ "
  	;;
 
@@ -250,13 +252,17 @@ clean ()
 }
 
 # ps grep
-psg () 
+p () 
 { 
+    if [ $# -lt 1 ]; then
+	ps faux | $PAGER
+    else
     local pid=$(pgrep $1)
     if [[ -n $pid ]]; then
 	ps l -p $pid
     else
 	echo None found
+    fi
     fi
 } 
 
@@ -311,4 +317,9 @@ _xw_sub ()
 	    ;;
     esac
 }
+
+
+
+# added by duckpan installer
+eval $(perl -I${HOME}/perl5/lib/perl5 -Mlocal::lib)
 

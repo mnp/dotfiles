@@ -30,8 +30,10 @@
 
       (use-package aggressive-indent
 	:init (progn
-		(global-aggressive-indent-mode 1)
-		(add-to-list 'aggressive-indent-excluded-modes 'html-mode)))
+		(mapcar '(lambda (z) 
+			   (add-to-list 'aggressive-indent-excluded-modes z)) 
+			'(Eshell Debugger html-mode))
+		(global-aggressive-indent-mode 1)))
 
       (use-package bs
 	:bind ("C-x C-b" . bs-show))
@@ -53,6 +55,9 @@
 	:init
 	(bind-key [f11] 'toggle-max-frame))
       
+      (use-package powerline
+	:init (powerline-default-theme))
+
       (use-package yasnippet
 	:load-path "~/.emacs.d/snippets"
 	:init (yas-global-mode 1))

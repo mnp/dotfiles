@@ -1,0 +1,12 @@
+# my control key map
+xmodmap $HOME/.xmodmap &
+
+# dock/notifications
+tint2 &
+
+# volume control
+volti &
+
+gnome-terminal --geometry 80x24+0+0   --profile=grn &
+gnome-terminal --geometry 80x16+0+410 --profile=wht &
+emacs          --geometry 85x38-0+0 &
