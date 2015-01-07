@@ -14,7 +14,7 @@ for dir in $HOME/perl /usr/local/share/perl/* /usr/local/lib/perl/* /usr/local/l
 done
 export PERL5LIB
 
-test -d $HOME/perl/man && export MANPATH=$HOME/perl/man:$MANPATH
+test -d $HOME/perl5/man && export MANPATH=$HOME/perl/man:$MANPATH
 test -d /usr/local/man && export MANPATH=$MANPATH:/usr/local/man
 
 # For MediaWiki client
@@ -188,6 +188,7 @@ alias pf='perldoc -f'
 alias cf='gzip'
 alias uc='gunzip'
 alias r='fc -s'
+alias ack='ack-grep'
 
 alias ct='cleartool'
 alias lsck='cleartool lscheckout -me -all -cview'

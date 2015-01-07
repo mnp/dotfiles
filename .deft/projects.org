@@ -1,0 +1,7 @@
+* ddg
+** wiki
+*** ia is internal
+*** a mediawiki api role (?) would be good to have for imfdb and other wiki spices
+** nmc
+*** they can run an ec2 if someone sets it up and maintains it for them
+*** ia's for .bit and /u can talk to it

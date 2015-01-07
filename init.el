@@ -51,6 +51,11 @@
       (use-package extended-insert
 	:bind ("C-x i" . extended-insert))
 
+      (use-package deft
+	:bind (([f9] . deft))
+	:init (setq deft-extension "org"
+		    deft-text-mode 'org-mode))
+
       (use-package frame-cmds
 	:init
 	(bind-key [f11] 'toggle-max-frame))
@@ -74,28 +79,28 @@
 	:bind ("C-x C-h" . fct/find-file))
       ))
 
-(if window-system 
-    (progn
-      
-;      (set-default-font "Mono-10")
-;;      (set-face-attribute 'default nil :font "terminus-12")
+  (if window-system 
+      (progn
+	
+					;      (set-default-font "Mono-10")
+	;;      (set-face-attribute 'default nil :font "terminus-12")
 
-      (load-theme 'tangotango t)
+	(load-theme 'tangotango t)
 
-      ;; busted
-      (global-set-key (kbd "C-+") 'text-scale-increase)
-      (global-set-key (kbd "C--") 'text-scale-decrease)
+	;; busted
+	(global-set-key (kbd "C-+") 'text-scale-increase)
+	(global-set-key (kbd "C--") 'text-scale-decrease)
 
-      ;; this maybe also good for local terminal, but how do we tell
-      ;; that from a remote?
-      (setq redisplay-dont-pause t)	
+	;; this maybe also good for local terminal, but how do we tell
+	;; that from a remote?
+	(setq redisplay-dont-pause t)	
 
-      (mouse-avoidance-mode 'jump)
-      (add-hook 'server-visit-hook 
-		'(lambda () (raise-frame) (recenter)))
-      (mouse-wheel-mode 1)
-      (delete-selection-mode 1)
-      (global-set-key "\C-z" 'undo)))
+	(mouse-avoidance-mode 'jump)
+	(add-hook 'server-visit-hook 
+		  '(lambda () (raise-frame) (recenter)))
+	(mouse-wheel-mode 1)
+	(delete-selection-mode 1)
+	(global-set-key "\C-z" 'undo)))
 
 ;; ------------------------------------------------------
 ;; Modes
@@ -118,22 +123,13 @@
 
 (global-set-key (kbd "C-c e") 'my-erc-start-or-switch)
 
-;; use deft to get to org quickly on F9
-;; http://jblevins.org/projects/deft/
-;(when (require 'deft nil 'noerror) 
-;   (setq
-;      deft-extension "org"
-;      deft-directory "~/Org/deft/"
-;      deft-text-mode 'org-mode)
-;   (global-set-key (kbd "<f9>") 'deft))
-
 ;; org mode
-;(autoload 'org-mode "org")
+					;(autoload 'org-mode "org")
 
 ;; The following lines are always needed.  Choose your own keys.
-;(add-to-list 'auto-mode-alist '("\\.org$" . org-mode))
-;(define-key global-map "\C-cl" 'org-store-link)
-;(define-key global-map "\C-ca" 'org-agenda)
+					;(add-to-list 'auto-mode-alist '("\\.org$" . org-mode))
+					;(define-key global-map "\C-cl" 'org-store-link)
+					;(define-key global-map "\C-ca" 'org-agenda)
 
 (setq org-todo-keywords 
       '((sequence "TODO" "WAIT" "DONE")))
