@@ -19,24 +19,44 @@
       ;; see describe-personal-keybindings for some of his effects
       (require 'use-package)
 
-      (require 'hideshow)
+      (use-package hideshow)
 					;(require 'dot-mode)
 					; (require 'workgroups)
-      (require 'google-c-style)
+      (use-package ace-window
+       	:bind ("C-x o" . ace-window))
+
+      (use-package google-c-style)
       ;; TODO: rtags does references and c++ well. Note find-tag
       ;; advice below.
 
-      (require 'git-gutter)
+;      (use-package aggressive-indent
+;	:init (progn
+;		(mapcar '(lambda (z) 
+;			   (add-to-list 'aggressive-indent-excluded-modes z)) 
+;			'(Eshell Debugger html-mode))
+;		(global-aggressive-indent-mode 1)))
 
-      (use-package aggressive-indent
-	:init (progn
-		(mapcar '(lambda (z) 
-			   (add-to-list 'aggressive-indent-excluded-modes z)) 
-			'(Eshell Debugger html-mode))
-		(global-aggressive-indent-mode 1)))
+      ;; helm does this
+;      (use-package bs
+;       	:bind ("C-x C-b" . bs-show))
 
-      (use-package bs
-	:bind ("C-x C-b" . bs-show))
+      (use-package git-gutter
+	:init (global-git-gutter-mode +1))
+
+;      (use-package helm-config
+;	:init (progn
+;		(helm-mode 1)
+;		(define-key global-map [remap find-file] 'helm-find-files)
+;		(define-key global-map [remap occur] 'helm-occur)
+;		(define-key global-map [remap list-buffers] 'helm-buffers-list)
+;		(define-key global-map [remap dabbrev-expand] 'helm-dabbrev))
+;	:bind (("M-x" . helm-M-x)))
+
+
+					;(unless (boundp 'completion-in-region-function)
+					;  (define-key lisp-interaction-mode-map [remap completion-at-point] 'helm-lisp-completion-at-point)
+					;  (define-key emacs-lisp-mode-map       [remap completion-at-point] 'helm-lisp-completion-at-point))
+
 
       (use-package duplicate-line
 	:bind (("M-p" . duplicate-previous-line)
@@ -48,8 +68,29 @@
       (use-package markdown-mode
 	:mode "\\.md\\'")
 
+      (use-package ack
+	;; note: local mod in elpa/ack-1.3/ack.el, should get pushed up?
+	;;	:init (setq ack-command (executable-find "ack-grep"))
+	:init (progn
+		(defun my-ack-default-directory (arg)
+		  "wrap ack-default-directory-function and reverse his behavior: if ARG is
+  given, call him with none, while if no ARG is given, call him with
+  4.  I want to find from project root by default."
+		  (ack-default-directory
+		   (if arg nil 4)))
+		(setq ack-default-directory-function 'my-ack-default-directory))
+	:bind ("C-c k" . ack)
+	)
+
       (use-package extended-insert
 	:bind ("C-x i" . extended-insert))
+
+      (use-package org-mode
+	:bind ("C-c c" . org-capture)
+	:init (progn 
+		(setq 
+		 org-directory (expand-file-name "~/.deft")
+		 org-default-notes-file (concat org-directory "/notes.org"))))
 
       (use-package deft
 	:bind (([f9] . deft))
@@ -61,11 +102,21 @@
 	(bind-key [f11] 'toggle-max-frame))
       
       (use-package powerline
-	:init (powerline-default-theme))
+	:init (progn 
+		(powerline-default-theme)
 
-      (use-package yasnippet
-	:load-path "~/.emacs.d/snippets"
-	:init (yas-global-mode 1))
+		;; Separate behavior for inactive
+		;; buffers. smart-mode-line does this out of the box,
+		;; switch if we get bored.
+		(set-face-attribute  'mode-line-inactive
+                 nil 
+                 :foreground "gray30"
+                 :background "black" 
+                 :box '(:line-width 1 :style released-button))))
+
+       (use-package yasnippet
+ 	:load-path "~/.emacs.d/snippets"
+ 	:init (yas-global-mode 1))
 
       (use-package browsekill
 	:bind ("C-x 4 y" . browse-kill-ring))
@@ -144,7 +195,7 @@
 
 (defun my-find-file-hook ()
   ;; not good idea along with sshct, which see
-    ;;  (git-gutter)
+;;  (git-gutter)
     ;;  (vc-mode-line (buffer-file-name) 'git)
   )
 
@@ -160,7 +211,6 @@
   (setq c-basic-offset 4)
   (setq indent-tabs-mode nil) ; force indent with spaces, never TABs
   (setq fill-column 79)
-  (git-gutter)
   (flycheck-mode)
 )
 
@@ -204,6 +254,8 @@ narrowed."
 
 (add-to-list 'auto-mode-alist '("\\.t$" . perl-mode))
 
+(add-to-list 'auto-mode-alist '("Rakefile" . ruby-mode))
+
 (defun my-perl-mode-hook ()
   (load-library "mycperl")
   (cperl-mode)
@@ -214,6 +266,10 @@ narrowed."
   (hs-minor-mode 1)
   (local-set-key [f11] 'sgml-expand-element)
   (local-set-key [f12] 'sgml-fold-element))
+
+(defun my-gdb-hook ()
+  (setq gdb-many-windows nil
+	gdb-show-main t))
 
 (add-hook 'perl-mode-hook 	'my-perl-mode-hook)
 (add-hook 'xml-mode-hook        'my-xml-mode-hook)
@@ -228,6 +284,7 @@ narrowed."
 (add-hook 'c++-mode-hook	'my-c-mode-common-hook)
 (add-hook 'java-mode-hook	'my-generic-mode-hook)
 (add-hook 'makefile-mode-hook	'my-generic-mode-hook)
+(add-hook 'gdb-mode-hook	'my-gdb-hook)
 
 ;; ------------------------------------------------------
 ;; Fun
@@ -387,8 +444,12 @@ it.  This will look in parent dirs up to root for it as well."
 (global-set-key "\C-h"	 	'backward-delete-char)
 
 (global-set-key "\C-x\C-k" 	'compile)
-(global-set-key "\M-SPC" 	'my-just-one-white)
+(global-set-key (kbd "M-SPC")	'my-just-one-white)
 (global-set-key "\C-cr" 	'align-regexp)
+
+;; see bs mode above, disabled
+(global-set-key "\C-x\C-b" 'electric-buffer-list)
+
 
 ;;;
 ;;; MEW
@@ -424,11 +485,13 @@ it.  This will look in parent dirs up to root for it as well."
 
 ;; keep this last
 
-(if window-system 
-    (progn
-      (if (require 'edit-server)
-	  (edit-server-start)
-	(server-start))))
+;(if window-system 
+;    (progn
+;      (if (require 'edit-server)
+;	  (edit-server-start)
+;	(server-start))))
+
+(if window-system (server-start))
 
 (put 'narrow-to-region 'disabled nil)
 

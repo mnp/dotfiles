@@ -3,6 +3,12 @@
 # If not running interactively, don't do anything
 [ -z "$PS1" ] && return
 
+# per-terminal preferences
+case x"$MYPROFILE" in
+    xorg-on-gray) echo orange in force;;
+    xwht-on-gray) echo white in force;;
+esac
+
 test -d /opt/csw/bin && PATH=/opt/csw/bin:$PATH
 PATH=$HOME/bin:$HOME/hosts:/usr/local/bin:$PATH
 
@@ -61,11 +67,18 @@ else
     PS1COLOR=$LTGRN
 fi
 
+if type git > /dev/null 2>&1; then
+    HAVEGIT=yes
+    alias gsm='git status --untracked-files=no --ignore-submodules'
+    alias gds='git diff --stat HEAD~1'
+    source ~/.git-prompt.sh
+fi
+
 # no prompt command for console
 case $TERM in
     rxvt|xterm*) 
 	# 	PROMPT_COMMAND='echo -ne "${PS1COLOR}${USER}@${HOSTNAME}: ${PWD}\007"'
- 	PS1="${PS1COLOR}\u@\h${CLEAR}:${BLUE}\w${CLEAR}\$ "
+ 	PS1="${PS1COLOR}\u@\h${CLEAR}:${BLUE}\w${YELLOW}\$(__git_ps1)${CLEAR}\$ "
  	;;
 
     screen|vt100)
@@ -117,8 +130,10 @@ export LANG=C
 # enable color support of ls
 if dircolors > /dev/null 2>&1; then
     if [ "$TERM" != "dumb" ]; then
+	# http://www.linux-sxs.org/housekeeping/lscolors.html
+	# black is giving trouble in some terminals so remap it
 	export LS_OPTIONS='--color=auto'
-	eval `dircolors -b`
+	eval `dircolors -b | sed 's/;35/;33/g'`
     fi
 fi
 
@@ -155,7 +170,7 @@ m()
 	*.zip|*.ZIP) unzip -l "$1" | $PAGER ;;
 	*.wav|*.mp3) mplayer "$1";;
 	*.wmv|*.mpg|*.WMV|*.rm|*.MPG|*.avi|*.AVI|*.mp4|*.3gp) mplayer "$1";;
-	*.pnm|*.pbm|*.jpg|*.jpeg|*.JPG|*.gif|*.GIF) eog "$1";;
+	*.pnm|*.pbm|*.jpg|*.jpeg|*.JPG|*.gif|*.GIF|*.tif|*.tiff) eog "$1";;
 	*.jar) jar tvf "$1" | $PAGER ;;
 	*.gz)  zcat "$1" | $PAGER ;;
 	*.bz2) bzcat "$1" | $PAGER ;;
@@ -210,12 +225,6 @@ alias f10="awk '{print \$10}'"
 alias f11="awk '{print \$11}'"
 alias f12="awk '{print \$12}'"
 alias f13="awk '{print \$13}'"
-
-if type git > /dev/null 2>&1; then
-    HAVEGIT=yes
-    alias gsm='git status --untracked-files=no --ignore-submodules'
-    alias gds='git diff --stat'
-fi
 
 #
 # ..   - Does a "cd .."
