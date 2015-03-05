@@ -1,0 +1,6 @@
+--ignore-directory=is:doc
+--ignore-directory=is:.build
+--ignore-file=ext:log
+--ignore-file=is:TAGS
+--ignore-file=is:.gitignore
+--ignore-file=is:log

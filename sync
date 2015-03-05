@@ -5,17 +5,18 @@
 backupdir=~/.dotfile-backup
 cd `dirname $0`
 dotfiles=`pwd`
+fmt='%-10s: %s\n'
 
 test -d $backupdir || mkdir $backupdir
 
 for i in .??*; do
     if [ -L ~/$i ]; then
-	echo $i untouched
+	printf "$fmt" untouched $i 
     elif [[ $i == *.ignore ]]; then
-	echo $i ignored
+	printf "$fmt" ignored $i 
     else
 	test -e ~/$i && mv -i ~/$i $backupdir
 	ln -s $dotfiles/$i ~/$i
-	echo $i linked
+	printf "$fmt" LINKED $i 
     fi				
 done
