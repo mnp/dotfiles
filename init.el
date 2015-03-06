@@ -6,6 +6,9 @@
 
 (add-to-list 'load-path (expand-file-name "~/Elisp"))
 
+(if (file-directory-p "/Applications")
+    (add-to-list 'exec-path "/Applications/Firefox.app/Contents/MacOS"))
+
 (if (condition-case nil 
 	(require 'package)
       (error nil))
@@ -23,34 +26,34 @@
 					;(require 'dot-mode)
 					; (require 'workgroups)
       (use-package ace-window
-       	:bind ("C-x o" . ace-window))
+	:bind ("C-x o" . ace-window))
 
       (use-package google-c-style)
       ;; TODO: rtags does references and c++ well. Note find-tag
       ;; advice below.
 
-;      (use-package aggressive-indent
-;	:init (progn
-;		(mapcar '(lambda (z) 
-;			   (add-to-list 'aggressive-indent-excluded-modes z)) 
-;			'(Eshell Debugger html-mode))
-;		(global-aggressive-indent-mode 1)))
+					;      (use-package aggressive-indent
+					;	:init (progn
+					;		(mapcar '(lambda (z) 
+					;			   (add-to-list 'aggressive-indent-excluded-modes z)) 
+					;			'(Eshell Debugger html-mode))
+					;		(global-aggressive-indent-mode 1)))
 
       ;; helm does this
-;      (use-package bs
-;       	:bind ("C-x C-b" . bs-show))
+					;      (use-package bs
+					;       	:bind ("C-x C-b" . bs-show))
 
       (use-package git-gutter
 	:init (global-git-gutter-mode +1))
 
-;      (use-package helm-config
-;	:init (progn
-;		(helm-mode 1)
-;		(define-key global-map [remap find-file] 'helm-find-files)
-;		(define-key global-map [remap occur] 'helm-occur)
-;		(define-key global-map [remap list-buffers] 'helm-buffers-list)
-;		(define-key global-map [remap dabbrev-expand] 'helm-dabbrev))
-;	:bind (("M-x" . helm-M-x)))
+					;      (use-package helm-config
+					;	:init (progn
+					;		(helm-mode 1)
+					;		(define-key global-map [remap find-file] 'helm-find-files)
+					;		(define-key global-map [remap occur] 'helm-occur)
+					;		(define-key global-map [remap list-buffers] 'helm-buffers-list)
+					;		(define-key global-map [remap dabbrev-expand] 'helm-dabbrev))
+					;	:bind (("M-x" . helm-M-x)))
 
 
 					;(unless (boundp 'completion-in-region-function)
@@ -109,14 +112,14 @@
 		;; buffers. smart-mode-line does this out of the box,
 		;; switch if we get bored.
 		(set-face-attribute  'mode-line-inactive
-                 nil 
-                 :foreground "gray30"
-                 :background "black" 
-                 :box '(:line-width 1 :style released-button))))
+				     nil 
+				     :foreground "gray30"
+				     :background "black" 
+				     :box '(:line-width 1 :style released-button))))
 
-       (use-package yasnippet
- 	:load-path "~/.emacs.d/snippets"
- 	:init (yas-global-mode 1))
+      (use-package yasnippet
+	:load-path "~/.emacs.d/snippets"
+	:init (yas-global-mode 1))
 
       (use-package browsekill
 	:bind ("C-x 4 y" . browse-kill-ring))
@@ -130,28 +133,28 @@
 	:bind ("C-x C-h" . fct/find-file))
       ))
 
-  (if window-system 
-      (progn
-	
+(if window-system 
+    (progn
+      
 					;      (set-default-font "Mono-10")
-	;;      (set-face-attribute 'default nil :font "terminus-12")
+      ;;      (set-face-attribute 'default nil :font "terminus-12")
 
-	(load-theme 'tangotango t)
+      (load-theme 'tangotango t)
 
-	;; busted
-	(global-set-key (kbd "C-+") 'text-scale-increase)
-	(global-set-key (kbd "C--") 'text-scale-decrease)
+      ;; busted
+      (global-set-key (kbd "C-+") 'text-scale-increase)
+      (global-set-key (kbd "C--") 'text-scale-decrease)
 
-	;; this maybe also good for local terminal, but how do we tell
-	;; that from a remote?
-	(setq redisplay-dont-pause t)	
+      ;; this maybe also good for local terminal, but how do we tell
+      ;; that from a remote?
+      (setq redisplay-dont-pause t)	
 
-	(mouse-avoidance-mode 'jump)
-	(add-hook 'server-visit-hook 
-		  '(lambda () (raise-frame) (recenter)))
-	(mouse-wheel-mode 1)
-	(delete-selection-mode 1)
-	(global-set-key "\C-z" 'undo)))
+      (mouse-avoidance-mode 'jump)
+      (add-hook 'server-visit-hook 
+		'(lambda () (raise-frame) (recenter)))
+      (mouse-wheel-mode 1)
+      (delete-selection-mode 1)
+      (global-set-key "\C-z" 'undo)))
 
 ;; ------------------------------------------------------
 ;; Modes
@@ -500,7 +503,14 @@ it.  This will look in parent dirs up to root for it as well."
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(custom-safe-themes (quote ("5d9351cd410bff7119978f8e69e4315fd1339aa7b3af6d398c5ca6fac7fd53c7" default))))
+ '(custom-safe-themes
+   (quote
+    ("5d9351cd410bff7119978f8e69e4315fd1339aa7b3af6d398c5ca6fac7fd53c7" default)))
+ '(org-capture-templates
+   (quote
+    (("j" "journal" entry
+      (file "~/org/journal.org")
+      "%T\\n%i")))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.

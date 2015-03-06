@@ -9,6 +9,8 @@ case x"$MYPROFILE" in
     xwht-on-gray) echo white in force;;
 esac
 
+test -x /usr/libexec/java_home && export JAVA_HOME=$(/usr/libexec/java_home)
+
 test -d /opt/csw/bin && PATH=/opt/csw/bin:$PATH
 PATH=$HOME/bin:$HOME/hosts:/usr/local/bin:$PATH
 
@@ -82,9 +84,9 @@ case $TERM in
  	;;
 
     screen|vt100)
-        PROMPT_COMMAND='echo -ne "\033]0;${USER}@${HOSTNAME}:${PWD}\007\033k$PWD\033\\"'
+	PROMPT_COMMAND='echo -ne "\033]0;${USER}@${HOSTNAME}:${PWD}\007\033k$PWD\033\\"'
 	PS1='$ ';
-        ;;
+	;;
 
     *)
 	PROMPT_COMMAND=''
@@ -135,6 +137,8 @@ if dircolors > /dev/null 2>&1; then
 	export LS_OPTIONS='--color=auto'
 	eval `dircolors -b | sed 's/;35/;33/g'`
     fi
+else
+    export LS_OPTIONS='-G'
 fi
 
 if type gzcat > /dev/null 2>&1; then
@@ -175,12 +179,19 @@ m()
 	*.gz)  zcat "$1" | $PAGER ;;
 	*.bz2) bzcat "$1" | $PAGER ;;
 	*.doc|*.DOC|*.docx) libreoffice "$1";;
-        *.odp|*.ppt|*.PPT)  libreoffice "$1";;
-        *.ods|*.xls|*.XLS|.xlsx|*.odt) libreoffice "$1";;
+	*.odp|*.ppt|*.PPT)  libreoffice "$1";;
+	*.ods|*.xls|*.XLS|.xlsx|*.odt) libreoffice "$1";;
 	*.djvu|*.ps|*.pdf|*.PDF) evince "$1" > /dev/null 2>&1 & ;;
 	*.png|*.PNG|*.bmp|*.BMP|*.jpg|*.JPG|*.gif|*.GIF) eog "$1";;
 	*) less "$1";;
     esac
+}
+
+# more the last "ls -rt"
+mrt () 
+{ 
+    test -z $1 && set .
+    $PAGER $1/$(ls -rt $1|tail -1)
 }
 
 alias l='ls $LS_OPTIONS'
@@ -203,7 +214,7 @@ alias pf='perldoc -f'
 alias cf='gzip'
 alias uc='gunzip'
 alias r='fc -s'
-alias ack='ack-grep'
+alias ig='grep -i'
 
 alias ct='cleartool'
 alias lsck='cleartool lscheckout -me -all -cview'
@@ -225,6 +236,14 @@ alias f10="awk '{print \$10}'"
 alias f11="awk '{print \$11}'"
 alias f12="awk '{print \$12}'"
 alias f13="awk '{print \$13}'"
+
+type ack > /dev/null 2>&1 || alias ack='ack-grep'
+
+if type git > /dev/null 2>&1; then
+    HAVEGIT=yes
+    alias gsm='git status --untracked-files=no --ignore-submodules'
+    alias gds='git diff --stat'
+fi
 
 #
 # ..   - Does a "cd .."
@@ -252,8 +271,8 @@ clean ()
 	    if [ -d "$i" ]; then
 		echo ---- Cleaning $i ----;
 		( builtin cd $i;
-		    echo ,* *~ .*~ \#*\#;
-		    /bin/rm -f ,* *~ .*~ \#*\# );
+		  echo ,* *~ .*~ \#*\#;
+		  /bin/rm -f ,* *~ .*~ \#*\# );
 	    else
 		echo Huh?;
 	    fi;
@@ -267,12 +286,12 @@ p ()
     if [ $# -lt 1 ]; then
 	ps faux | $PAGER
     else
-    local pid=$(pgrep $1)
-    if [[ -n $pid ]]; then
-	ps l -p $pid
-    else
-	echo None found
-    fi
+	local pid=$(pgrep $1)
+	if [[ -n $pid ]]; then
+	    ps l -p $pid
+	else
+	    echo None found
+	fi
     fi
 } 
 
@@ -329,7 +348,8 @@ _xw_sub ()
 }
 
 
-
-# added by duckpan installer
-eval $(perl -I${HOME}/perl5/lib/perl5 -Mlocal::lib)
-
+if [ -d ${HOME}/perl5/lib/perl5/local/lib.pm ]; then
+    # added by duckpan installer
+    eval $(perl -I${HOME}/perl5/lib/perl5 -Mlocal::lib)
+fi					    
+					     
