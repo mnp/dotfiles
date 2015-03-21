@@ -5,138 +5,155 @@
       debug-on-error nil)
 
 (add-to-list 'load-path (expand-file-name "~/Elisp"))
+(add-to-list 'exec-path (expand-file-name "~/bin"))
 
-(if (file-directory-p "/Applications")
-    (add-to-list 'exec-path "/Applications/Firefox.app/Contents/MacOS"))
+;; OSX Hacks
+(if (memq system-type '(darwin))
+    ;;; mac
+    ;; open -a /Applications/Emacs.app "$@"
+    ;; If you are annoyed by the fact that it opens a new frame (window) for each file -- add
+    (setq ns-pop-up-frames nil
+	  browse-url-browser-function 'browse-url-default-macosx-browser)
+  ;;; not mac
+  (setq browse-url-browser-function 'browse-url-generic
+	browse-url-generic-program "firefox"))
 
-(if (condition-case nil 
-	(require 'package)
-      (error nil))
-    (progn
-      
-      (add-to-list 'package-archives
-		   '("melpa" . "http://melpa.org/packages/") t)
-      (package-initialize)
-      (setq package-enable-at-startup nil)
+;; no point in checking if package is available, we use it too much
+(require 'package)
+(add-to-list 'package-archives
+	     '("melpa" . "http://melpa.org/packages/") t)
+(package-initialize)
+(setq package-enable-at-startup nil)
 
-      ;; see describe-personal-keybindings for some of his effects
-      (require 'use-package)
+(require 'use-package)
 
-      (use-package hideshow)
-					;(require 'dot-mode)
-					; (require 'workgroups)
-      (use-package ace-window
-	:bind ("C-x o" . ace-window))
+(use-package hideshow)
+								      ;(require 'dot-mode)
+								      ; (require 'workgroups)
+;;      (use-package ace-window
+;;	:bind ("C-x o" . ace-window))
 
-      (use-package google-c-style)
-      ;; TODO: rtags does references and c++ well. Note find-tag
-      ;; advice below.
+(use-package compile
+  :init (setq compilation-scroll-output 1	
+	      compile-command "make ")
+  :bind ("C-x C-k" . compile))
 
-					;      (use-package aggressive-indent
-					;	:init (progn
-					;		(mapcar '(lambda (z) 
-					;			   (add-to-list 'aggressive-indent-excluded-modes z)) 
-					;			'(Eshell Debugger html-mode))
-					;		(global-aggressive-indent-mode 1)))
+(use-package google-c-style)
+;; TODO: rtags does references and c++ well. Note find-tag
+;; advice below.
 
-      ;; helm does this
-					;      (use-package bs
-					;       	:bind ("C-x C-b" . bs-show))
+								      ;      (use-package aggressive-indent
+								      ;	:init (progn
+								      ;		(mapcar '(lambda (z) 
+								      ;			   (add-to-list 'aggressive-indent-excluded-modes z)) 
+								      ;			'(Eshell Debugger html-mode))
+								      ;		(global-aggressive-indent-mode 1)))
 
-      (use-package git-gutter
-	:init (global-git-gutter-mode +1))
+;; helm does this
+								      ;      (use-package bs
+								      ;       	:bind ("C-x C-b" . bs-show))
 
-					;      (use-package helm-config
-					;	:init (progn
-					;		(helm-mode 1)
-					;		(define-key global-map [remap find-file] 'helm-find-files)
-					;		(define-key global-map [remap occur] 'helm-occur)
-					;		(define-key global-map [remap list-buffers] 'helm-buffers-list)
-					;		(define-key global-map [remap dabbrev-expand] 'helm-dabbrev))
-					;	:bind (("M-x" . helm-M-x)))
+(use-package git-gutter
+  :init (global-git-gutter-mode +1))
 
-
-					;(unless (boundp 'completion-in-region-function)
-					;  (define-key lisp-interaction-mode-map [remap completion-at-point] 'helm-lisp-completion-at-point)
-					;  (define-key emacs-lisp-mode-map       [remap completion-at-point] 'helm-lisp-completion-at-point))
+								      ;      (use-package helm-config
+								      ;	:init (progn
+								      ;		(helm-mode 1)
+								      ;		(define-key global-map [remap find-file] 'helm-find-files)
+								      ;		(define-key global-map [remap occur] 'helm-occur)
+								      ;		(define-key global-map [remap list-buffers] 'helm-buffers-list)
+								      ;		(define-key global-map [remap dabbrev-expand] 'helm-dabbrev))
+								      ;	:bind (("M-x" . helm-M-x)))
 
 
-      (use-package duplicate-line
-	:bind (("M-p" . duplicate-previous-line)
-	       ("M-n" . duplicate-following-line)))
+								      ;(unless (boundp 'completion-in-region-function)
+								      ;  (define-key lisp-interaction-mode-map [remap completion-at-point] 'helm-lisp-completion-at-point)
+								      ;  (define-key emacs-lisp-mode-map       [remap completion-at-point] 'helm-lisp-completion-at-point))
 
-      (use-package wikipedia-mode
-	:mode "\\.wiki\\'")
 
-      (use-package markdown-mode
-	:mode "\\.md\\'")
+(use-package duplicate-line
+  :bind (("M-p" . duplicate-previous-line)
+	 ("M-n" . duplicate-following-line)))
 
-      (use-package ack
-	;; note: local mod in elpa/ack-1.3/ack.el, should get pushed up?
-	;;	:init (setq ack-command (executable-find "ack-grep"))
-	:init (progn
-		(defun my-ack-default-directory (arg)
-		  "wrap ack-default-directory-function and reverse his behavior: if ARG is
+(use-package wikipedia-mode
+  :mode "\\.wiki\\'")
+
+(use-package markdown-mode
+  :mode "\\.md\\'")
+
+(use-package ack
+  ;; note: local mod in elpa/ack-1.3/ack.el, should get pushed up?
+  ;;	:init (setq ack-command (executable-find "ack-grep"))
+  :init (progn
+	  (defun my-ack-default-directory (arg)
+	    "wrap ack-default-directory-function and reverse his behavior: if ARG is
   given, call him with none, while if no ARG is given, call him with
   4.  I want to find from project root by default."
-		  (ack-default-directory
-		   (if arg nil 4)))
-		(setq ack-default-directory-function 'my-ack-default-directory))
-	:bind ("C-c k" . ack)
-	)
+	    (ack-default-directory
+	     (if arg nil 4)))
+	  (setq ack-default-directory-function 'my-ack-default-directory))
+  :bind ("C-c k" . ack)
+  )
 
-      (use-package extended-insert
-	:bind ("C-x i" . extended-insert))
+(use-package extended-insert
+  :bind ("C-x i" . extended-insert))
 
-      (use-package org-mode
-	:bind ("C-c c" . org-capture)
-	:init (progn 
-		(setq 
-		 org-directory (expand-file-name "~/.deft")
-		 org-default-notes-file (concat org-directory "/notes.org"))))
+(use-package org-mode
+  :bind ("C-c c" . org-capture)
+  :init (progn 
+	  (setq 
+	   org-todo-keywords '((sequence "TODO" "WAIT" "DONE"))
+	   org-hide-leading-stars t
+	   org-export-with-sub-superscripts nil
+	   org-directory (expand-file-name "~/.deft")
+	   org-default-notes-file (concat org-directory "/notes.org"))))
 
-      (use-package deft
-	:bind (([f9] . deft))
-	:init (setq deft-extension "org"
-		    deft-text-mode 'org-mode))
+(use-package deft
+  :bind (([f9] . my-deft))
+  :init (setq deft-extension "org"
+	      deft-text-mode 'org-mode))
 
-      (use-package frame-cmds
-	:init
-	(bind-key [f11] 'toggle-max-frame))
-      
-      (use-package powerline
-	:init (progn 
-		(powerline-default-theme)
+(use-package frame-cmds
+  :init
+  (bind-key [f11] 'toggle-max-frame))
 
-		;; Separate behavior for inactive
-		;; buffers. smart-mode-line does this out of the box,
-		;; switch if we get bored.
-		(set-face-attribute  'mode-line-inactive
-				     nil 
-				     :foreground "gray30"
-				     :background "black" 
-				     :box '(:line-width 1 :style released-button))))
+(use-package powerline
+  :init (progn 
+	  (powerline-default-theme)
 
-      (use-package yasnippet
-	:load-path "~/.emacs.d/snippets"
-	:init (yas-global-mode 1))
+	  ;; Separate behavior for inactive
+	  ;; buffers. smart-mode-line does this out of the box,
+	  ;; switch if we get bored.
+	  (set-face-attribute  'mode-line-inactive
+			       nil 
+			       :foreground "gray30"
+			       :background "black" 
+			       :box '(:line-width 1 :style released-button))))
 
-      (use-package browsekill
-	:bind ("C-x 4 y" . browse-kill-ring))
+(use-package yasnippet
+  :load-path "~/.emacs.d/snippets"
+  :init (yas-global-mode 1))
 
-      (use-package flycheck)
+(use-package browsekill
+  :bind ("C-x 4 y" . browse-kill-ring))
 
-      (use-package xcscope     ;; see ~/.emacs.d/elpa/xcscope-readme.txt
-	:init (cscope-setup))
+(use-package show-paren
+  :init (setq 
+	 show-paren-style 'expression
+	 show-paren-delay 0))
 
-      (use-package find-companion-thing
-	:bind ("C-x C-h" . fct/find-file))
-      ))
+(use-package flycheck)
+
+(use-package xcscope     ;; see ~/.emacs.d/elpa/xcscope-readme.txt
+  :init (cscope-setup))
+
+(use-package find-companion-thing
+  :bind ("C-x C-h" . fct/find-file))
+
 
 (if window-system 
     (progn
-      
-					;      (set-default-font "Mono-10")
+      ;;      (set-default-font "Mono-10")
       ;;      (set-face-attribute 'default nil :font "terminus-12")
 
       (load-theme 'tangotango t)
@@ -177,24 +194,36 @@
 
 (global-set-key (kbd "C-c e") 'my-erc-start-or-switch)
 
-;; org mode
-					;(autoload 'org-mode "org")
 
-;; The following lines are always needed.  Choose your own keys.
-					;(add-to-list 'auto-mode-alist '("\\.org$" . org-mode))
-					;(define-key global-map "\C-cl" 'org-store-link)
-					;(define-key global-map "\C-ca" 'org-agenda)
-
-(setq org-todo-keywords 
-      '((sequence "TODO" "WAIT" "DONE")))
 
 (load-library "my-org-mods")
-(setq org-hide-leading-stars t)
-(setq org-export-with-sub-superscripts nil)
-(add-hook 'org-mode-hook 'turn-on-font-lock)  ; org-mode buffers only
+;;(add-hook 'org-mode-hook 'turn-on-font-lock)  ; org-mode buffers only
 
-(setq browse-url-browser-function 'browse-url-generic
-      browse-url-generic-program "firefox")
+(setq org-capture-templates
+      '(
+	("j" "Journal entry with date" plain
+         (file+datetree+prompt "~/org/journal.org")
+         "* "
+         :unnarrowed t)
+
+	("t" "Quick task" entry
+         (file+headline "~/org/todo.org" "Tasks")
+         "* TODO %^{Task}"
+         :immediate-finish t)
+
+	("T" "Full task" entry
+         (file+headline "~/org/todo.org" "Tasks")
+         "* TODO "
+         :unnarrowed t)
+
+	("n" "Quick note" item
+	 (file+headline "~/org/notes.org" "Quick notes"))))
+
+
+(defun my-deft ()
+  (interactive "")
+  (deft)
+  (deft-refresh))
 
 (defun my-find-file-hook ()
   ;; not good idea along with sshct, which see
@@ -387,14 +416,11 @@ it.  This will look in parent dirs up to root for it as well."
 ;; ------------------------------------------------------
 
 (setq my-initials "MNP"
-      compilation-scroll-output 1
-      show-paren-style 'expression
-      show-paren-delay 0
+      visible-bell t
       comment-column 70
       fill-column 79
       eval-expression-print-length 99
       regex-tool-backend 'perl
-      compile-command "make "
       c-style-variables-are-local-p nil
 
       ;; i hate splitting vertically in most cases
@@ -446,7 +472,6 @@ it.  This will look in parent dirs up to root for it as well."
 (global-set-key [?\C-_] 	'help-command)
 (global-set-key "\C-h"	 	'backward-delete-char)
 
-(global-set-key "\C-x\C-k" 	'compile)
 (global-set-key (kbd "M-SPC")	'my-just-one-white)
 (global-set-key "\C-cr" 	'align-regexp)
 
@@ -505,12 +530,7 @@ it.  This will look in parent dirs up to root for it as well."
  ;; If there is more than one, they won't work right.
  '(custom-safe-themes
    (quote
-    ("5d9351cd410bff7119978f8e69e4315fd1339aa7b3af6d398c5ca6fac7fd53c7" default)))
- '(org-capture-templates
-   (quote
-    (("j" "journal" entry
-      (file "~/org/journal.org")
-      "%T\\n%i")))))
+    ("5d9351cd410bff7119978f8e69e4315fd1339aa7b3af6d398c5ca6fac7fd53c7" default))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.

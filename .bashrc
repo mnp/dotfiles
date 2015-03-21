@@ -9,8 +9,6 @@ case x"$MYPROFILE" in
     xwht-on-gray) echo white in force;;
 esac
 
-test -x /usr/libexec/java_home && export JAVA_HOME=$(/usr/libexec/java_home)
-
 test -d /opt/csw/bin && PATH=/opt/csw/bin:$PATH
 PATH=$HOME/bin:$HOME/hosts:/usr/local/bin:$PATH
 
@@ -71,8 +69,10 @@ fi
 
 if type git > /dev/null 2>&1; then
     HAVEGIT=yes
-    alias gsm='git status --untracked-files=no --ignore-submodules'
-    alias gds='git diff --stat HEAD~1'
+    alias gsm=' git status --untracked-files=no --ignore-submodules'
+    alias gds=' git diff --stat'
+    alias gdp=' git diff        HEAD~1 --'
+    alias gdps='git diff --stat HEAD~1 --'
     source ~/.git-prompt.sh
 fi
 
@@ -160,9 +160,16 @@ note ()
     echo ===============================================================
 }
 
-# my do it all superdeal
+# my do it all superdeal - consider customized mailcap type alternative
 m()
 {
+    if [ -d "$1" ]; then
+	echo "-- $1 is a directory --"
+	ls $LS_OPTIONS -l "$1"
+	return
+    fi
+
+    # text cases
     case "$1" in
 	*.tar.gz|*.tgz) 
 	    if [ $TGZ_ZCAT == gz ]; then
@@ -170,21 +177,38 @@ m()
 	    else
 		tar ztvf "$1" | $PAGER
 	    fi
+	    return
 	    ;;
-	*.zip|*.ZIP) unzip -l "$1" | $PAGER ;;
-	*.wav|*.mp3) mplayer "$1";;
-	*.wmv|*.mpg|*.WMV|*.rm|*.MPG|*.avi|*.AVI|*.mp4|*.3gp) mplayer "$1";;
-	*.pnm|*.pbm|*.jpg|*.jpeg|*.JPG|*.gif|*.GIF|*.tif|*.tiff) eog "$1";;
-	*.jar) jar tvf "$1" | $PAGER ;;
-	*.gz)  zcat "$1" | $PAGER ;;
-	*.bz2) bzcat "$1" | $PAGER ;;
-	*.doc|*.DOC|*.docx) libreoffice "$1";;
-	*.odp|*.ppt|*.PPT)  libreoffice "$1";;
-	*.ods|*.xls|*.XLS|.xlsx|*.odt) libreoffice "$1";;
-	*.djvu|*.ps|*.pdf|*.PDF) evince "$1" > /dev/null 2>&1 & ;;
-	*.png|*.PNG|*.bmp|*.BMP|*.jpg|*.JPG|*.gif|*.GIF) eog "$1";;
-	*) less "$1";;
+	*.jar) jar tvf "$1" | $PAGER ; return;;
+	*.gz)  zcat "$1" | $PAGER ; return;;
+	*.bz2) bzcat "$1" | $PAGER ; return;;
+	*.zip|*.ZIP) unzip -l "$1" | $PAGER ; return;;
     esac
+
+    if [ -d /Applications ]; then
+	case "$1" in
+	    *.wmv|*.mpg|*.WMV|*.rm|*.MPG|*.avi|*.AVI|*.mp4|*.3gp|*.wav|*.mp3|\
+	    *.pnm|*.pbm|*.jpg|*.jpeg|*.JPG|*.gif|*.GIF|*.tif|*.tiff|\
+	    *.doc|*.DOC|*.docx|\
+	    *.odp|*.ppt|*.pptx|*.PPT|\
+	    *.ods|*.xls|*.XLS|.xlsx|*.odt|\
+	    *.djvu|*.ps|*.pdf|*.PDF|\
+	    *.png|*.PNG|*.bmp|*.BMP|*.jpg|*.JPG|*.gif|*.GIF) open $1;;
+	    *) less "$1";;
+	esac
+    else
+	case "$1" in
+	    *.wmv|*.mpg|*.WMV|*.rm|*.MPG|*.avi|*.AVI|*.mp4|*.3gp) mplayer "$1";;
+	    *.wav|*.mp3) mplayer "$1";;
+	    *.pnm|*.pbm|*.jpg|*.jpeg|*.JPG|*.gif|*.GIF|*.tif|*.tiff) eog "$1";;
+	    *.doc|*.DOC|*.docx) libreoffice "$1";;
+	    *.odp|*.ppt|*.PPT)  libreoffice "$1";;
+	    *.ods|*.xls|*.XLS|.xlsx|*.odt) libreoffice "$1";;
+	    *.djvu|*.ps|*.pdf|*.PDF) evince "$1" > /dev/null 2>&1 & ;;
+	    *.png|*.PNG|*.bmp|*.BMP|*.jpg|*.JPG|*.gif|*.GIF) eog "$1";;
+	    *) less "$1";;
+	esac
+    fi
 }
 
 # more the last "ls -rt"
@@ -237,13 +261,8 @@ alias f11="awk '{print \$11}'"
 alias f12="awk '{print \$12}'"
 alias f13="awk '{print \$13}'"
 
-type ack > /dev/null 2>&1 || alias ack='ack-grep'
-
-if type git > /dev/null 2>&1; then
-    HAVEGIT=yes
-    alias gsm='git status --untracked-files=no --ignore-submodules'
-    alias gds='git diff --stat'
-fi
+type ack    > /dev/null 2>&1 || alias ack='ack-grep'
+type gradle > /dev/null 2>&1 || alias gd='gradle'
 
 #
 # ..   - Does a "cd .."
@@ -348,8 +367,28 @@ _xw_sub ()
 }
 
 
+#
+# select java versions; provide java7 and java8 aliases to switch on
+# the fly
+#
+if [ -x /usr/libexec/java_home ]; then
+    export JAVA_8_HOME=$(/usr/libexec/java_home -v1.8)
+    export JAVA_7_HOME=$(/usr/libexec/java_home -v1.7)
+
+    alias java7='export JAVA_HOME=$JAVA_7_HOME'
+    alias java8='export JAVA_HOME=$JAVA_8_HOME'
+
+    #default java8
+    export JAVA_HOME=$JAVA_8_HOME
+    export JAVA_HOME=$(/usr/libexec/java_home)
+fi
+
+
 if [ -d ${HOME}/perl5/lib/perl5/local/lib.pm ]; then
     # added by duckpan installer
     eval $(perl -I${HOME}/perl5/lib/perl5 -Mlocal::lib)
 fi					    
 					     
+
+PERL_MB_OPT="--install_base \"/Users/Mitchell/perl5\""; export PERL_MB_OPT;
+PERL_MM_OPT="INSTALL_BASE=/Users/Mitchell/perl5"; export PERL_MM_OPT;
