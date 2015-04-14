@@ -42,7 +42,7 @@
                   'Active' - where the active window is -->
   </placement>
   <theme>
-    <name>Artwiz-boxed</name>
+    <name>Clearlooks</name>
     <titleLayout>NLIMC</titleLayout>
     <!--
       available characters are NDSLIMC, each can occur at most once.
@@ -333,6 +333,19 @@
         <command>gmrun</command>
       </action>
     </keybind>
+
+    <!-- mnp volume functions -->
+    <keybind key="XF86AudioRaiseVolume">
+      <action name="Execute">
+	<command>amixer set Master 8+</command>
+      </action>
+    </keybind>
+    <keybind key="XF86AudioLowerVolume">
+      <action name="Execute">
+	<command>amixer set Master 8-</command>
+      </action>
+    </keybind>
+
     <!-- Launch gnome-screenshot when Print is pressed -->
     <keybind key="Print">
       <action name="Execute">
