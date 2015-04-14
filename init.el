@@ -6,6 +6,7 @@
 
 (add-to-list 'load-path (expand-file-name "~/Elisp"))
 (add-to-list 'exec-path (expand-file-name "~/bin"))
+(add-to-list 'exec-path "/usr/local/bin")
 
 ;; OSX Hacks
 (if (memq system-type '(darwin))
@@ -81,19 +82,23 @@
 (use-package markdown-mode
   :mode "\\.md\\'")
 
+(use-package jtags-mode
+  :init (add-hook 'java-mode-hook 'jtags-mode))
+
 (use-package ack
   ;; note: local mod in elpa/ack-1.3/ack.el, should get pushed up?
   ;;	:init (setq ack-command (executable-find "ack-grep"))
-  :init (progn
-	  (defun my-ack-default-directory (arg)
-	    "wrap ack-default-directory-function and reverse his behavior: if ARG is
-  given, call him with none, while if no ARG is given, call him with
-  4.  I want to find from project root by default."
-	    (ack-default-directory
-	     (if arg nil 4)))
-	  (setq ack-default-directory-function 'my-ack-default-directory))
+;  :init (progn
+;	  (setq ack-default-directory-function 'my-ack-default-directory))
   :bind ("C-c k" . ack)
   )
+
+(defun my-ack-default-directory (arg)
+  "wrap ack-default-directory-function and reverse his behavior: if ARG is
+  given, call him with none, while if no ARG is given, call him with
+  4.  I want to find from project root by default."
+  (ack-default-directory
+   (if arg nil 4)))
 
 (use-package extended-insert
   :bind ("C-x i" . extended-insert))
@@ -194,10 +199,9 @@
 
 (global-set-key (kbd "C-c e") 'my-erc-start-or-switch)
 
-
-
 (load-library "my-org-mods")
-;;(add-hook 'org-mode-hook 'turn-on-font-lock)  ; org-mode buffers only
+(add-hook 'org-mode-hook 'my-org-mode-hook)
+
 
 (setq org-capture-templates
       '(
@@ -303,19 +307,15 @@ narrowed."
   (setq gdb-many-windows nil
 	gdb-show-main t))
 
+(mapcar (lambda (h) (add-hook h 'my-generic-mode-hook))
+	'(emacs-lisp-mode-hook html-mode-hook php-mode-user-hook
+    	  sh-mode-hook sql-mode-hook c-mode-hook c++-mode-hook
+	  java-mode-hook makefile-mode-hook))
+
 (add-hook 'perl-mode-hook 	'my-perl-mode-hook)
 (add-hook 'xml-mode-hook        'my-xml-mode-hook)
-(add-hook 'emacs-lisp-mode-hook 'my-generic-mode-hook)
-(add-hook 'html-mode-hook 	'my-generic-mode-hook)
-(add-hook 'php-mode-user-hook   'my-generic-mode-hook)
-(add-hook 'sh-mode-hook 	'my-generic-mode-hook)
-(add-hook 'sql-mode-hook	'my-generic-mode-hook)
-(add-hook 'c-mode-hook		'my-generic-mode-hook)
 (add-hook 'c-mode-hook		'my-c-mode-common-hook)
-(add-hook 'c++-mode-hook	'my-generic-mode-hook)
 (add-hook 'c++-mode-hook	'my-c-mode-common-hook)
-(add-hook 'java-mode-hook	'my-generic-mode-hook)
-(add-hook 'makefile-mode-hook	'my-generic-mode-hook)
 (add-hook 'gdb-mode-hook	'my-gdb-hook)
 
 ;; ------------------------------------------------------
@@ -416,7 +416,9 @@ it.  This will look in parent dirs up to root for it as well."
 ;; ------------------------------------------------------
 
 (setq my-initials "MNP"
-      visible-bell t
+      visible-bell nil
+      ring-bell-function 'ignore
+
       comment-column 70
       fill-column 79
       eval-expression-print-length 99

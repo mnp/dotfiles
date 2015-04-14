@@ -54,6 +54,8 @@ LTCYN="\[\033[0;36m\]"
 CLEAR="\[\033[0m\]"
 CRTRS="\[\033[01;35m\]"
 BLUE="\[\033[01;34m\]"
+WHITE="\[\033[01;37m\]"
+MAGEN="\[\033[01;35m\]"
 
 # PS1="$TITLEBAR\
 # $LTGRN\u$CLEAR\
@@ -73,26 +75,28 @@ if type git > /dev/null 2>&1; then
     alias gds=' git diff --stat'
     alias gdp=' git diff        HEAD~1 --'
     alias gdps='git diff --stat HEAD~1 --'
+    alias gg='git grep'
     source ~/.git-prompt.sh
 fi
 
 # no prompt command for console
 case $TERM in
     rxvt|xterm*) 
-	# 	PROMPT_COMMAND='echo -ne "${PS1COLOR}${USER}@${HOSTNAME}: ${PWD}\007"'
- 	PS1="${PS1COLOR}\u@\h${CLEAR}:${BLUE}\w${YELLOW}\$(__git_ps1)${CLEAR}\$ "
+ 	PS1BASE="${PS1COLOR}\u@\h${CLEAR}:${WHITE}\w${YELLOW}\$(__git_ps1)${CLEAR}\$ "
  	;;
 
     screen|vt100)
 	PROMPT_COMMAND='echo -ne "\033]0;${USER}@${HOSTNAME}:${PWD}\007\033k$PWD\033\\"'
-	PS1='$ ';
+	PS1BASE='$ ';
 	;;
 
     *)
 	PROMPT_COMMAND=''
-	PS1='\u@\h:\w\$ '
+	PS1BASE='\u@\h:\w\$ '
 	;;
 esac
+
+PS1="$PS1BASE"
 
 #
 # historystuff
@@ -371,16 +375,27 @@ _xw_sub ()
 # select java versions; provide java7 and java8 aliases to switch on
 # the fly
 #
+
 if [ -x /usr/libexec/java_home ]; then
     export JAVA_8_HOME=$(/usr/libexec/java_home -v1.8)
     export JAVA_7_HOME=$(/usr/libexec/java_home -v1.7)
 
-    alias java7='export JAVA_HOME=$JAVA_7_HOME'
-    alias java8='export JAVA_HOME=$JAVA_8_HOME'
+    java7() 
+    {
+	export JAVA_HOME=$JAVA_7_HOME
+	PS1=${MAGEN}7${CLEAR}:$PS1BASE
+    }
 
-    #default java8
-    export JAVA_HOME=$JAVA_8_HOME
-    export JAVA_HOME=$(/usr/libexec/java_home)
+    java8()
+    {
+	export JAVA_HOME=$JAVA_8_HOME
+	PS1=${MAGEN}8${CLEAR}:$PS1BASE
+    }
+
+    # default
+    java7
+
+    alias gd=gradle
 fi
 
 
