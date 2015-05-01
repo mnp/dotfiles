@@ -9,9 +9,14 @@ case x"$MYPROFILE" in
     xwht-on-gray) echo white in force;;
 esac
 
-test -d /opt/csw/bin && PATH=/opt/csw/bin:$PATH
-PATH=$HOME/bin:$HOME/hosts:/usr/local/bin:$PATH
+MANPATH=''
+for d in /usr/man /usr/share/man /usr/local/man $HOME/perl5/man; do 
+    test -d $d && MANPATH=$MANPATH:$d
+done
+export MANPATH
 
+
+PATH=$HOME/bin:$HOME/hosts:/usr/local/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin
 test -d $HOME/perl5/bin && PATH=$HOME/perl5/bin:$PATH
 export PATH
 
@@ -19,9 +24,6 @@ for dir in $HOME/perl /usr/local/share/perl/* /usr/local/lib/perl/* /usr/local/l
     PERL5LIB=$dir:$PERL5LIB    
 done
 export PERL5LIB
-
-test -d $HOME/perl5/man && export MANPATH=$HOME/perl/man:$MANPATH
-test -d /usr/local/man && export MANPATH=$MANPATH:/usr/local/man
 
 # For MediaWiki client
 export MVS_BROWSER=firefox
@@ -146,9 +148,9 @@ else
 fi
 
 if type gzcat > /dev/null 2>&1; then
-    TGZ_ZCAT=gz
+    ZCAT=gzcat
 elif type zcat > /dev/null 2>&1; then
-    TGZ_ZCAT=no
+    ZCAT=no
 else
     echo note: no zcat found
 fi
@@ -176,7 +178,7 @@ m()
     # text cases
     case "$1" in
 	*.tar.gz|*.tgz) 
-	    if [ $TGZ_ZCAT == gz ]; then
+	    if [ $ZCAT != no ]; then
 		gzcat "$1" | tar tvf - | $PAGER 
 	    else
 		tar ztvf "$1" | $PAGER
@@ -184,7 +186,7 @@ m()
 	    return
 	    ;;
 	*.jar) jar tvf "$1" | $PAGER ; return;;
-	*.gz)  zcat "$1" | $PAGER ; return;;
+	*.gz)  $ZCAT "$1" | $PAGER ; return;;
 	*.bz2) bzcat "$1" | $PAGER ; return;;
 	*.zip|*.ZIP) unzip -l "$1" | $PAGER ; return;;
     esac
@@ -239,8 +241,6 @@ alias agi='sudo apt-get install'
 alias bye='exit'
 alias y='echo Oops\!'
 alias pf='perldoc -f'
-alias cf='gzip'
-alias uc='gunzip'
 alias r='fc -s'
 alias ig='grep -i'
 
@@ -380,15 +380,29 @@ if [ -x /usr/libexec/java_home ]; then
     export JAVA_8_HOME=$(/usr/libexec/java_home -v1.8)
     export JAVA_7_HOME=$(/usr/libexec/java_home -v1.7)
 
+    rejava()
+    {
+	export JAVA_HOME="$1"
+	echo JAVA_HOME is now "$1"
+
+	# normalize paths and then append
+ 	[[ $PATH    =~ (.*):$JAVA_7_HOME/bin:(.*) ]] &&    PATH=${BASH_REMATCH[1]}:${BASH_REMATCH[2]}
+ 	[[ $MANPATH =~ (.*):$JAVA_7_HOME/man:(.*) ]] && MANPATH=${BASH_REMATCH[1]}:${BASH_REMATCH[2]}
+ 	[[ $PATH    =~ (.*):$JAVA_8_HOME/bin:(.*) ]] &&    PATH=${BASH_REMATCH[1]}:${BASH_REMATCH[2]}
+ 	[[ $MANPATH =~ (.*):$JAVA_8_HOME/man:(.*) ]] && MANPATH=${BASH_REMATCH[1]}:${BASH_REMATCH[2]}
+	export PATH=$PATH:$JAVA_HOME/bin
+	export MANPATH=$MANPATH:$JAVA_HOME/man
+    }
+
     java7() 
     {
-	export JAVA_HOME=$JAVA_7_HOME
+	rejava $JAVA_7_HOME
 	PS1=${MAGEN}7${CLEAR}:$PS1BASE
     }
 
     java8()
     {
-	export JAVA_HOME=$JAVA_8_HOME
+	rejava $JAVA_8_HOME
 	PS1=${MAGEN}8${CLEAR}:$PS1BASE
     }
 
