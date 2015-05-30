@@ -189,6 +189,8 @@ m()
 	*.gz)  $ZCAT "$1" | $PAGER ; return;;
 	*.bz2) bzcat "$1" | $PAGER ; return;;
 	*.zip|*.ZIP) unzip -l "$1" | $PAGER ; return;;
+	*.pod) perldoc "$1" | $PAGER ; return;;
+	*.[123456789n]) nroff -man "$1" | $PAGER; return;;
     esac
 
     if [ -d /Applications ]; then
@@ -311,7 +313,7 @@ p ()
     else
 	local pid=$(pgrep $1)
 	if [[ -n $pid ]]; then
-	    ps l -p $pid
+	    ps lww -p $pid
 	else
 	    echo None found
 	fi

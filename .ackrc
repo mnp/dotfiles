@@ -4,3 +4,8 @@
 --ignore-file=is:TAGS
 --ignore-file=is:.gitignore
 --ignore-file=is:log
+--ignore-directory=is:javadoc
+--type-set=doc:ext:txt,html,pdf
+--type=nodoc
+--type-set=data:ext:cql,json,properties,yaml,yml,xml
+--type=nodata

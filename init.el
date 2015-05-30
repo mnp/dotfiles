@@ -1,3 +1,5 @@
+;; -*- Lisp-Interaction -*-
+
 ;; Minimal emacs preferences
 
 (setq inhibit-startup-message t
@@ -19,6 +21,14 @@
   (setq browse-url-browser-function 'browse-url-generic
 	browse-url-generic-program "firefox"))
 
+;; host specific
+(let ((host-specific-filename 
+       (concat (expand-file-name "~/Elisp/") (system-name) ".el")))
+  (when (file-exists-p host-specific-filename)
+      (load-file host-specific-filename)))
+
+(load-file (expand-file-name "~/Elisp/calc.el")) 
+
 ;; no point in checking if package is available, we use it too much
 (require 'package)
 (add-to-list 'package-archives
@@ -26,10 +36,11 @@
 (package-initialize)
 (setq package-enable-at-startup nil)
 
-(require 'use-package)
+(eval-when-compile
+  (require 'use-package))
+(require 'bind-key)                ;; needed by use-package :bind
 
 (use-package hideshow)
-								      ;(require 'dot-mode)
 								      ; (require 'workgroups)
 ;;      (use-package ace-window
 ;;	:bind ("C-x o" . ace-window))
@@ -50,40 +61,66 @@
 								      ;			'(Eshell Debugger html-mode))
 								      ;		(global-aggressive-indent-mode 1)))
 
-;; helm does this
-								      ;      (use-package bs
-								      ;       	:bind ("C-x C-b" . bs-show))
+;; helm does this 
+; (use-package bs 
+;   :bind ("C-x C-b" . bs-show))
 
 (use-package git-gutter
   :init (global-git-gutter-mode +1))
 
-								      ;      (use-package helm-config
-								      ;	:init (progn
-								      ;		(helm-mode 1)
-								      ;		(define-key global-map [remap find-file] 'helm-find-files)
-								      ;		(define-key global-map [remap occur] 'helm-occur)
-								      ;		(define-key global-map [remap list-buffers] 'helm-buffers-list)
-								      ;		(define-key global-map [remap dabbrev-expand] 'helm-dabbrev))
-								      ;	:bind (("M-x" . helm-M-x)))
+(use-package helm-git-grep
+  :bind ("C-c g" .  helm-git-grep)
+  	;; helm-git-grep-with-exclude-file-pattern
+  	;; (defun helm-git-grep-get-top-dir nil "/users/Mitchell/src/tw-server/PLATFORM")
+  :init (progn
+	  ;; Invoke `helm-git-grep' from isearch.
+	  (define-key isearch-mode-map (kbd "C-c g") 'helm-git-grep-from-isearch)
+
+	  ;; Invoke `helm-git-grep' from other helm.
+	  (eval-after-load 'helm
+	    '(define-key helm-map (kbd "C-c g") 'helm-git-grep-from-helm))))
 
 
-								      ;(unless (boundp 'completion-in-region-function)
-								      ;  (define-key lisp-interaction-mode-map [remap completion-at-point] 'helm-lisp-completion-at-point)
-								      ;  (define-key emacs-lisp-mode-map       [remap completion-at-point] 'helm-lisp-completion-at-point))
+(use-package helm-config
+  :init (progn
+	  (helm-mode 1)
+	  (define-key global-map [remap find-file] 'helm-find-files)
+	  (define-key global-map [remap occur] 'helm-occur)
+	  (define-key global-map [remap list-buffers] 'helm-buffers-list)
+	  (define-key global-map [remap dabbrev-expand] 'helm-dabbrev))
+  :bind (("M-x" . helm-M-x)))
+					;(unless (boundp 'completion-in-region-function)
+					;  (define-key lisp-interaction-mode-map [remap completion-at-point] 'helm-lisp-completion-at-point)
+					;  (define-key emacs-lisp-mode-map       [remap completion-at-point] 'helm-lisp-completion-at-point))
 
 
 (use-package duplicate-line
   :bind (("M-p" . duplicate-previous-line)
 	 ("M-n" . duplicate-following-line)))
 
-(use-package wikipedia-mode
-  :mode "\\.wiki\\'")
+;; This binds c-. and c-c .
+;; we've stolen c-. (from org-time-stamp, so we need to rebind that)
+(use-package dot-mode
+  :init (add-hook 'find-file-hooks (lambda () (dot-mode 1)))
+  :bind ("C-." . dot-mode))
 
 (use-package markdown-mode
   :mode "\\.md\\'")
 
 (use-package jtags-mode
   :init (add-hook 'java-mode-hook 'jtags-mode))
+
+(use-package eclim
+  :init (progn
+	  (setq 
+	   ;; another pkg will start it for us if needed
+	   ;; eclimd-executable "~/eclipse/eclimd"
+	   eclim-eclipse-dirs '("~/eclipse")
+	   eclim-executable  (expand-file-name "~/eclipse/eclim"))
+	  (global-eclim-mode))
+  :bind ("C-c C-e c" . eclim-java-call-hierarchy))
+
+(use-package gradle-mode)
 
 (use-package ack
   ;; note: local mod in elpa/ack-1.3/ack.el, should get pushed up?
@@ -105,6 +142,7 @@
 
 (use-package org-mode
   :bind ("C-c c" . org-capture)
+  :bind ("C-c t" . org-time-stamp)
   :init (progn 
 	  (setq 
 	   org-todo-keywords '((sequence "TODO" "WAIT" "DONE"))
@@ -155,6 +193,15 @@
 (use-package find-companion-thing
   :bind ("C-x C-h" . fct/find-file))
 
+;;
+;; save cursor positions and loaded files. consider projectile et al?
+;; Or https://github.com/pashinin/workgroups2
+;;
+(use-package saveplace
+  :init (progn
+	  (setq save-place-file (concat user-emacs-directory "saveplace.el"))
+	  (setq-default save-place t)
+	  (desktop-save-mode 1)))	; emacs --no-desktop ... to avoid this
 
 (if window-system 
     (progn
@@ -444,6 +491,7 @@ it.  This will look in parent dirs up to root for it as well."
 (auto-compression-mode 1)
 (global-font-lock-mode 1)
 (menu-bar-mode -1)
+(scroll-bar-mode -1)
 (tool-bar-mode -1)
 (normal-erase-is-backspace-mode 0)
 (show-paren-mode t)
@@ -532,10 +580,12 @@ it.  This will look in parent dirs up to root for it as well."
  ;; If there is more than one, they won't work right.
  '(custom-safe-themes
    (quote
-    ("5d9351cd410bff7119978f8e69e4315fd1339aa7b3af6d398c5ca6fac7fd53c7" default))))
+    ("49e5a7955b853f70d1fe751b2f896921398b273aa62f47bda961a45f80219581" "8db4b03b9ae654d4a57804286eb3e332725c84d7cdab38463cb6b97d5762ad26" "5d9351cd410bff7119978f8e69e4315fd1339aa7b3af6d398c5ca6fac7fd53c7" default)))
+ '(global-eclim-mode t))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- )
+ '(cperl-array-face ((t (:background unspecified :foreground "yellow" :weight bold))))
+ '(cperl-hash-face ((t (:background unspecified :foreground "green" :slant italic :weight bold)))))
