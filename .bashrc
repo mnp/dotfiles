@@ -205,7 +205,7 @@ m()
     else
 	case "$1" in
 	    *.wmv|*.mpg|*.WMV|*.rm|*.MPG|*.avi|*.AVI|*.mp4|*.3gp) mplayer "$1";;
-	    *.wav|*.mp3) mplayer "$1";;
+	    *.wav|*.mp3) vlc "$1";;
 	    *.pnm|*.pbm|*.jpg|*.jpeg|*.JPG|*.gif|*.GIF|*.tif|*.tiff) eog "$1";;
 	    *.doc|*.DOC|*.docx) libreoffice "$1";;
 	    *.odp|*.ppt|*.PPT)  libreoffice "$1";;
