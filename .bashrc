@@ -409,7 +409,7 @@ if [ -x /usr/libexec/java_home ]; then
     }
 
     # default
-    java7
+    java8
 
     alias gd=gradle
 fi

@@ -80,6 +80,7 @@
 	  (eval-after-load 'helm
 	    '(define-key helm-map (kbd "C-c g") 'helm-git-grep-from-helm))))
 
+(use-package helm-match-plugin)
 
 (use-package helm-config
   :init (progn
@@ -98,7 +99,7 @@
   :bind (("M-p" . duplicate-previous-line)
 	 ("M-n" . duplicate-following-line)))
 
-;; This binds c-. and c-c .
+;; This binds c-.
 ;; we've stolen c-. (from org-time-stamp, so we need to rebind that)
 (use-package dot-mode
   :init (add-hook 'find-file-hooks (lambda () (dot-mode 1)))
@@ -110,15 +111,24 @@
 (use-package jtags-mode
   :init (add-hook 'java-mode-hook 'jtags-mode))
 
-(use-package eclim
-  :init (progn
-	  (setq 
-	   ;; another pkg will start it for us if needed
-	   ;; eclimd-executable "~/eclipse/eclimd"
-	   eclim-eclipse-dirs '("~/eclipse")
-	   eclim-executable  (expand-file-name "~/eclipse/eclim"))
-	  (global-eclim-mode))
-  :bind ("C-c C-e c" . eclim-java-call-hierarchy))
+;;(use-package eclim
+;;  :init (my-elcim-setup)
+;;  :bind ("C-c C-e c" . eclim-java-call-hierarchy))
+
+(defun my-eclim-setup ()
+  (message "starting my eclim setup (slow) ...")
+  (setq 
+   ;; another pkg will start it for us if needed
+   ;; eclimd-executable "~/eclipse/eclimd"
+   eclim-eclipse-dirs '("~/eclipse")
+   eclim-executable  (expand-file-name "~/eclipse/eclim"))
+  (global-eclim-mode)
+  (message "... finished my eclim setup"))
+   
+;; develop eclim
+(add-to-list 'load-path (expand-file-name "~/prj/emacs-eclim/"))
+(my-eclim-setup)
+(global-set-key (kbd "C-c C-e c") 'eclim-java-call-hierarchy)
 
 (use-package gradle-mode)
 
@@ -141,8 +151,8 @@
   :bind ("C-x i" . extended-insert))
 
 (use-package org-mode
-  :bind ("C-c c" . org-capture)
-  :bind ("C-c t" . org-time-stamp)
+  :bind (("C-c c" . org-capture)
+	 ("C-c t" . org-time-stamp))	; or maybe C-c .
   :init (progn 
 	  (setq 
 	   org-todo-keywords '((sequence "TODO" "WAIT" "DONE"))
@@ -162,7 +172,7 @@
 
 (use-package powerline
   :init (progn 
-	  (powerline-default-theme)
+	  (powerline-center-theme)
 
 	  ;; Separate behavior for inactive
 	  ;; buffers. smart-mode-line does this out of the box,
