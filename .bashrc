@@ -81,6 +81,9 @@ if type git > /dev/null 2>&1; then
     source ~/.git-prompt.sh
 fi
 
+# disable ctrl-s software flow control
+stty -ixon
+
 # no prompt command for console
 case $TERM in
     rxvt|xterm*) 
