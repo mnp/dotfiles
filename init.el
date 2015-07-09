@@ -161,6 +161,10 @@
 	   org-directory (expand-file-name "~/.deft")
 	   org-default-notes-file (concat org-directory "/notes.org"))))
 
+;; C-c C-j 
+(use-package org-journal
+  :init (setq org-journal-dir (expand-file-name "~/org/journal")))
+
 (use-package deft
   :bind (([f9] . my-deft))
   :init (setq deft-extension "org"

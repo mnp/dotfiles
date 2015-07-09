@@ -15,9 +15,15 @@ for d in /usr/man /usr/share/man /usr/local/man $HOME/perl5/man; do
 done
 export MANPATH
 
+case $OSTYPE in
+    linux*)  OS=linux;;
+    darwin*) OS=darwin;;
+esac
 
 PATH=$HOME/bin:$HOME/hosts:/usr/local/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin
 test -d $HOME/perl5/bin && PATH=$HOME/perl5/bin:$PATH
+test -d $HOME/osbin     && PATH=$HOME/osbin/$OS:$PATH
+test -d $HOME/workbin   && PATH=$HOME/workbin:$PATH
 export PATH
 
 for dir in $HOME/perl /usr/local/share/perl/* /usr/local/lib/perl/* /usr/local/lib/perl5/site_perl; do
@@ -35,6 +41,11 @@ case $BASH_VERSION in
     # update the values of LINES and COLUMNS.
     3*) shopt -s checkwinsize;;
 esac
+
+# OSX
+if type brew > /dev/null 2>&1; then
+    . $(brew --repository)/Library/Contributions/brew_bash_completion.sh
+fi
 
 BC_ENV_ARGS='-l $HOME/etc/mylib.bc'
 
@@ -426,3 +437,35 @@ fi
 
 PERL_MB_OPT="--install_base \"/Users/Mitchell/perl5\""; export PERL_MB_OPT;
 PERL_MM_OPT="INSTALL_BASE=/Users/Mitchell/perl5"; export PERL_MM_OPT;
+
+ 
+highlight() { grep -E "($1|$)"; }
+
+# multipurpose docker-compose wrapper
+#
+#   dk up -d
+#   dk stop
+#   dk kill /container/
+#   dk rm /container/
+#   dk stats
+#   dk enter /container/
+#
+dk ()
+{
+    local arg=$1
+    shift
+
+    case $arg in
+        enter)
+	    local root=$( basename $PWD )
+            docker exec -it fig_${1}_1 bash
+            ;;
+        stats)
+            local things=$( docker ps | perl -lane '/Up/ and print $F[-1]' )
+            docker stats --no-stream=true $things | highlight  '^CONT.*$'
+            ;;
+        *)
+            docker-compose $arg $@
+            ;;
+        esac
+}
