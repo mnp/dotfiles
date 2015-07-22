@@ -26,7 +26,7 @@ test -d $HOME/osbin     && PATH=$HOME/osbin/$OS:$PATH
 test -d $HOME/workbin   && PATH=$HOME/workbin:$PATH
 export PATH
 
-for dir in $HOME/perl /usr/local/share/perl/* /usr/local/lib/perl/* /usr/local/lib/perl5/site_perl; do
+for dir in $HOME/perl $HOME/perl5/lib/perl5 /usr/local/share/perl/* /usr/local/lib/perl/* /usr/local/lib/perl5/site_perl; do
     PERL5LIB=$dir:$PERL5LIB    
 done
 export PERL5LIB
@@ -393,6 +393,7 @@ _xw_sub ()
 #
 
 if [ -x /usr/libexec/java_home ]; then
+    # osx-ish
     export JAVA_8_HOME=$(/usr/libexec/java_home -v1.8)
     export JAVA_7_HOME=$(/usr/libexec/java_home -v1.7)
 
@@ -422,11 +423,25 @@ if [ -x /usr/libexec/java_home ]; then
 	PS1=${MAGEN}8${CLEAR}:$PS1BASE
     }
 
-    # default
-    java8
+elif [ -x /usr/sbin/update-java-alternatives ]; then
 
-    alias gd=gradle
+    # linux-ish /usr/sbin/update-java-alternatives
+    java7() 
+    {
+       sudo update-java-alternatives -s java-7-oracle
+       PS1=${MAGEN}7${CLEAR}:$PS1BASE
+    }
+
+    java8()
+    {
+       sudo update-java-alternatives -s java-8-oracle
+       PS1=${MAGEN}8${CLEAR}:$PS1BASE
+    }
+
 fi
+
+# default
+java8
 
 
 if [ -d ${HOME}/perl5/lib/perl5/local/lib.pm ]; then
@@ -441,29 +456,46 @@ PERL_MM_OPT="INSTALL_BASE=/Users/Mitchell/perl5"; export PERL_MM_OPT;
  
 highlight() { grep -E "($1|$)"; }
 
-# multipurpose docker-compose wrapper
-#
-#   dk up -d
-#   dk stop
-#   dk kill /container/
-#   dk rm /container/
-#   dk stats
-#   dk enter /container/
-#
+DK_HELP='dk multipurpose hacky wrapper:
+   dk up -d
+   dk stop
+   dk kill /container/
+   dk rm /container/
+   dk stats
+   dk nets
+   dk enter /container/
+'
+
 dk ()
 {
     local arg=$1
     shift
 
+    test -z "$arg" && arg=help
+
     case $arg in
-        enter)
-	    local root=$( basename $PWD )
-            docker exec -it fig_${1}_1 bash
+       enter)
+	    local root=$( basename $PWD | sed s/-//g )
+            docker exec -it ${root}_${1}_1 bash
             ;;
         stats)
             local things=$( docker ps | perl -lane '/Up/ and print $F[-1]' )
             docker stats --no-stream=true $things | highlight  '^CONT.*$'
             ;;
+        ps)
+	    docker-compose ps | highlight 'Name.*|^--*$'
+	    ;;
+	nets)
+	    local fmt="%-25s %s\n"
+	    printf $fmt CONTAINER IPADDRESS | highlight C
+	    printf $fmt docker0 $(ifconfig docker0 | perl -ne '/inet addr:([\.\d]+)/ and print $1')
+	    for c in $( docker ps | perl -lane '/Up/ and print $F[-1]' ); do
+		printf $fmt $c $( docker inspect $c | perl -ne '/"IPAddress": "([\.\d]+)"/ and print $1')
+	    done
+	    ;;
+	-h|--help|help)
+	    { docker-compose 2>&1 ; echo; echo "$DK_HELP"; } | highlight '^\S.*:'
+	    ;;
         *)
             docker-compose $arg $@
             ;;

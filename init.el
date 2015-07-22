@@ -9,6 +9,7 @@
 (add-to-list 'load-path (expand-file-name "~/Elisp"))
 (add-to-list 'exec-path (expand-file-name "~/bin"))
 (add-to-list 'exec-path "/usr/local/bin")
+(setenv "PATH" (concat "/usr/local/bin:" (getenv "PATH")))
 
 ;; OSX Hacks
 (if (memq system-type '(darwin))
@@ -40,12 +41,14 @@
   (require 'use-package))
 (require 'bind-key)                ;; needed by use-package :bind
 
-(use-package hideshow)
+(use-package hideshow
+  :ensure hideshow)
 								      ; (require 'workgroups)
 ;;      (use-package ace-window
 ;;	:bind ("C-x o" . ace-window))
 
 (use-package compile
+  :ensure compile
   :init (setq compilation-scroll-output 1	
 	      compile-command "make ")
   :bind ("C-x C-k" . compile))
@@ -66,9 +69,11 @@
 ;   :bind ("C-x C-b" . bs-show))
 
 (use-package git-gutter
+  :ensure git-gutter
   :init (global-git-gutter-mode +1))
 
 (use-package helm-git-grep
+  :ensure helm-git-grep
   :bind ("C-c g" .  helm-git-grep)
   	;; helm-git-grep-with-exclude-file-pattern
   	;; (defun helm-git-grep-get-top-dir nil "/users/Mitchell/src/tw-server/PLATFORM")
@@ -80,9 +85,12 @@
 	  (eval-after-load 'helm
 	    '(define-key helm-map (kbd "C-c g") 'helm-git-grep-from-helm))))
 
-(use-package helm-match-plugin)
+;(use-package helm-match-plugin
+;  :ensure helm-match-plugin
+;)
 
 (use-package helm-config
+;  :ensure helm-config
   :init (progn
 	  (helm-mode 1)
 	  (define-key global-map [remap find-file] 'helm-find-files)
@@ -95,6 +103,7 @@
 					;  (define-key emacs-lisp-mode-map       [remap completion-at-point] 'helm-lisp-completion-at-point))
 
 
+; local
 (use-package duplicate-line
   :bind (("M-p" . duplicate-previous-line)
 	 ("M-n" . duplicate-following-line)))
@@ -102,13 +111,16 @@
 ;; This binds c-.
 ;; we've stolen c-. (from org-time-stamp, so we need to rebind that)
 (use-package dot-mode
+  :ensure dot-mode
   :init (add-hook 'find-file-hooks (lambda () (dot-mode 1)))
   :bind ("C-." . dot-mode))
 
 (use-package markdown-mode
+  :ensure markdown-mode
   :mode "\\.md\\'")
 
 (use-package jtags-mode
+  :ensure jtags
   :init (add-hook 'java-mode-hook 'jtags-mode))
 
 ;;(use-package eclim
@@ -130,9 +142,11 @@
 (my-eclim-setup)
 (global-set-key (kbd "C-c C-e c") 'eclim-java-call-hierarchy)
 
-(use-package gradle-mode)
+(use-package gradle-mode
+  :ensure gradle-mode)
 
 (use-package ack
+  :ensure ack
   ;; note: local mod in elpa/ack-1.3/ack.el, should get pushed up?
   ;;	:init (setq ack-command (executable-find "ack-grep"))
 ;  :init (progn
@@ -151,6 +165,7 @@
   :bind ("C-x i" . extended-insert))
 
 (use-package org-mode
+  :ensure org
   :bind (("C-c c" . org-capture)
 	 ("C-c t" . org-time-stamp))	; or maybe C-c .
   :init (progn 
@@ -163,18 +178,22 @@
 
 ;; C-c C-j 
 (use-package org-journal
+  :ensure org-journal
   :init (setq org-journal-dir (expand-file-name "~/org/journal")))
 
 (use-package deft
+  :ensure deft
   :bind (([f9] . my-deft))
   :init (setq deft-extension "org"
 	      deft-text-mode 'org-mode))
 
 (use-package frame-cmds
+  :ensure frame-cmds
   :init
   (bind-key [f11] 'toggle-max-frame))
 
 (use-package powerline
+  :ensure powerline
   :init (progn 
 	  (powerline-center-theme)
 
@@ -188,22 +207,28 @@
 			       :box '(:line-width 1 :style released-button))))
 
 (use-package yasnippet
+  :ensure yasnippet
   :load-path "~/.emacs.d/snippets"
   :init (yas-global-mode 1))
 
+; Elisp
 (use-package browsekill
   :bind ("C-x 4 y" . browse-kill-ring))
 
+; local
 (use-package show-paren
   :init (setq 
 	 show-paren-style 'expression
 	 show-paren-delay 0))
 
-(use-package flycheck)
+(use-package flycheck
+  :ensure flycheck)
 
 (use-package xcscope     ;; see ~/.emacs.d/elpa/xcscope-readme.txt
+  :ensure xcscope
   :init (cscope-setup))
 
+; local
 (use-package find-companion-thing
   :bind ("C-x C-h" . fct/find-file))
 
@@ -212,6 +237,7 @@
 ;; Or https://github.com/pashinin/workgroups2
 ;;
 (use-package saveplace
+  :ensure saveplace
   :init (progn
 	  (setq save-place-file (concat user-emacs-directory "saveplace.el"))
 	  (setq-default save-place t)
