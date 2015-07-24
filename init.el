@@ -243,6 +243,12 @@
 	  (setq-default save-place t)
 	  (desktop-save-mode 1)))	; emacs --no-desktop ... to avoid this
 
+(use-package smooth-scroll
+  :ensure smooth-scroll
+  :init (progn
+	  (smooth-scroll-mode 1)
+	  (setq smooth-scroll/vscroll-step-size 25)))
+
 (if window-system 
     (progn
       ;;      (set-default-font "Mono-10")
@@ -490,6 +496,10 @@ it.  This will look in parent dirs up to root for it as well."
        (skip-chars-forward " \t\n\r")
        (constrain-to-field nil orig-pos t)))))
 
+(defun my-format-xml-buffer ()
+  "Format entire XML buffer."
+  (interactive "")
+  (shell-command-on-region (point-min) (point-max) "xmllint --format -" t t))
 
 (defun parent-directory (path)
   (file-name-nondirectory (directory-file-name (file-name-directory path))))

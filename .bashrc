@@ -89,7 +89,14 @@ if type git > /dev/null 2>&1; then
     alias gdp=' git diff        HEAD~1 --'
     alias gdps='git diff --stat HEAD~1 --'
     alias gg='git grep'
+fi
+
+if [ -f ~/.git-prompt.sh ]; then
     source ~/.git-prompt.sh
+fi
+
+if [ -f ~/.git-completion.bash ]; then
+    source ~/.git-completion.bash
 fi
 
 # disable ctrl-s software flow control
@@ -245,6 +252,7 @@ alias ls='ls $LS_OPTIONS'
 alias ll='ls $LS_OPTIONS -l'
 alias la='ls $LS_OPTIONS -lA'
 alias lrt='ls -lrt'
+alias lh='ls -lhS'
 alias mlp='m `ls -rt /tmp/*pdf|tail -1`'
 alias rm='rm -i'
 alias cp='cp -i'
