@@ -6,10 +6,16 @@
       initial-scratch-message nil
       debug-on-error nil)
 
+; todo: source a refactored bash environment file
 (add-to-list 'load-path (expand-file-name "~/Elisp"))
 (add-to-list 'exec-path (expand-file-name "~/bin"))
 (add-to-list 'exec-path "/usr/local/bin")
 (setenv "PATH" (concat "/usr/local/bin:" (getenv "PATH")))
+
+
+; not sure why this can't load bashrc  - time to go back to profile
+; (shell-command-to-string "bash -ic 'echo $PERL5LIB 2>/dev/null '")
+
 
 ;; OSX Hacks
 (if (memq system-type '(darwin))
@@ -28,7 +34,7 @@
   (when (file-exists-p host-specific-filename)
       (load-file host-specific-filename)))
 
-(load-file (expand-file-name "~/Elisp/calc.el")) 
+(load-file (expand-file-name "~/Elisp/my-calc-extras.el"))
 
 ;; no point in checking if package is available, we use it too much
 (require 'package)
@@ -119,9 +125,21 @@
   :ensure markdown-mode
   :mode "\\.md\\'")
 
-(use-package jtags-mode
-  :ensure jtags
-  :init (add-hook 'java-mode-hook 'jtags-mode))
+;; jtags mode has rotted. gnu global has many more features atm
+(use-package ggtags
+  :init (add-hook 'c-mode-common-hook
+          (lambda ()
+            (when (derived-mode-p 'c-mode 'c++-mode 'java-mode)
+              (ggtags-mode 1)))))
+
+;; todo need a work init and a home one
+;; todo  (locate-dominating-file (buffer-file-name) "build.gradle")
+(add-hook 'java-mode-hook
+	  (lambda ()
+	    (setq indent-tabs-mode nil) ; force indent with spaces, never TABs
+	    (set (make-local-variable 'compile-command)
+		 "cd /Users/Mitchell/src/tw-server/thingworx-platform-postgres; gradle build -x test")))
+
 
 ;;(use-package eclim
 ;;  :init (my-elcim-setup)
@@ -214,6 +232,11 @@
 ; Elisp
 (use-package browsekill
   :bind ("C-x 4 y" . browse-kill-ring))
+
+(use-package easy-kill
+  :init (progn
+	  (global-set-key [remap kill-ring-save] 'easy-kill)
+	  (global-set-key [remap mark-sexp] 'easy-mark)))
 
 ; local
 (use-package show-paren

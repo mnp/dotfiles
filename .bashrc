@@ -42,9 +42,17 @@ case $BASH_VERSION in
     3*) shopt -s checkwinsize;;
 esac
 
+# various formatters use these
+export COLUMNS LINES
+
 # OSX
 if type brew > /dev/null 2>&1; then
     . $(brew --repository)/Library/Contributions/brew_bash_completion.sh
+
+    # iterm
+    nametab() { echo -ne "\033]0;"$@"\007"; }
+    cd()      { builtin cd $1; nametab `basename $PWD`; }
+
 fi
 
 BC_ENV_ARGS='-l $HOME/etc/mylib.bc'
@@ -88,7 +96,19 @@ if type git > /dev/null 2>&1; then
     alias gds=' git diff --stat'
     alias gdp=' git diff        HEAD~1 --'
     alias gdps='git diff --stat HEAD~1 --'
-    alias gg='git grep'
+    alias gls='git ls-files -t'
+#    alias gg='git grep'
+
+    function gg() {
+	local top=$(git rev-parse --show-toplevel)
+	if [ -f $top/.mnp-project ]; then
+	    . $top/.mnp-project
+	else 
+	    git_grep_path=.
+	fi
+	cd $top
+	git grep $1 -- $git_grep_path
+    }
 fi
 
 if [ -f ~/.git-prompt.sh ]; then
@@ -220,7 +240,7 @@ m()
 	    *.pnm|*.pbm|*.jpg|*.jpeg|*.JPG|*.gif|*.GIF|*.tif|*.tiff|\
 	    *.doc|*.DOC|*.docx|\
 	    *.odp|*.ppt|*.pptx|*.PPT|\
-	    *.ods|*.xls|*.XLS|.xlsx|*.odt|\
+	    *.ods|*.xls|*.XLS|*.xlsx|*.odt|\
 	    *.djvu|*.ps|*.pdf|*.PDF|\
 	    *.png|*.PNG|*.bmp|*.BMP|*.jpg|*.JPG|*.gif|*.GIF) open $1;;
 	    *) less "$1";;
@@ -461,8 +481,15 @@ fi
 PERL_MB_OPT="--install_base \"/Users/Mitchell/perl5\""; export PERL_MB_OPT;
 PERL_MM_OPT="INSTALL_BASE=/Users/Mitchell/perl5"; export PERL_MM_OPT;
 
+type docker-machine > /dev/null 2>&1 && eval "$(docker-machine env default)" 
  
-highlight() { grep -E "($1|$)"; }
+#
+# Conveniences for dealing with docker-compose.
+# If docker-machine, then env | grep DOCKER_ > ~/.docker/env.sh
+#
+
+#highlight() { grep -E "($1|$)"; }
+highlight() { cat; }
 
 DK_HELP='dk multipurpose hacky wrapper:
    dk up -d
@@ -474,38 +501,90 @@ DK_HELP='dk multipurpose hacky wrapper:
    dk enter /container/
 '
 
-dk ()
-{
-    local arg=$1
+dk() {
+    local file=docker-compose.yml
+    local options
+    local project=$( basename $PWD | sed s/-//g )
+    local command
+
+    while [[ $1 =~ ^- ]]; do
+	case $1 in
+	    --version|-v)
+		docker-compose -v
+		return
+		;;
+	    --verbose) 
+		options=$1
+		shift
+		options="$options --verbose"
+		;;
+	    --project|-p)
+		shift
+		project=$1
+		shift
+		options="$options -p $project"
+		;;
+	    --file|-f)
+		shift
+		file=$1
+		shift
+		;;
+	esac
+    done
+
+    # try to infer yml file if none was given
+    if [ ! -f $file ]; then
+	local ymls
+	{ shopt -s nullglob ; ymls=(*.yml); }
+	case ${#ymls[@]} in
+	    0) 
+		echo "There is no $file"
+		return;;
+	    1) 
+		echo
+		echo ' *** ' Using ${ymls[0]} ' *** '
+		echo
+		file=${ymls[0]} ;;
+	    *) 
+		echo I can\'t guess which .yml to use: there are ${#ymls[@]}. Specify with --file.
+		return;;
+	esac
+    fi
+    
+    options="$options -f $file"
+    command=$1
     shift
 
-    test -z "$arg" && arg=help
-
-    case $arg in
+    case $command in
        enter)
-	    local root=$( basename $PWD | sed s/-//g )
-            docker exec -it ${root}_${1}_1 bash
+	   if [ -z "$1" ]; then
+	       echo You must give a service to enter.
+	       return
+	   fi
+            docker exec -it ${project}_${1}_1 bash
             ;;
         stats)
             local things=$( docker ps | perl -lane '/Up/ and print $F[-1]' )
             docker stats --no-stream=true $things | highlight  '^CONT.*$'
             ;;
         ps)
-	    docker-compose ps | highlight 'Name.*|^--*$'
+	    docker-compose $options ps | highlight 'Name.*|^--*$'
 	    ;;
 	nets)
 	    local fmt="%-25s %s\n"
-	    printf $fmt CONTAINER IPADDRESS | highlight C
-	    printf $fmt docker0 $(ifconfig docker0 | perl -ne '/inet addr:([\.\d]+)/ and print $1')
+	    local ifc=vboxnet0
+	    printf "$fmt" CONTAINER IPADDRESS | highlight C
+	    printf "$fmt" $ifc $(ifconfig $ifc | perl -ne '/inet[\s:]+([\.\d]+)/ and print $1')
 	    for c in $( docker ps | perl -lane '/Up/ and print $F[-1]' ); do
-		printf $fmt $c $( docker inspect $c | perl -ne '/"IPAddress": "([\.\d]+)"/ and print $1')
+		printf "$fmt" $c $( docker inspect $c | perl -ne '/"IPAddress": "([\.\d]+)"/ and print $1')
 	    done
 	    ;;
 	-h|--help|help)
 	    { docker-compose 2>&1 ; echo; echo "$DK_HELP"; } | highlight '^\S.*:'
 	    ;;
         *)
-            docker-compose $arg $@
+            docker-compose $options $command $@
             ;;
         esac
 }
+
