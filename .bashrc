@@ -21,9 +21,11 @@ case $OSTYPE in
 esac
 
 PATH=$HOME/bin:$HOME/hosts:/usr/local/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin
+test -d /usr/local/go   && PATH=/usr/local/go/bin:$PATH
 test -d $HOME/perl5/bin && PATH=$HOME/perl5/bin:$PATH
 test -d $HOME/osbin     && PATH=$HOME/osbin/$OS:$PATH
 test -d $HOME/workbin   && PATH=$HOME/workbin:$PATH
+test -d $HOME/homebin   && PATH=$HOME/homebin:$PATH
 export PATH
 
 for dir in $HOME/perl $HOME/perl5/lib/perl5 /usr/local/share/perl/* /usr/local/lib/perl/* /usr/local/lib/perl5/site_perl; do
@@ -33,6 +35,12 @@ export PERL5LIB
 
 # For MediaWiki client
 export MVS_BROWSER=firefox
+
+# Go lang
+if [ -d $HOME/go ]; then
+    GOPATH=$HOME/go
+    PATH=$PATH:$HOME/go/bin
+fi
 
 unset MIBS MIBDIRS
 

@@ -8,6 +8,7 @@
 
 ; todo: source a refactored bash environment file
 (add-to-list 'load-path (expand-file-name "~/Elisp"))
+(add-to-list 'load-path (expand-file-name "~/prj/dotfiles/shared-elisp"))
 (add-to-list 'exec-path (expand-file-name "~/bin"))
 (add-to-list 'exec-path "/usr/local/bin")
 (setenv "PATH" (concat "/usr/local/bin:" (getenv "PATH")))
@@ -34,8 +35,6 @@
   (when (file-exists-p host-specific-filename)
       (load-file host-specific-filename)))
 
-(load-file (expand-file-name "~/Elisp/my-calc-extras.el"))
-
 ;; no point in checking if package is available, we use it too much
 (require 'package)
 (add-to-list 'package-archives
@@ -52,6 +51,10 @@
 								      ; (require 'workgroups)
 ;;      (use-package ace-window
 ;;	:bind ("C-x o" . ace-window))
+
+(use-package calc
+ :init (load-library "my-calc-extras")
+ :bind ("M-#" . calc))
 
 (use-package compile
   :ensure compile
@@ -185,6 +188,7 @@
 (use-package org-mode
   :ensure org
   :bind (("C-c c" . org-capture)
+         ("<return>" . org-return-indent)
 	 ("C-c t" . org-time-stamp))	; or maybe C-c .
   :init (progn 
 	  (setq 
@@ -590,7 +594,6 @@ it.  This will look in parent dirs up to root for it as well."
 (global-set-key [home] 		'beginning-of-buffer)
 (global-set-key [end] 		'end-of-buffer)
 
-(global-set-key "\M-#" 		'calc)
 (global-set-key "\M-g" 		'goto-line)
 (global-set-key [?\C-_] 	'help-command)
 (global-set-key "\C-h"	 	'backward-delete-char)
@@ -651,14 +654,12 @@ it.  This will look in parent dirs up to root for it as well."
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(custom-safe-themes
+ '(package-selected-packages
    (quote
-    ("49e5a7955b853f70d1fe751b2f896921398b273aa62f47bda961a45f80219581" "8db4b03b9ae654d4a57804286eb3e332725c84d7cdab38463cb6b97d5762ad26" "5d9351cd410bff7119978f8e69e4315fd1339aa7b3af6d398c5ca6fac7fd53c7" default)))
- '(global-eclim-mode t))
+    (deft gradle-mode yasnippet yari xcscope use-package tangotango-theme sx svg-mode-line-themes svg-clock slime-volleyball powerline paredit org-journal magit helm-git-grep google-c-style git-gutter-fringe git-gutter+ frame-cmds flycheck emacs-eclim dot-mode company cider auto-complete aggressive-indent ack ace-window))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(cperl-array-face ((t (:background unspecified :foreground "yellow" :weight bold))))
- '(cperl-hash-face ((t (:background unspecified :foreground "green" :slant italic :weight bold)))))
+ )
