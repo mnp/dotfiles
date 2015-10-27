@@ -44,6 +44,10 @@ fi
 
 unset MIBS MIBDIRS
 
+for f in /usr/local/etc/bash_completion.d/* ; do
+    source $f
+done
+
 case $BASH_VERSION in
     # check the window size after each command and, if necessary,
     # update the values of LINES and COLUMNS.
@@ -56,7 +60,6 @@ export COLUMNS LINES
 # OSX
 if type brew > /dev/null 2>&1; then
     . $(brew --repository)/Library/Contributions/brew_bash_completion.sh
-
     # iterm
     nametab() { echo -ne "\033]0;"$@"\007"; }
     cd()      { builtin cd $1; nametab `basename $PWD`; }
@@ -117,14 +120,13 @@ if type git > /dev/null 2>&1; then
 	cd $top
 	git grep $1 -- $git_grep_path
     }
-fi
+    if [ -f ~/.git-prompt.sh ]; then
+	source ~/.git-prompt.sh
+    fi
 
-if [ -f ~/.git-prompt.sh ]; then
-    source ~/.git-prompt.sh
-fi
-
-if [ -f ~/.git-completion.bash ]; then
-    source ~/.git-completion.bash
+    if [ -f ~/.git-completion.bash ]; then
+	source ~/.git-completion.bash
+    fi
 fi
 
 # disable ctrl-s software flow control
@@ -361,7 +363,7 @@ p ()
     if [ $# -lt 1 ]; then
 	ps faux | $PAGER
     else
-	local pid=$(pgrep $1)
+	local pid=$(pgrep -f $1)
 	if [[ -n $pid ]]; then
 	    ps lww -p $pid
 	else
@@ -496,9 +498,6 @@ type docker-machine > /dev/null 2>&1 && eval "$(docker-machine env default)"
 # If docker-machine, then env | grep DOCKER_ > ~/.docker/env.sh
 #
 
-#highlight() { grep -E "($1|$)"; }
-highlight() { cat; }
-
 DK_HELP='dk multipurpose hacky wrapper:
    dk up -d
    dk stop
@@ -514,11 +513,16 @@ dk() {
     local options
     local project=$( basename $PWD | sed s/-//g )
     local command
+    local color=magenta
 
     while [[ $1 =~ ^- ]]; do
 	case $1 in
 	    --version|-v)
 		docker-compose -v
+		return
+		;;
+	    -h|--help)
+		{ docker-compose 2>&1 ; echo; echo "$DK_HELP"; } | highlight ${color} '^[^ ].*:'
 		return
 		;;
 	    --verbose) 
@@ -573,22 +577,19 @@ dk() {
             ;;
         stats)
             local things=$( docker ps | perl -lane '/Up/ and print $F[-1]' )
-            docker stats --no-stream=true $things | highlight  '^CONT.*$'
+            docker stats --no-stream=true $things | highlight ${color}  '^CONT.*$'
             ;;
         ps)
-	    docker-compose $options ps | highlight 'Name.*|^--*$'
+	    docker-compose $options ps | highlight ${color} 'Name.*|^--*$'
 	    ;;
 	nets)
 	    local fmt="%-25s %s\n"
 	    local ifc=vboxnet0
-	    printf "$fmt" CONTAINER IPADDRESS | highlight C
+	    printf "$fmt" CONTAINER IPADDRESS | highlight ${color} '^C.*'
 	    printf "$fmt" $ifc $(ifconfig $ifc | perl -ne '/inet[\s:]+([\.\d]+)/ and print $1')
 	    for c in $( docker ps | perl -lane '/Up/ and print $F[-1]' ); do
 		printf "$fmt" $c $( docker inspect $c | perl -ne '/"IPAddress": "([\.\d]+)"/ and print $1')
 	    done
-	    ;;
-	-h|--help|help)
-	    { docker-compose 2>&1 ; echo; echo "$DK_HELP"; } | highlight '^\S.*:'
 	    ;;
         *)
             docker-compose $options $command $@

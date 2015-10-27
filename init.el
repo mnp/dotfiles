@@ -188,7 +188,7 @@
 (use-package org-mode
   :ensure org
   :bind (("C-c c" . org-capture)
-         ("<return>" . org-return-indent)
+         ;; todo: bind  org-return-indent
 	 ("C-c t" . org-time-stamp))	; or maybe C-c .
   :init (progn 
 	  (setq 
