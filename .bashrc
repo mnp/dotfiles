@@ -1,13 +1,5 @@
-# ~/.bashrc: executed by bash(1) for non-login shells.
 
-# If not running interactively, don't do anything
-[ -z "$PS1" ] && return
-
-# per-terminal preferences
-case x"$MYPROFILE" in
-    xorg-on-gray) echo orange in force;;
-    xwht-on-gray) echo white in force;;
-esac
+# Noninteractive section
 
 MANPATH=''
 for d in /usr/man /usr/share/man /usr/local/man $HOME/perl5/man; do 
@@ -43,6 +35,11 @@ if [ -d $HOME/go ]; then
 fi
 
 unset MIBS MIBDIRS
+
+# Interactive section
+# If not running interactively, don't do anything
+
+[ -z "$PS1" ] && return
 
 for f in /usr/local/etc/bash_completion.d/* ; do
     source $f
