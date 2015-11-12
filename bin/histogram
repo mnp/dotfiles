@@ -1,0 +1,141 @@
+#!/usr/bin/perl
+
+# report distribution of all white-separated symbols on input
+
+use strict;
+use warnings;
+use Getopt::Long;
+
+# Default is every char is taken by itself. Also useful
+# is \s+ to split by words.
+my $spliton='';
+
+# try graphing
+my $plot;
+
+# Don't report whitespace - not valid in binary mode
+my $ignorewhite;
+
+# Eat a raw binary, split into hex bytes, and report their distribution
+my $binary;
+
+# Map each symbol seen to a single ascii character.  Useful if you're
+# trying to solve a cryptogram.
+my $mapsyms;
+
+GetOptions("spliton=s" => sub { $spliton = qr/$_[1]/ },
+	   "ignorewhite" => \$ignorewhite,
+	   "binary"    => \$binary,
+	   "mapsyms"   => \$mapsyms,
+	   "plot"      => \$plot);
+
+my %syms;
+my %digraphs;
+my %trigraphs;
+my $num;
+my $count;
+my (%symmap, %symmap2, %symmap3);
+my $nextsym = 'A';
+
+if ($mapsyms) {
+  print "symbol map: ";
+}
+
+if ($binary) {
+  undef $/;
+  for (split //, <>) {
+    eatsym(sprintf "%02x", ord $_);
+  }
+}
+else {
+  while (<>) {
+    $ignorewhite and s/\s+//g;
+    map { eatsym($_) } split $spliton, $_;
+  }
+}
+
+{
+  my $last0;
+  my $last1;
+
+  sub eatsym {
+    my $sym = shift;
+
+    $syms{$sym}++;
+    $num++;
+
+    if (!exists $symmap{$sym}) {
+      $symmap{$sym} = $nextsym++;
+    }
+    print $symmap{$sym} if $mapsyms;
+    
+    if ($last0) {
+      $digraphs{$last0 . '-' . $sym}++;
+      $symmap2{ $last0 . '-' . $sym} = $symmap{$last0} . $symmap{$sym}; 
+    }
+
+    if ($last1) {
+      $trigraphs{$last1 . '-' . $last0 . '-' . $sym}++;
+      $symmap3{  $last1 . '-' . $last0 . '-' . $sym} = $symmap{$last1} . $symmap{$last0} . $symmap{$sym}; 
+    }
+
+    if ($last0) {
+      $last1 = $last0;
+    }
+
+    $last0 = $sym;
+  }
+}
+print "\n" if $mapsyms;
+
+if ($plot) {
+#  open GP, "> /tmp/histogram.$$" or die $!;
+  for my $k (sort {$syms{$b} <=> $syms{$a}} keys %syms) {
+ #   print GP "$syms{$k}\n";
+       print "$syms{$k}\n";
+  }
+#  close GP;
+#  `graphit /tmp/histogram.$$`;
+  exit 0;
+}
+
+sub line {
+  print '-' x 40, "\n";
+}
+
+sub title { 
+  printf "%-15s%8s%9s  %s\n", shift, 'count', 'pct', $mapsyms ? 'mapping' : '';  
+  line();
+}
+
+my $FMT = "%-15s%8d %8.2f  %s\n";
+
+title('symbol');
+for my $k (sort {$syms{$b} <=> $syms{$a}} keys %syms) {
+  printf $FMT, $k, $syms{$k}, 100 * $syms{$k}/$num, $mapsyms ? $symmap{$k} : '';
+}
+
+line();
+printf "unique symbols: %d\n", scalar keys %syms;
+printf "total symbols : %d\n", $num;
+print "\n";
+
+$count = 20;
+title('digraph');
+
+for my $D (sort {$digraphs{$b} <=> $digraphs{$a}} keys %digraphs) {
+  printf $FMT, $D, $digraphs{$D}, 100 * $digraphs{$D}/(scalar keys %digraphs),
+    $mapsyms ? $symmap2{$D} : '';
+  last unless --$count;
+}
+print "\n";
+
+$count = 15;
+title('trigraph');
+
+for my $D (sort {$trigraphs{$b} <=> $trigraphs{$a}} keys %trigraphs) {
+  printf $FMT, $D, $trigraphs{$D}, 100 * $trigraphs{$D}/(scalar keys %trigraphs),
+    $mapsyms ? $symmap3{$D} : '';
+  last unless --$count;
+}
+print "\n";

@@ -1,0 +1,21 @@
+#!/bin/bash
+
+# filter to highlight selected lines
+# Usage: foo | highlight COLOR REGEX | bar
+
+color=$1
+pat="$2"
+cend=$(echo -e "\033[0m")
+
+case $color in
+    red)       	 cbegin=$(echo -e "\033[0;31m");;
+    grn|green) 	 cbegin=$(echo -e "\033[0;32m");;
+    yel|yellow)	 cbegin=$(echo -e "\033[0;33m");;
+    blu|blue)  	 cbegin=$(echo -e "\033[0;34m");;
+    mag|magenta) cbegin=$(echo -e "\033[0;35m");;
+    cya|cyan)  	 cbegin=$(echo -e "\033[0;36m");;
+    wht|white)   cbegin=$(echo -e "\033[0;37m");;
+esac
+
+sed -E -e "s%$pat%$cbegin&$cend%g"
+
