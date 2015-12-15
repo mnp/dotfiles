@@ -1,0 +1,30 @@
+#!/bin/bash
+
+toplevel=$(git rev-parse --show-toplevel) 
+
+if [ -z "$toplevel" ]; then
+    echo this does not look like a git repo
+    exit 1
+fi
+
+cd $toplevel
+files="$(git ls-files -m)"
+
+if [ -z "$files" ]; then
+    echo Nothing appears to be modified under $toplevel.
+    exit 0
+fi
+
+echo reverting files from `pwd`
+echo ------------------
+git ls-files -m | highlight red .
+echo ------------------
+printf 'confirm (say yes) : '
+
+read ans
+if [ x$ans == x"yes" ]; then
+    git checkout -- $files
+else
+    echo aborted
+fi
+

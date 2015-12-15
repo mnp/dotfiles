@@ -56,6 +56,9 @@
  :init (load-library "my-calc-extras")
  :bind ("M-#" . calc))
 
+(use-package cider
+  :init (setq cider-lein-command "/usr/local/bin/lein"))
+
 (use-package compile
   :ensure compile
   :init (setq compilation-scroll-output 1	
@@ -66,12 +69,12 @@
 ;; TODO: rtags does references and c++ well. Note find-tag
 ;; advice below.
 
-								      ;      (use-package aggressive-indent
-								      ;	:init (progn
-								      ;		(mapcar '(lambda (z) 
-								      ;			   (add-to-list 'aggressive-indent-excluded-modes z)) 
-								      ;			'(Eshell Debugger html-mode))
-								      ;		(global-aggressive-indent-mode 1)))
+;;      (use-package aggressive-indent
+;;	:init (progn
+;;		(mapcar '(lambda (z) 
+;;			   (add-to-list 'aggressive-indent-excluded-modes z)) 
+;;			'(Eshell Debugger html-mode))
+;;		(global-aggressive-indent-mode 1)))
 
 ;; helm does this 
 ; (use-package bs 
@@ -81,9 +84,17 @@
   :ensure git-gutter
   :init (global-git-gutter-mode +1))
 
+
+;;
+;; A .dir-locals.el file helps a bunch here:
+;;
+;; ((nil . ((git-grep-path . "PLATFORM thingworx-platform-postgres")
+;; 	 (compile-command . "cd ~/src/tw-server; ./gradlew build"))))
+;; 
+
 (use-package helm-git-grep
   :ensure helm-git-grep
-  :bind ("C-c g" .  helm-git-grep)
+  :bind ("C-c g" . helm-git-grep)
   	;; helm-git-grep-with-exclude-file-pattern
   	;; (defun helm-git-grep-get-top-dir nil "/users/Mitchell/src/tw-server/PLATFORM")
   :init (progn
@@ -105,7 +116,7 @@
 	  (define-key global-map [remap find-file] 'helm-find-files)
 	  (define-key global-map [remap occur] 'helm-occur)
 	  (define-key global-map [remap list-buffers] 'helm-buffers-list)
-	  (define-key global-map [remap dabbrev-expand] 'helm-dabbrev))
+	  (define-key global-map (kbd "M-C-/") 'helm-dabbrev))
   :bind (("M-x" . helm-M-x)))
 					;(unless (boundp 'completion-in-region-function)
 					;  (define-key lisp-interaction-mode-map [remap completion-at-point] 'helm-lisp-completion-at-point)
@@ -214,19 +225,19 @@
   :init
   (bind-key [f11] 'toggle-max-frame))
 
-(use-package powerline
-  :ensure powerline
-  :init (progn 
-	  (powerline-center-theme)
-
-	  ;; Separate behavior for inactive
-	  ;; buffers. smart-mode-line does this out of the box,
-	  ;; switch if we get bored.
-	  (set-face-attribute  'mode-line-inactive
-			       nil 
-			       :foreground "gray30"
-			       :background "black" 
-			       :box '(:line-width 1 :style released-button))))
+;;(use-package powerline
+;;  :ensure powerline
+;;  :init (progn 
+;;	  (powerline-center-theme)
+;;
+;;	  ;; Separate behavior for inactive
+;;	  ;; buffers. smart-mode-line does this out of the box,
+;;	  ;; switch if we get bored.
+;;	  (set-face-attribute  'mode-line-inactive
+;;			       nil 
+;;			       :foreground "gray30"
+;;			       :background "black" 
+;;			       :box '(:line-width 1 :style released-button))))
 
 (use-package yasnippet
   :ensure yasnippet
@@ -270,11 +281,11 @@
 	  (setq-default save-place t)
 	  (desktop-save-mode 1)))	; emacs --no-desktop ... to avoid this
 
-(use-package smooth-scroll
-  :ensure smooth-scroll
-  :init (progn
-	  (smooth-scroll-mode 1)
-	  (setq smooth-scroll/vscroll-step-size 25)))
+;; (use-package smooth-scroll
+;;   :ensure smooth-scroll
+;;   :init (progn
+;; 	  (smooth-scroll-mode t)
+;; 	  (setq smooth-scroll/vscroll-step-size 25)))
 
 (if window-system 
     (progn
@@ -656,10 +667,15 @@ it.  This will look in parent dirs up to root for it as well."
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
    (quote
-    (deft gradle-mode yasnippet yari xcscope use-package tangotango-theme sx svg-mode-line-themes svg-clock slime-volleyball powerline paredit org-journal magit helm-git-grep google-c-style git-gutter-fringe git-gutter+ frame-cmds flycheck emacs-eclim dot-mode company cider auto-complete aggressive-indent ack ace-window))))
+    (deft gradle-mode yasnippet yari xcscope use-package tangotango-theme sx svg-mode-line-themes svg-clock slime-volleyball powerline paredit org-journal magit helm-git-grep google-c-style git-gutter-fringe git-gutter+ frame-cmds flycheck emacs-eclim dot-mode company cider auto-complete aggressive-indent ack ace-window)))
+ '(safe-local-variable-values
+   (quote
+    ((git-grep-path . "thingworx-platform-common thingworx-platform-postgres")
+     (git-grep-path . "PLATFORM thingworx-platform-postgres")))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- )
+ '(cperl-array-face ((t (:background unspecified :foreground "yellow" :weight bold))))
+ '(cperl-hash-face ((t (:background unspecified :foreground "green" :slant italic :weight bold)))))

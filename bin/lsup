@@ -1,0 +1,17 @@
+#!/bin/bash
+
+# "ls" directories upwards until either a git root or a filesystem root has been listed.
+# Any args are passed to ls.
+
+top=$(git rev-parse --show-toplevel)
+
+while true; do
+  pwd=$(pwd)
+  echo ${pwd}:
+  ls $@
+  echo
+  if [[ $pwd == $top ]] || [[ $pwd == / ]]; then
+     break;
+  fi
+  cd ..
+done

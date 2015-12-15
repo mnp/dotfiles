@@ -1,9 +1,11 @@
 
 # Noninteractive section
 
-MANPATH=''
+. ~/lib/shlib.bash
+
+
 for d in /usr/man /usr/share/man /usr/local/man $HOME/perl5/man; do 
-    test -d $d && MANPATH=$MANPATH:$d
+    pathadd MANPATH $d
 done
 export MANPATH
 
@@ -13,15 +15,15 @@ case $OSTYPE in
 esac
 
 PATH=$HOME/bin:$HOME/hosts:/usr/local/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin
-test -d /usr/local/go   && PATH=/usr/local/go/bin:$PATH
-test -d $HOME/perl5/bin && PATH=$HOME/perl5/bin:$PATH
-test -d $HOME/osbin     && PATH=$HOME/osbin/$OS:$PATH
-test -d $HOME/workbin   && PATH=$HOME/workbin:$PATH
-test -d $HOME/homebin   && PATH=$HOME/homebin:$PATH
+pathadd PATH /usr/local/go
+pathadd PATH $HOME/perl5/bin
+pathadd PATH $HOME/osbin    
+pathadd PATH $HOME/workbin  
+pathadd PATH $HOME/homebin  
 export PATH
 
 for dir in $HOME/perl $HOME/perl5/lib/perl5 /usr/local/share/perl/* /usr/local/lib/perl/* /usr/local/lib/perl5/site_perl; do
-    PERL5LIB=$dir:$PERL5LIB    
+    pathadd PERL5LIB $dir
 done
 export PERL5LIB
 
@@ -207,13 +209,6 @@ if type oocalc > /dev/null 2>&1; then
     OFFICE=yes
 fi
 
-note () 
-{
-    echo ===============================================================
-    echo $@
-    echo ===============================================================
-}
-
 # my do it all superdeal - consider customized mailcap type alternative
 m()
 {
@@ -249,7 +244,7 @@ m()
 	    *.odp|*.ppt|*.pptx|*.PPT|\
 	    *.ods|*.xls|*.XLS|*.xlsx|*.odt|\
 	    *.djvu|*.ps|*.pdf|*.PDF|\
-	    *.png|*.PNG|*.bmp|*.BMP|*.jpg|*.JPG|*.gif|*.GIF) open $1;;
+	    *.png|*.PNG|*.bmp|*.BMP|*.jpg|*.JPG|*.gif|*.GIF|*.html) open "$1";;
 	    *) less "$1";;
 	esac
     else
@@ -282,6 +277,7 @@ alias lrt='ls -lrt'
 alias lh='ls -lhS'
 alias mlp='m `ls -rt /tmp/*pdf|tail -1`'
 alias rm='rm -i'
+alias Rm='command rm -f'
 alias cp='cp -i'
 alias mv='mv -i'
 alias t=tail
