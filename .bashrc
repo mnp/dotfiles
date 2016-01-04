@@ -43,10 +43,6 @@ unset MIBS MIBDIRS
 
 [ -z "$PS1" ] && return
 
-for f in /usr/local/etc/bash_completion.d/* ; do
-    source $f
-done
-
 case $BASH_VERSION in
     # check the window size after each command and, if necessary,
     # update the values of LINES and COLUMNS.
@@ -56,16 +52,18 @@ esac
 # various formatters use these
 export COLUMNS LINES
 
+export BC_ENV_ARGS='-l $HOME/etc/mylib.bc'
+
 # OSX
 if type brew > /dev/null 2>&1; then
-    . $(brew --repository)/Library/Contributions/brew_bash_completion.sh
     # iterm
     nametab() { echo -ne "\033]0;"$@"\007"; }
     cd()      { builtin cd $1; nametab `basename $PWD`; }
-
 fi
 
-BC_ENV_ARGS='-l $HOME/etc/mylib.bc'
+# this load all the .d files
+# BASH_COMPLETION=/usr/local/etc/bash_completion
+test -f $BASH_COMPLETION && . $BASH_COMPLETION
 
 # make less more friendly for non-text input files, see lesspipe(1)
 #[ -x /usr/bin/lesspipe ] && eval "$(lesspipe)"
@@ -233,7 +231,7 @@ m()
 	*.bz2) bzcat "$1" | $PAGER ; return;;
 	*.zip|*.ZIP) unzip -l "$1" | $PAGER ; return;;
 	*.pod) perldoc "$1" | $PAGER ; return;;
-	*.[123456789n]) nroff -man "$1" | $PAGER; return;;
+	*.[123456789n]|*.3pm) nroff -man "$1" | $PAGER; return;;
     esac
 
     if [ -d /Applications ]; then
