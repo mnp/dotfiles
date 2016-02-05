@@ -1,0 +1,2 @@
+#!/bin/bash
+lsof -i -Pn |egrep 'java.*LISTEN'

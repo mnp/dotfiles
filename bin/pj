@@ -1,0 +1,24 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+
+my $arg = $ARGV[0] ||= 'java';
+
+my $pids = `pgrep $arg`;
+$pids =~ s/\n/ /g;
+
+my $cmd = "ps l -p $pids";
+my $bin = defined $ENV{JAVA_HOME} ? $ENV{JAVA_HOME} . "/bin/" : undef;
+
+print $cmd, $/;
+
+open PS, "$cmd|" or die $!;
+while (<PS>) {
+  if (/java/) {
+    s/-classpath \S+//g;
+    s/-D\S+//g;
+    s/$bin//g if $bin;
+  }
+  print;
+}

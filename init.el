@@ -255,9 +255,13 @@
 
 ; local
 (use-package show-paren
-  :init (setq 
-	 show-paren-style 'expression
-	 show-paren-delay 0))
+  :init (progn
+	  (set-face-attribute 'show-paren-match nil 
+			      :background "DarkOrange4"
+			      :foreground "white")
+	  (setq 
+	   show-paren-style 'expression
+	   show-paren-delay 0)))
 
 (use-package flycheck
   :ensure flycheck)
@@ -357,9 +361,10 @@
 
 (defun my-deft ()
   (interactive "")
-  (deft)
-  (deft-refresh))
-
+  (if (equalp (buffer-name) deft-buffer)
+      (kill-buffer deft-buffer)
+    (deft)))
+    
 (defun my-find-file-hook ()
   ;; not good idea along with sshct, which see
 ;;  (git-gutter)
@@ -377,7 +382,7 @@
   (google-set-c-style)
   (setq c-basic-offset 4)
   (setq indent-tabs-mode nil) ; force indent with spaces, never TABs
-  (setq fill-column 79)
+  (setq fill-column 90)
   (flycheck-mode)
 )
 

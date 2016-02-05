@@ -1,0 +1,78 @@
+#!/usr/bin/perl -w
+use strict;
+use warnings;
+
+
+my $cruise_speed = 1.0;		# yds/sec
+my $rest_time = 60;		# s
+$| = 1;
+
+my $tdist;
+my $ttime;
+my $date;
+my $stdist;
+my $sttime;
+
+
+while (<>) {
+  next if /^$/;
+
+  if (m{(\d*/\d*/\d*)}) {
+    $date = $1;
+    if ($stdist > 0) {
+      print "-" x 28, "\n";
+      print "\t$tdist\t", fmtsecs($ttime), "\n\n";
+      $stdist = $sttime = 0;
+    }
+    print "$date\t" . "-" x 20, "\n";
+  }
+  else {
+
+    my $dist = 0;
+    my $time = 0;
+    my $what = "sw";
+
+    map {
+      if (/(\d+):(\d+)/) {	# 1:50
+	$time = $1 * 60 + $2;
+      }
+      elsif (/:(\d+)/) {	# :30
+	$time = $1;
+      }
+
+      elsif (/(\d*)x(\d*)/) {	# 5x100
+	$dist = $1 * $2;
+      }
+      elsif (/(\d+)/) {		# 100
+	$dist = $1;
+      }
+      
+      else {			# wu, im, etc
+	$what = $_;
+      }    
+    } split;
+    
+    if ($dist == 0) {
+      die "bad line $.";
+    }
+
+    if ($time == 0) {
+      $time = $dist / $cruise_speed;
+    }
+
+    $ttime += $time;
+    $tdist += $dist;
+    $sttime += $time;
+    $stdist += $dist;
+    
+    print "\t$dist\t", fmtsecs($time),"\t$what\n";
+  }
+}
+
+print "-" x 28, "\n";
+print "\t$tdist\t", fmtsecs($ttime), "\n";
+
+sub fmtsecs {
+  my $n = shift;
+  sprintf("%d:%d", $n / 60, $n % 60);
+}

@@ -1,0 +1,28 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use Statistics::Descriptive;
+
+my $s = Statistics::Descriptive::Full->new();
+my $ff = '%0.6f';
+my $total = 0;
+
+while (<>) {
+  chomp;
+  $s->add_data($_);
+  $total += $_;
+}
+
+printf "count:     %d\n", $s->count;
+printf "total:     %d\n", $total;
+printf "mean:      $ff\n", $s->mean;
+printf "median:    $ff\n", $s->median;
+printf "min:       $ff\n", $s->min;
+printf "max:       $ff\n", $s->max;
+printf "stddev:    $ff\n", $s->standard_deviation();
+printf "variance:  $ff\n", $s->variance();
+printf "P50:       $ff\n", $s->percentile(50);
+printf "P67:       $ff\n", $s->percentile(67);
+printf "P90:       $ff\n", $s->percentile(90);
+printf "P95:       $ff\n", $s->percentile(95);

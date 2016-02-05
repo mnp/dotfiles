@@ -1,0 +1,22 @@
+#!/usr/bin/perl
+
+# Dump content files of a .war to stdout
+
+my $USAGE="Usage: `basename $0` WARFILE";
+
+use strict;
+use warnings;
+use File::Temp qw/tempdir/;
+use File::Spec;
+
+my $war = File::Spec->rel2abs($ARGV[0]) || die $1;
+
+my $tmpdir = tempdir( CLEANUP => 1 );
+chdir $tmpdir;
+
+`jar xvf $war`;
+
+print `jar tvf $_` for <WEB-INF/lib/*.jar>;
+
+
+

@@ -1,0 +1,39 @@
+#!/usr/bin/perl -w
+use strict;
+
+my $usage = "$0 'cmd1' 'cmd2'
+Executes both commands and compares the outputs like cmp.";
+
+my $cmd1 = shift or die $usage;
+my $cmd2 = shift or die $usage;
+my $char = 1;			# report is 1 based, not 0
+my $line = 1;
+my $c1;
+my $c2;
+
+open CMD1, "$cmd1|" or die "$cmd1: $!";
+open CMD2, "$cmd2|" or die "$cmd2: $!";
+
+while (defined($c1 = getc CMD1) && defined($c2 = getc CMD2) && $c1 eq $c2) { 
+  $char++;
+  $line++ if ($c1 eq "\n");
+}
+
+if (eof CMD1 && eof CMD2) {
+  exit 0;
+}
+elsif (eof CMD1) {
+  print "EOF from cmd1: byte $char, line $line\n";
+  exit 1;
+}
+elsif (eof CMD2) {
+  print "EOF from cmd2: byte $char, line $line\n";
+  exit 1;
+}
+else {
+  print "command outputs differ: byte $char, line $line\n";
+  exit 1;
+}
+
+
+

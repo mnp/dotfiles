@@ -1,0 +1,62 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use LWP::Simple;
+use IO::Socket;
+use Net::MAC::Vendor;
+
+# ip -> attributes
+my %hosts;
+
+my $ARPCMD = 'ip neigh';		# vs 'arp -s'
+my $NMAPCMD = 'sudo nmap -oX - -n -sn -PE -PP -PS';
+
+# to fill cache
+open NMAP, " 192.168.3.*|" or die $!;
+my $up = 0;
+while (<NMAP>) {
+  if (/state="up"/) {
+    $up = 1;
+  }
+  elsif (m{</host>}) {
+    $up = 0;
+  }
+  elsif ($up && /addr="(.*?)".*"ipv4"/) {
+  }
+  elsif ($up && /addr="(.*?)".*"mac"/) {
+  }
+}
+close NMAP;
+
+open ARP, "$ARPCMD |" or die $!;
+while (<ARP>) {
+  my ($ip, $x, $y, $z, $mac) = split;
+  $mac =~ /:/
+    and $hosts{$ip}{mac} = $mac;
+}
+close ARP;
+
+for my $ip (sort { last_octet($a) <=> last_octet($b) } keys %hosts) {
+  my $mac = $hosts{$ip}{mac};
+  unless ($mac) {
+    warn "no mac for $ip";
+    next;
+  }
+
+  if (0) {
+    my $json = get("http://www.macvendorlookup.com/api/v2/$mac");
+    $json =~ /"company":"(.*?)"/
+      and printf "%s %s %s %s\n", $ip, $mac, $hosts{$ip}{name}, $1;
+  }
+  else {
+    my $a = Net::MAC::Vendor::lookup($mac);
+    printf "%s %s %s\n", $ip, $mac, join("|", @$a);
+  }
+}
+
+sub last_octet {
+  my $ip = shift;
+  $ip =~ /\.(\d+)$/ and return $1;
+  return undef;
+}
