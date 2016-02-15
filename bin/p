@@ -1,0 +1,45 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+
+my $arg = shift;
+
+defined $arg
+  or exec "ps -elf | \$PAGER";
+
+my $pids = `pgrep -i -d, $arg`;
+
+$pids or die "None found\n";
+
+open PS, "ps lww -p $pids|" or die "ps";
+while (<PS>) {
+  if ($arg eq 'java') {
+    my @F = split;
+
+    if ('UID' eq $F[0]) {
+      print;
+      next;
+    }
+
+    # JDK version
+    print substr($_, 0, 73), "java ";
+    $F[12] =~ /jdk([\d.]+)/ and print "$1 ";
+    
+    # find the last non-dash word
+    my $class = "";
+    for (my $i=$#F; $i > 12; $i--) {
+      $F[$i] =~ /^-/ and last;
+      $class = $F[$i] . " $class";
+    }
+    print "$class\n";
+  }
+  else {
+    print;
+  }
+}
+close PS;
+
+
+
+

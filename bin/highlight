@@ -17,5 +17,4 @@ case $color in
     wht|white)   cbegin=$(echo -e "\033[0;37m");;
 esac
 
-sed -E -e "s%$pat%$cbegin&$cend%g"
-
+perl -pne "s%${pat}%${cbegin}$&${cend}%g"
