@@ -15,7 +15,6 @@ case $OSTYPE in
 esac
 
 PATH=$HOME/bin:$HOME/hosts:/usr/local/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin
-pathadd PATH /usr/local/go
 pathadd PATH $HOME/perl5/bin
 pathadd PATH $HOME/osbin    
 pathadd PATH $HOME/workbin  
@@ -31,10 +30,13 @@ export PERL5LIB
 export MVS_BROWSER=firefox
 
 # Go lang
+pathadd PATH /usr/local/go/bin
+
 if [ -d $HOME/go ]; then
     GOPATH=$HOME/go
-    PATH=$PATH:$HOME/go/bin
+    pathadd PATH $GOPATH/bin
 fi
+export GOPATH
 
 unset MIBS MIBDIRS
 

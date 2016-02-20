@@ -1,0 +1,23 @@
+#!/usr/bin/perl
+
+# Read a stream of white-delimited decimal numbers three at a time on
+# <> and output spherical theta, phi, and r.
+
+use constant PI => 3.14159;
+undef $/;
+my $str = <>;
+
+open PLOT, qq{| gnuplot -persist -e "set mapping spherical; splot '-' "};
+
+while ($str =~ /(\d+)\s+(\d+)\s+(\d+)/msg) {
+  my $theta = 2 * PI * $1;
+  my $phi = PI * $2;
+  my $r = sqrt $3;
+ 
+  printf PLOT ("%f\t%f\t%f\n", 
+	  $r * cos $theta * sin $phi, # x
+	  $r * sin $theta * sin $phi, # y
+	  $r * cos $theta);	      # z
+}
+
+close PLOT;

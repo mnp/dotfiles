@@ -1,0 +1,31 @@
+#!/usr/bin/perl -w
+
+#print humanize($ARGV[0]), "\n";
+
+while (<>) {
+  s/(\d+)/humanize($1)/eg;
+  print;
+}
+
+sub humanize {
+  my $K = 1 << 10;
+  my $M = 1 << 20;
+  my $G = 1 << 30;
+
+  my $n = shift;
+  my $s = 0;
+
+  if ($n < $K) {
+    return $n;
+  }
+
+  if ($n < $M) {
+    return sprintf "%.2fk", $n/$K;
+  }
+  
+  if ($n < $G) {
+    return sprintf "%.2fM", $n/$M;
+  }
+
+  return sprintf "%.2fG", $n/$G;
+}

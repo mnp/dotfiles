@@ -1,0 +1,11 @@
+#!/usr/bin/perl -np
+
+s {  ([\d\.]*)\s*([gkm])\s }
+  { sprintf "%u\n", $1 * suffix($2) }xoie;
+
+sub suffix {
+    my $s = shift;
+    if ($s =~ /k/i   ) { return 1<<10 }
+    elsif ($s =~ /m/i) { return 1<<20 }
+    elsif ($s =~ /g/i) { return 1<<30 }
+}
