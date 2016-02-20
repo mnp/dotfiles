@@ -15,6 +15,7 @@ case $OSTYPE in
 esac
 
 PATH=$HOME/bin:$HOME/hosts:/usr/local/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin
+pathadd PATH /usr/local/go/bin
 pathadd PATH $HOME/perl5/bin
 pathadd PATH $HOME/osbin    
 pathadd PATH $HOME/workbin  
@@ -64,7 +65,7 @@ if type brew > /dev/null 2>&1; then
 fi
 
 # this load all the .d files
-# BASH_COMPLETION=/usr/local/etc/bash_completion
+BASH_COMPLETION=${BASH_COMPLETION:-/usr/local/etc/bash_completion}
 test -f $BASH_COMPLETION && . $BASH_COMPLETION
 
 # make less more friendly for non-text input files, see lesspipe(1)
