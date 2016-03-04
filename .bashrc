@@ -487,6 +487,8 @@ PERL_MM_OPT="INSTALL_BASE=/Users/Mitchell/perl5"; export PERL_MM_OPT;
 
 type docker-machine > /dev/null 2>&1 && eval "$(docker-machine env default)" 
  
+type cf_completion > /dev/null 2>&1 && complete -C cf_completion cf
+
 #
 # Conveniences for dealing with docker-compose.
 # If docker-machine, then env | grep DOCKER_ > ~/.docker/env.sh
@@ -590,4 +592,3 @@ dk() {
             ;;
         esac
 }
-

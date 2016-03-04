@@ -47,7 +47,7 @@
 (require 'bind-key)                ;; needed by use-package :bind
 
 (use-package hideshow
-  :ensure hideshow)
+  :ensure t)
 								      ; (require 'workgroups)
 ;;      (use-package ace-window
 ;;	:bind ("C-x o" . ace-window))
@@ -57,15 +57,18 @@
  :bind ("M-#" . calc))
 
 (use-package cider
+  :ensure t
   :init (setq cider-lein-command "/usr/local/bin/lein"))
 
 (use-package compile
-  :ensure compile
+  :ensure t
   :init (setq compilation-scroll-output 1	
 	      compile-command "make ")
   :bind ("C-x C-k" . compile))
 
-(use-package google-c-style)
+(use-package google-c-style
+  :disabled t)
+
 ;; TODO: rtags does references and c++ well. Note find-tag
 ;; advice below.
 
@@ -81,7 +84,7 @@
 ;   :bind ("C-x C-b" . bs-show))
 
 (use-package git-gutter
-  :ensure git-gutter
+  :ensure t
   :init (global-git-gutter-mode +1))
 
 
@@ -92,32 +95,40 @@
 ;; 	 (compile-command . "cd ~/src/tw-server; ./gradlew build"))))
 ;; 
 
-(use-package helm-git-grep
-  :ensure helm-git-grep
-  :bind ("C-c g" . helm-git-grep)
-  	;; helm-git-grep-with-exclude-file-pattern
-  	;; (defun helm-git-grep-get-top-dir nil "/users/Mitchell/src/tw-server/PLATFORM")
-  :init (progn
-	  ;; Invoke `helm-git-grep' from isearch.
-	  (define-key isearch-mode-map (kbd "C-c g") 'helm-git-grep-from-isearch)
+;; (use-package helm-git-grep
+;;   :ensure helm-git-grep
+;;   :bind ("C-c g" . helm-git-grep)
+;;   	;; helm-git-grep-with-exclude-file-pattern
+;;   	;; (defun helm-git-grep-get-top-dir nil "/users/Mitchell/src/tw-server/PLATFORM")
+;;   :init (progn
+;; 	  ;; Invoke `helm-git-grep' from isearch.
+;; 	  (define-key isearch-mode-map (kbd "C-c g") 'helm-git-grep-from-isearch)
+;; 
+;; 	  ;; Invoke `helm-git-grep' from other helm.
+;; 	  (eval-after-load 'helm
+;; 	    '(define-key helm-map (kbd "C-c g") 'helm-git-grep-from-helm))))
 
-	  ;; Invoke `helm-git-grep' from other helm.
-	  (eval-after-load 'helm
-	    '(define-key helm-map (kbd "C-c g") 'helm-git-grep-from-helm))))
+;; https://github.com/kopoli/helm-grepint
+(use-package helm-grepint
+  :ensure t
+  :init (helm-grepint-set-default-config)
+  :bind ("C-c g" . helm-grepint-grep))
 
 ;(use-package helm-match-plugin
 ;  :ensure helm-match-plugin
 ;)
 
-(use-package helm-config
-;  :ensure helm-config
-  :init (progn
-	  (helm-mode 1)
-	  (define-key global-map [remap find-file] 'helm-find-files)
-	  (define-key global-map [remap occur] 'helm-occur)
-	  (define-key global-map [remap list-buffers] 'helm-buffers-list)
-	  (define-key global-map (kbd "M-C-/") 'helm-dabbrev))
-  :bind (("M-x" . helm-M-x)))
+;; broken?
+;;
+;; (use-package helm-configuration
+;;   :ensure t
+;;   :init (progn
+;; 	  (helm-mode 1)
+;; 	  (define-key global-map [remap find-file] 'helm-find-files)
+;; 	  (define-key global-map [remap occur] 'helm-occur)
+;; 	  (define-key global-map [remap list-buffers] 'helm-buffers-list)
+;; 	  (define-key global-map (kbd "M-C-/") 'helm-dabbrev))
+;;   :bind (("M-x" . helm-M-x)))
 					;(unless (boundp 'completion-in-region-function)
 					;  (define-key lisp-interaction-mode-map [remap completion-at-point] 'helm-lisp-completion-at-point)
 					;  (define-key emacs-lisp-mode-map       [remap completion-at-point] 'helm-lisp-completion-at-point))
@@ -131,20 +142,17 @@
 ;; This binds c-.
 ;; we've stolen c-. (from org-time-stamp, so we need to rebind that)
 (use-package dot-mode
-  :ensure dot-mode
+  :ensure t
   :init (add-hook 'find-file-hooks (lambda () (dot-mode 1)))
   :bind ("C-." . dot-mode))
 
 (use-package markdown-mode
-  :ensure markdown-mode
+  :ensure t
   :mode "\\.md\\'")
 
 ;; jtags mode has rotted. gnu global has many more features atm
 (use-package ggtags
-  :init (add-hook 'c-mode-common-hook
-          (lambda ()
-            (when (derived-mode-p 'c-mode 'c++-mode 'java-mode)
-              (ggtags-mode 1)))))
+  :ensure t)
 
 ;; todo need a work init and a home one
 ;; todo  (locate-dominating-file (buffer-file-name) "build.gradle")
@@ -174,24 +182,32 @@
 (my-eclim-setup)
 (global-set-key (kbd "C-c C-e c") 'eclim-java-call-hierarchy)
 
+(use-package go-mode
+  :ensure t)
+
+(use-package clojure-mode
+  :ensure t)
+
 (use-package gradle-mode
-  :ensure gradle-mode)
+  :ensure t)
 
-(use-package ack
-  :ensure ack
-  ;; note: local mod in elpa/ack-1.3/ack.el, should get pushed up?
-  ;;	:init (setq ack-command (executable-find "ack-grep"))
-;  :init (progn
-;	  (setq ack-default-directory-function 'my-ack-default-directory))
-  :bind ("C-c k" . ack)
-  )
-
-(defun my-ack-default-directory (arg)
-  "wrap ack-default-directory-function and reverse his behavior: if ARG is
-  given, call him with none, while if no ARG is given, call him with
-  4.  I want to find from project root by default."
-  (ack-default-directory
-   (if arg nil 4)))
+;; subsumed by grepint probably
+;;
+;; (use-package ack
+;;   :ensure ack
+;;   ;; note: local mod in elpa/ack-1.3/ack.el, should get pushed up?
+;;   ;;	:init (setq ack-command (executable-find "ack-grep"))
+;; ;  :init (progn
+;; ;	  (setq ack-default-directory-function 'my-ack-default-directory))
+;;   :bind ("C-c k" . ack)
+;;   )
+;; 
+;; (defun my-ack-default-directory (arg)
+;;   "wrap ack-default-directory-function and reverse his behavior: if ARG is
+;;   given, call him with none, while if no ARG is given, call him with
+;;   4.  I want to find from project root by default."
+;;   (ack-default-directory
+;;    (if arg nil 4)))
 
 (use-package extended-insert
   :bind ("C-x i" . extended-insert))
@@ -211,17 +227,17 @@
 
 ;; C-c C-j 
 (use-package org-journal
-  :ensure org-journal
+  :ensure t
   :init (setq org-journal-dir (expand-file-name "~/org/journal")))
 
 (use-package deft
-  :ensure deft
+  :ensure t
   :bind (([f9] . my-deft))
   :init (setq deft-extension "org"
 	      deft-text-mode 'org-mode))
 
 (use-package frame-cmds
-  :ensure frame-cmds
+  :ensure t
   :init
   (bind-key [f11] 'toggle-max-frame))
 
@@ -240,7 +256,8 @@
 ;;			       :box '(:line-width 1 :style released-button))))
 
 (use-package yasnippet
-  :ensure yasnippet
+  :defer t
+  :ensure t
   :load-path "~/.emacs.d/snippets"
   :init (yas-global-mode 1))
 
@@ -249,22 +266,13 @@
   :bind ("C-x 4 y" . browse-kill-ring))
 
 (use-package easy-kill
+  :ensure t
   :init (progn
 	  (global-set-key [remap kill-ring-save] 'easy-kill)
 	  (global-set-key [remap mark-sexp] 'easy-mark)))
 
-; local
-(use-package show-paren
-  :init (progn
-	  (set-face-attribute 'show-paren-match nil 
-			      :background "DarkOrange4"
-			      :foreground "white")
-	  (setq 
-	   show-paren-style 'expression
-	   show-paren-delay 0)))
-
 (use-package flycheck
-  :ensure flycheck)
+  :ensure t)
 
 (use-package xcscope     ;; see ~/.emacs.d/elpa/xcscope-readme.txt
   :ensure xcscope
@@ -279,7 +287,7 @@
 ;; Or https://github.com/pashinin/workgroups2
 ;;
 (use-package saveplace
-  :ensure saveplace
+  :ensure t
   :init (progn
 	  (setq save-place-file (concat user-emacs-directory "saveplace.el"))
 	  (setq-default save-place t)
@@ -316,6 +324,13 @@
 ;; ------------------------------------------------------
 ;; Modes
 ;; ------------------------------------------------------
+
+(set-face-attribute 'show-paren-match nil 
+		    :background "DarkOrange4"
+		    :foreground "white")
+(setq 
+ show-paren-style 'expression
+ show-paren-delay 0)
 
 (require 'erc)
 
@@ -361,17 +376,22 @@
 
 (defun my-deft ()
   (interactive "")
-  (if (equalp (buffer-name) deft-buffer)
+  (if (equalp (buffer-name) "*Deft*")
       (kill-buffer deft-buffer)
     (deft)))
     
-(defun my-find-file-hook ()
-  ;; not good idea along with sshct, which see
+;(defun my-find-file-hook ()
+;  ;; not good idea along with sshct, which see
 ;;  (git-gutter)
-    ;;  (vc-mode-line (buffer-file-name) 'git)
-  )
+;    ;;  (vc-mode-line (buffer-file-name) 'git)
+;  )
+;(add-hook 'find-file-hooks 'my-find-file-hook)
 
-(add-hook 'find-file-hooks 'my-find-file-hook)
+(defun my-prog-mode-hook ()
+  (show-paren-mode 1)
+  (ggtags-mode 1))
+
+(add-hook 'prog-mode-hook 'my-prog-mode-hook)
 
 (defun my-generic-mode-hook ()
   (auto-fill-mode 1)
@@ -653,6 +673,49 @@ it.  This will look in parent dirs up to root for it as well."
       ))
 
 
+;; experiment
+
+;; minimap.  see also sublimity, with different bugs
+;(use-package minimap
+;  :init 
+;  (progn
+;    (setq minimap-major-modes '(prog-mode text-mode)
+;	  minimap-window-location 'right)
+;    (defface minimap-active-region-background
+;      '((((background dark)) (:background "#660000"))
+;	(t (:background "#C847D8FEFFFF")))
+;      "Face for the active region in the minimap.
+;By default, this is only a different background color."
+;  :group 'minimap)))
+
+
+;;
+;; Sync elpa package list on all machines.  Save to a file and version
+;; control it.
+;; 
+(defvar my-shared-package-file (concat user-emacs-directory "all-platforms-packages.el"))
+
+(defun my-elpa-package-names ()
+  "List all the elpa packages present"
+  (sort (mapcar 'car package-alist) 'string-lessp))
+
+(defun my-elpa-save-shared-packages ()
+  (if (file-exists-p my-shared-package-file)
+      (rename-file my-shared-package-file (concat my-shared-package-file ".old") t))
+  (save-excursion
+    (set-buffer (find-file-noselect my-shared-package-file))
+    (print ";; see my-elpa-save-shared-packages()")
+    (print (my-elpa-package-names))
+    (basic-save-buffer))
+  nil)
+
+;    (my-elpa-save-shared-packages)
+
+
+
+; (package-install-from-archive pkg-desc)
+
+
 ;; keep this last
 
 ;(if window-system 
@@ -675,8 +738,7 @@ it.  This will look in parent dirs up to root for it as well."
     (deft gradle-mode yasnippet yari xcscope use-package tangotango-theme sx svg-mode-line-themes svg-clock slime-volleyball powerline paredit org-journal magit helm-git-grep google-c-style git-gutter-fringe git-gutter+ frame-cmds flycheck emacs-eclim dot-mode company cider auto-complete aggressive-indent ack ace-window)))
  '(safe-local-variable-values
    (quote
-    ((git-grep-path . "thingworx-platform-common thingworx-platform-postgres")
-     (git-grep-path . "PLATFORM thingworx-platform-postgres")))))
+    ((git-grep-path . "thingworx-platform-common thingworx-platform-postgres")))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
