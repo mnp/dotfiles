@@ -1,5 +1,21 @@
 #!/usr/bin/perl -w
 
+# Pipe numbers at me, and I'll add suffixes.
+# See also my friend, dehumanize.
+
+use strict;
+use warnings;
+
+use constant KiB => 1 << 10;
+use constant MiB => 1 << 20;
+use constant GiB => 1 << 30;
+use constant TiB => 1 << 40;
+
+use constant KB => 10**3;
+use constant MB => 10**4;
+use constant GB => 10**5;
+use constant TB => 10**6;
+
 #print humanize($ARGV[0]), "\n";
 
 while (<>) {
@@ -8,24 +24,11 @@ while (<>) {
 }
 
 sub humanize {
-  my $K = 1 << 10;
-  my $M = 1 << 20;
-  my $G = 1 << 30;
-
   my $n = shift;
-  my $s = 0;
 
-  if ($n < $K) {
-    return $n;
-  }
-
-  if ($n < $M) {
-    return sprintf "%.2fk", $n/$K;
-  }
-  
-  if ($n < $G) {
-    return sprintf "%.2fM", $n/$M;
-  }
-
-  return sprintf "%.2fG", $n/$G;
+  $n < KiB and return $n;
+  $n < MiB and return sprintf "%.2fk", $n/KiB;
+  $n < GiB and return sprintf "%.2fM", $n/MiB;
+  $n < TiB and return sprintf "%.2fM", $n/GiB;
+  return sprintf "%.2fG", $n/TiB;
 }

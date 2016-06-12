@@ -1,10 +1,21 @@
 [user]
 	name = Mitchell Perilstein
-	email = mitchell.perilstein@gmail.com
+	email = mitchell.perilstein@thingworx.com
 [github]
 	user = mnp
-	token = b673b3c641290b2790ef4840f0f0b212
 [push]
 	default = simple
 [alias]
 	stashed = stash list --pretty=format:'%gd: %Cred%h%Creset %Cgreen[%ar]%Creset %s'
+
+# for $deity's sake, check that anything we're getting is complete and sane on a regular basis
+[transfer]
+        fsckobjects = true
+[fetch]
+        fsckobjects = true
+[receive]
+        fsckObjects = true 
+[difftool]
+    prompt = false
+[difftool "icdiff"]
+    cmd = icdiff $LOCAL $REMOTE | less -R

@@ -1,5 +1,11 @@
 #!/usr/bin/perl -np
 
+# Pipe numbers with byte suffixes at me, and I'll expand them to values
+# See also my friend, humanize.
+
+use strict;
+use warnings;
+
 s {  ([\d\.]*)\s*([gkm])\s }
   { sprintf "%u\n", $1 * suffix($2) }xoie;
 

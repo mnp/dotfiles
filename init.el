@@ -13,11 +13,6 @@
 (add-to-list 'exec-path "/usr/local/bin")
 (setenv "PATH" (concat "/usr/local/bin:" (getenv "PATH")))
 
-
-; not sure why this can't load bashrc  - time to go back to profile
-; (shell-command-to-string "bash -ic 'echo $PERL5LIB 2>/dev/null '")
-
-
 ;; OSX Hacks
 (if (memq system-type '(darwin))
     ;;; mac
@@ -95,6 +90,23 @@
 ;; 	 (compile-command . "cd ~/src/tw-server; ./gradlew build"))))
 ;; 
 
+(use-package helm
+  :ensure t
+  :config (progn
+	    (helm-mode 1)
+	    (helm-adaptive-mode 1)
+	    (helm-push-mark-mode 1)
+	    (add-to-list 'helm-completing-read-handlers-alist 
+			 '(find-file . helm-completing-read-symbols))
+	    (unless (boundp 'completion-in-region-function)
+	      (define-key lisp-interaction-mode-map [remap completion-at-point] 'helm-lisp-completion-at-point)
+	      (define-key emacs-lisp-mode-map       [remap completion-at-point] 'helm-lisp-completion-at-point))
+	    (define-key global-map [remap occur] 'helm-occur)
+	    (define-key global-map [remap list-buffers] 'helm-buffers-list)
+	    (define-key global-map (kbd "M-C-/") 'helm-dabbrev))
+  :bind (("M-x" . helm-M-x)))
+
+
 ;; (use-package helm-git-grep
 ;;   :ensure helm-git-grep
 ;;   :bind ("C-c g" . helm-git-grep)
@@ -112,27 +124,13 @@
 (use-package helm-grepint
   :ensure t
   :init (helm-grepint-set-default-config)
-  :bind ("C-c g" . helm-grepint-grep))
-
-;(use-package helm-match-plugin
-;  :ensure helm-match-plugin
-;)
-
-;; broken?
-;;
-;; (use-package helm-configuration
-;;   :ensure t
-;;   :init (progn
-;; 	  (helm-mode 1)
-;; 	  (define-key global-map [remap find-file] 'helm-find-files)
-;; 	  (define-key global-map [remap occur] 'helm-occur)
-;; 	  (define-key global-map [remap list-buffers] 'helm-buffers-list)
-;; 	  (define-key global-map (kbd "M-C-/") 'helm-dabbrev))
-;;   :bind (("M-x" . helm-M-x)))
-					;(unless (boundp 'completion-in-region-function)
-					;  (define-key lisp-interaction-mode-map [remap completion-at-point] 'helm-lisp-completion-at-point)
-					;  (define-key emacs-lisp-mode-map       [remap completion-at-point] 'helm-lisp-completion-at-point))
-
+  :bind ("C-c g" . helm-grepint-grep)
+  :config (helm-grepint-add-grep-config
+	   restricted-git-grep
+	   :command "git"
+	   :arguments (get-restricted-git-command)
+	   :enable-function my-helm-grepint-git-grep-locate-root
+	   :root-directory-function my-helm-grepint-git-grep-locate-root))
 
 ; local
 (use-package duplicate-line
@@ -181,6 +179,12 @@
 (add-to-list 'load-path (expand-file-name "~/prj/emacs-eclim/"))
 (my-eclim-setup)
 (global-set-key (kbd "C-c C-e c") 'eclim-java-call-hierarchy)
+
+;; scala
+;;(use-package ensime
+;;  :commands ensime ensime-mode)
+;;(add-hook 'scala-mode-hook 'ensime-mode)
+
 
 (use-package go-mode
   :ensure t)
@@ -306,10 +310,6 @@
 
       (load-theme 'tangotango t)
 
-      ;; busted
-      (global-set-key (kbd "C-+") 'text-scale-increase)
-      (global-set-key (kbd "C--") 'text-scale-decrease)
-
       ;; this maybe also good for local terminal, but how do we tell
       ;; that from a remote?
       (setq redisplay-dont-pause t)	
@@ -320,6 +320,42 @@
       (mouse-wheel-mode 1)
       (delete-selection-mode 1)
       (global-set-key "\C-z" 'undo)))
+
+;;
+;; dynamic global font handling - handles all buffers, not just current one 
+;; http://emacs.stackexchange.com/questions/7583/transiently-adjust-text-size-in-mode-line-and-minibuffer/7584#7584
+;;
+(if window-system
+    (progn
+      (setq default-font-size-pt 12)
+      
+      (defun modi/font-size-adj (&optional arg)
+	"The default C-x C-0/-/= bindings do an excellent job of font resizing.
+They, though, do not change the font sizes for the text outside the buffer,
+example in mode-line. Below function changes the font size in those areas too.
+
+M-<NUM> M-x modi/font-size-adj increases font size by NUM points if NUM is +ve,
+                               decreases font size by NUM points if NUM is -ve
+                               resets    font size if NUM is 0."
+	(interactive "p")
+	(if (= arg 0)
+	    (setq font-size-pt default-font-size-pt)
+	  (setq font-size-pt (+ font-size-pt arg)))
+	;; The internal font size value is 10x the font size in points unit.
+	;; So a 10pt font size is equal to 100 in internal font size value.
+	(set-face-attribute 'default nil :height (* font-size-pt 10)))
+
+      (defun modi/font-size-incr ()  (interactive) (modi/font-size-adj +1))
+      (defun modi/font-size-decr ()  (interactive) (modi/font-size-adj -1))
+      (defun modi/font-size-reset () (interactive) (modi/font-size-adj 0))
+
+      (modi/font-size-reset) ; Initialize font-size-pt var to the default value
+
+      (global-set-key (kbd "C-+") 'modi/font-size-incr)
+      (global-set-key (kbd "C--") 'modi/font-size-decr)
+      (global-set-key (kbd "C-)") 'modi/font-size-reset)    ; ie, shift-ctrl-0
+))
+
 
 ;; ------------------------------------------------------
 ;; Modes
@@ -388,6 +424,7 @@
 ;(add-hook 'find-file-hooks 'my-find-file-hook)
 
 (defun my-prog-mode-hook ()
+  (setq fill-column 90)
   (show-paren-mode 1)
   (ggtags-mode 1))
 
@@ -402,7 +439,6 @@
   (google-set-c-style)
   (setq c-basic-offset 4)
   (setq indent-tabs-mode nil) ; force indent with spaces, never TABs
-  (setq fill-column 90)
   (flycheck-mode)
 )
 
@@ -448,6 +484,10 @@ narrowed."
 
 (add-to-list 'auto-mode-alist '("Rakefile" . ruby-mode))
 
+(add-to-list 'auto-mode-alist '("\\.yml.j2" . yaml-mode))
+(add-to-list 'auto-mode-alist '("\\.conf.j2" . json-mode))
+(add-to-list 'auto-mode-alist '("\\.conf" . json-mode))
+
 (defun my-perl-mode-hook ()
   (load-library "mycperl")
   (cperl-mode)
@@ -478,6 +518,28 @@ narrowed."
 ;; Fun
 ;; ------------------------------------------------------
 
+(defun get-shell-file-env (FILE VAR)
+  "Use bash to source FILE in a temporary subshell and report the value of env VAR."
+  (let ((F (expand-file-name FILE)))
+    (if (file-readable-p F)
+	(shell-command-to-string
+	 (format "bash -c '. %s; echo ${%s}' 2>/dev/null" F VAR))
+      nil)))
+
+(defun my-helm-grepint-git-grep-locate-root ()
+  (expand-file-name
+  (or (locate-dominating-file (file-name-as-directory
+			       (expand-file-name (file-truename default-directory)))
+			      ".mnp-project")
+      (locate-dominating-file (file-name-as-directory
+			       (expand-file-name (file-truename default-directory)))
+			      ".git"))))
+
+(defun get-restricted-git-command ()
+  (concat "--no-pager grep --line-number --no-color -- "
+	  (get-shell-file-env
+	   (concat (my-helm-grepint-git-grep-locate-root) "/.mnp-project")
+	   "git_grep_path")))
 
 ; (defvar my-hs-hide nil "Current state of hideshow for toggling all.")
 
@@ -599,6 +661,7 @@ it.  This will look in parent dirs up to root for it as well."
 ;; if we don't use vc saves go much faster if nil? 
 ;(setq vc-handled-backends '(Git))
 (setq vc-handled-backends nil)
+(remove-hook 'find-file-hooks 'vc-find-file-hook)
 
 (auto-fill-mode 1)
 (auto-compression-mode 1)
@@ -710,11 +773,7 @@ it.  This will look in parent dirs up to root for it as well."
   nil)
 
 ;    (my-elpa-save-shared-packages)
-
-
-
 ; (package-install-from-archive pkg-desc)
-
 
 ;; keep this last
 
@@ -723,6 +782,7 @@ it.  This will look in parent dirs up to root for it as well."
 ;      (if (require 'edit-server)
 ;	  (edit-server-start)
 ;	(server-start))))
+
 
 (if window-system (server-start))
 
@@ -733,9 +793,13 @@ it.  This will look in parent dirs up to root for it as well."
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(custom-safe-themes
+   (quote
+    ("8db4b03b9ae654d4a57804286eb3e332725c84d7cdab38463cb6b97d5762ad26" default)))
+ '(gradle-mode t)
  '(package-selected-packages
    (quote
-    (deft gradle-mode yasnippet yari xcscope use-package tangotango-theme sx svg-mode-line-themes svg-clock slime-volleyball powerline paredit org-journal magit helm-git-grep google-c-style git-gutter-fringe git-gutter+ frame-cmds flycheck emacs-eclim dot-mode company cider auto-complete aggressive-indent ack ace-window)))
+    (svg deft gradle-mode yasnippet yari xcscope use-package tangotango-theme sx svg-mode-line-themes svg-clock slime-volleyball powerline paredit org-journal magit helm-git-grep google-c-style git-gutter-fringe git-gutter+ frame-cmds flycheck emacs-eclim dot-mode company cider auto-complete aggressive-indent ack ace-window)))
  '(safe-local-variable-values
    (quote
     ((git-grep-path . "thingworx-platform-common thingworx-platform-postgres")))))

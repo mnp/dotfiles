@@ -270,12 +270,18 @@ mrt ()
     $PAGER $1/$(ls -rt $1|tail -1)
 }
 
+lstoday()
+{
+    ls -l $@ | egrep "$(date '+%b %_d')"
+}
+
 alias l='ls $LS_OPTIONS'
 alias ls='ls $LS_OPTIONS'
 alias ll='ls $LS_OPTIONS -l'
 alias la='ls $LS_OPTIONS -lA'
 alias lrt='ls -lrt'
 alias lh='ls -lhS'
+
 alias mlp='m `ls -rt /tmp/*pdf|tail -1`'
 alias rm='rm -i'
 alias Rm='command rm -f'
@@ -312,6 +318,12 @@ alias f10="awk '{print \$10}'"
 alias f11="awk '{print \$11}'"
 alias f12="awk '{print \$12}'"
 alias f13="awk '{print \$13}'"
+
+function pc ()
+{
+    nc -z $(echo $@ | sed 's/:/ /g')
+    echo $?
+}
 
 type ack    > /dev/null 2>&1 || alias ack='ack-grep'
 type gradle > /dev/null 2>&1 || alias gd='gradle'
@@ -351,20 +363,21 @@ clean ()
     fi
 }
 
-# ps grep
-p () 
-{ 
-    if [ $# -lt 1 ]; then
-	ps faux | $PAGER
-    else
-	local pid=$(pgrep -f $1)
-	if [[ -n $pid ]]; then
-	    ps lww -p $pid
-	else
-	    echo None found
-	fi
-    fi
-} 
+# moved to ~/bin/p
+# # ps grep
+# p () 
+# { 
+#     if [ $# -lt 1 ]; then
+# 	ps faux | $PAGER
+#     else
+# 	local pid=$(pgrep -f $1)
+# 	if [[ -n $pid ]]; then
+# 	    ps lww -p $pid
+# 	else
+# 	    echo None found
+# 	fi
+#     fi
+# } 
 
 # more which
 mw () 
@@ -475,6 +488,8 @@ fi
 # default
 java8
 
+# Avoid errors from any UTF8 in code; I guess eclipse can add them.
+export JAVA_TOOL_OPTIONS=-Dfile.encoding=UTF8
 
 if [ -d ${HOME}/perl5/lib/perl5/local/lib.pm ]; then
     # added by duckpan installer
@@ -485,110 +500,11 @@ fi
 PERL_MB_OPT="--install_base \"/Users/Mitchell/perl5\""; export PERL_MB_OPT;
 PERL_MM_OPT="INSTALL_BASE=/Users/Mitchell/perl5"; export PERL_MM_OPT;
 
-type docker-machine > /dev/null 2>&1 && eval "$(docker-machine env default)" 
+if docker-machine > /dev/null 2>&1 ; then
+    eval "$(docker-machine env default)" 
+    alias dm=docker-machine
+    alias dk=docker-compose
+fi
  
-type cf_completion > /dev/null 2>&1 && complete -C cf_completion cf
+# type cf_completion > /dev/null 2>&1 && complete -C cf_completion cf
 
-#
-# Conveniences for dealing with docker-compose.
-# If docker-machine, then env | grep DOCKER_ > ~/.docker/env.sh
-#
-
-DK_HELP='dk multipurpose hacky wrapper:
-   dk up -d
-   dk stop
-   dk kill /container/
-   dk rm /container/
-   dk stats
-   dk nets
-   dk enter /container/
-'
-
-dk() {
-    local file=docker-compose.yml
-    local options
-    local project=$( basename $PWD | sed s/-//g )
-    local command
-    local color=magenta
-
-    while [[ $1 =~ ^- ]]; do
-	case $1 in
-	    --version|-v)
-		docker-compose -v
-		return
-		;;
-	    -h|--help)
-		{ docker-compose 2>&1 ; echo; echo "$DK_HELP"; } | highlight ${color} '^[^ ].*:'
-		return
-		;;
-	    --verbose) 
-		options=$1
-		shift
-		options="$options --verbose"
-		;;
-	    --project|-p)
-		shift
-		project=$1
-		shift
-		options="$options -p $project"
-		;;
-	    --file|-f)
-		shift
-		file=$1
-		shift
-		;;
-	esac
-    done
-
-    # try to infer yml file if none was given
-    if [ ! -f $file ]; then
-	local ymls
-	{ shopt -s nullglob ; ymls=(*.yml); }
-	case ${#ymls[@]} in
-	    0) 
-		echo "There is no $file"
-		return;;
-	    1) 
-		echo
-		echo ' *** ' Using ${ymls[0]} ' *** '
-		echo
-		file=${ymls[0]} ;;
-	    *) 
-		echo I can\'t guess which .yml to use: there are ${#ymls[@]}. Specify with --file.
-		return;;
-	esac
-    fi
-    
-    options="$options -f $file"
-    command=$1
-    shift
-
-    case $command in
-       enter)
-	   if [ -z "$1" ]; then
-	       echo You must give a service to enter.
-	       return
-	   fi
-            docker exec -it ${project}_${1}_1 bash
-            ;;
-        stats)
-            local things=$( docker ps | perl -lane '/Up/ and print $F[-1]' )
-            docker stats --no-stream=true $things | highlight ${color}  '^CONT.*$'
-            ;;
-        ps)
-	    docker-compose $options ps | highlight ${color} 'Name.*|^--*$'
-	    ;;
-	nets)
-	    local fmt="%-25s %s\n"
-	    local ifc=vboxnet0
-	    printf "$fmt" CONTAINER IPADDRESS | highlight ${color} '^C.*'
-	    printf "$fmt" $ifc $(ifconfig $ifc | perl -ne '/inet[\s:]+([\.\d]+)/ and print $1')
-	    for c in $( docker ps | perl -lane '/Up/ and print $F[-1]' ); do
-		printf "$fmt" $c $( docker inspect $c | perl -ne '/"IPAddress": "([\.\d]+)"/ and print $1')
-	    done
-	    ;;
-        *)
-            docker-compose $options $command $@
-            ;;
-        esac
-}
