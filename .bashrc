@@ -129,6 +129,10 @@ if type git > /dev/null 2>&1; then
     fi
 fi
 
+if type terraform > /dev/null 2>&1; then
+    alias tf=terraform
+fi
+
 # disable ctrl-s software flow control
 stty -ixon
 
@@ -148,6 +152,10 @@ case $TERM in
 	PS1BASE='\u@\h:\w\$ '
 	;;
 esac
+
+if type git > /dev/null 2>&1; then
+    alias tf=terraform
+fi
 
 PS1="$PS1BASE"
 
@@ -268,6 +276,11 @@ mrt ()
 { 
     test -z $1 && set .
     $PAGER $1/$(ls -rt $1|tail -1)
+}
+
+lrt() {
+    test -z $1 && set .
+    ls -lrt $(dirname $1)$(readlink $1)
 }
 
 lstoday()

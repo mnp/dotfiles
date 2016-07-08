@@ -181,10 +181,11 @@
 (global-set-key (kbd "C-c C-e c") 'eclim-java-call-hierarchy)
 
 ;; scala
-;;(use-package ensime
-;;  :commands ensime ensime-mode)
-;;(add-hook 'scala-mode-hook 'ensime-mode)
 
+;; depends on (executable-find "sbt")  ~~ "/usr/local/bin/sbt"
+(use-package ensime
+;  :pin melpa-stable
+)
 
 (use-package go-mode
   :ensure t)
@@ -259,11 +260,11 @@
 ;;			       :background "black" 
 ;;			       :box '(:line-width 1 :style released-button))))
 
-(use-package yasnippet
-  :defer t
-  :ensure t
-  :load-path "~/.emacs.d/snippets"
-  :init (yas-global-mode 1))
+; (use-package yasnippet
+;   :defer t
+;   :ensure t
+;   :load-path "~/.emacs.d/snippets"
+;   :init (yas-global-mode 1))
 
 ; Elisp
 (use-package browsekill
@@ -387,28 +388,6 @@ M-<NUM> M-x modi/font-size-adj increases font size by NUM points if NUM is +ve,
 
 (load-library "my-org-mods")
 (add-hook 'org-mode-hook 'my-org-mode-hook)
-
-
-(setq org-capture-templates
-      '(
-	("j" "Journal entry with date" plain
-         (file+datetree+prompt "~/org/journal.org")
-         "* "
-         :unnarrowed t)
-
-	("t" "Quick task" entry
-         (file+headline "~/org/todo.org" "Tasks")
-         "* TODO %^{Task}"
-         :immediate-finish t)
-
-	("T" "Full task" entry
-         (file+headline "~/org/todo.org" "Tasks")
-         "* TODO "
-         :unnarrowed t)
-
-	("n" "Quick note" item
-	 (file+headline "~/org/notes.org" "Quick notes"))))
-
 
 (defun my-deft ()
   (interactive "")
