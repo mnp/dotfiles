@@ -292,7 +292,6 @@ alias l='ls $LS_OPTIONS'
 alias ls='ls $LS_OPTIONS'
 alias ll='ls $LS_OPTIONS -l'
 alias la='ls $LS_OPTIONS -lA'
-alias lrt='ls -lrt'
 alias lh='ls -lhS'
 
 alias mlp='m `ls -rt /tmp/*pdf|tail -1`'
