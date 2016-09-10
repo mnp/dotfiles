@@ -18,32 +18,29 @@
     (switch-to-buffer (most-recent-mode-buffer 'org-mode (buffer-list)))))
 
 (defun my-org-mode-hook ()
-  (let ((dir (expand-file-name "~/org")))
-
     (setq fill-column 99
 	  org-export-with-toc nil    ;; do not generate a TOC on export please
-  	  org-agenda-text-search-extra-files (directory-files "/Users/Mitchell/org/" t "org$")
-	  org-refile-targets '(("/Users/Mitchell/org/notes.org"  . (:level . 1))))
-
-    (auto-fill-mode 1)))
+  	  org-agenda-text-search-extra-files (directory-files my-org-dir t "org$")
+	  org-refile-targets '((my-notes-orgfile  . (:level . 1))))
+    (auto-fill-mode 1))
 
 (setq org-capture-templates
       '(
 	("j" "Journal entry with date" plain
-         (file+datetree+prompt "~/org/journal.org")
+         (file+datetree+prompt my-journal-dir)
          "* "
          :unnarrowed t)
 
 	("t" "Quick task" entry
-         (file+headline "~/org/todo.org" "Tasks")
+         (file+headline  "Tasks")
          "* TODO %^{Task}"
          :immediate-finish t)
 
 	("T" "Full task" entry
-         (file+headline "~/org/todo.org" "Tasks")
+         (file+headline my-task-orgfile "Tasks")
          "* TODO "
          :unnarrowed t)
 
 	("n" "Quick note" item
-	 (file+headline "~/org/notes.org" "Quick notes"))))
+	 (file+headline my-notes-org "Quick notes"))))
 

@@ -279,8 +279,16 @@ mrt ()
 }
 
 lrt() {
-    test -z $1 && set .
-    ls -lrt $(dirname $1)$(readlink $1)
+    if [ -z $1 ]; then
+	set .
+    elif [ -L $1 ]; then
+	local link=$(readlink $1)
+	case "$link" in
+	    /*) set "$link";;
+	    *) set $(dirname $1)"$link";;
+	esac
+    fi
+    ls -lrt $1
 }
 
 lstoday()
@@ -292,7 +300,6 @@ alias l='ls $LS_OPTIONS'
 alias ls='ls $LS_OPTIONS'
 alias ll='ls $LS_OPTIONS -l'
 alias la='ls $LS_OPTIONS -lA'
-alias lrt='ls -lrt'
 alias lh='ls -lhS'
 
 alias mlp='m `ls -rt /tmp/*pdf|tail -1`'

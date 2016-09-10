@@ -7,7 +7,7 @@
       debug-on-error nil)
 
 ; todo: source a refactored bash environment file
-(add-to-list 'load-path (expand-file-name "~/Elisp"))
+;(add-to-list 'load-path (expand-file-name "~/Elisp"))
 (add-to-list 'load-path (expand-file-name "~/prj/dotfiles/shared-elisp"))
 (add-to-list 'exec-path (expand-file-name "~/bin"))
 (add-to-list 'exec-path "/usr/local/bin")
@@ -121,16 +121,16 @@
 ;; 	    '(define-key helm-map (kbd "C-c g") 'helm-git-grep-from-helm))))
 
 ;; https://github.com/kopoli/helm-grepint
-(use-package helm-grepint
-  :ensure t
-  :init (helm-grepint-set-default-config)
-  :bind ("C-c g" . helm-grepint-grep)
-  :config (helm-grepint-add-grep-config
-	   restricted-git-grep
-	   :command "git"
-	   :arguments (get-restricted-git-command)
-	   :enable-function my-helm-grepint-git-grep-locate-root
-	   :root-directory-function my-helm-grepint-git-grep-locate-root))
+; (use-package helm-grepint
+;   :ensure t
+;   :init (helm-grepint-set-default-config)
+;   :bind ("C-c g" . helm-grepint-grep)
+;   :config (helm-grepint-add-grep-config
+; 	   restricted-git-grep
+; 	   :command "git"
+; 	   :arguments (get-restricted-git-command)
+; 	   :enable-function my-helm-grepint-git-grep-locate-root
+; 	   :root-directory-function my-helm-grepint-git-grep-locate-root))
 
 ; local
 (use-package duplicate-line
@@ -217,6 +217,11 @@
 (use-package extended-insert
   :bind ("C-x i" . extended-insert))
 
+(defconst my-org-dir         (expand-file-name "~/org/00-notes.org"))
+(defconst my-notes-orgfile   (expand-file-name "~/org/00-notes.org"))
+(defconst my-journal-dir     (expand-file-name "~/org/00-journal"))
+(defconst my-task-orgfile    (expand-file-name "~/org/00-todo.org"))
+
 (use-package org-mode
   :ensure org
   :bind (("C-c c" . org-capture)
@@ -228,12 +233,12 @@
 	   org-hide-leading-stars t
 	   org-export-with-sub-superscripts nil
 	   org-directory (expand-file-name "~/.deft")
-	   org-default-notes-file (concat org-directory "/notes.org"))))
+	   org-default-notes-file my-notes-orgfile)))
 
 ;; C-c C-j 
 (use-package org-journal
   :ensure t
-  :init (setq org-journal-dir (expand-file-name "~/org/journal")))
+  :init (setq org-journal-dir my-journal-orgfile))
 
 (use-package deft
   :ensure t
@@ -514,11 +519,11 @@ narrowed."
 			       (expand-file-name (file-truename default-directory)))
 			      ".git"))))
 
-(defun get-restricted-git-command ()
-  (concat "--no-pager grep --line-number --no-color -- "
-	  (get-shell-file-env
-	   (concat (my-helm-grepint-git-grep-locate-root) "/.mnp-project")
-	   "git_grep_path")))
+;(defun get-restricted-git-command ()
+;  (concat "--no-pager grep --line-number --no-color -- "
+;	  (get-shell-file-env
+;	   (concat (my-helm-grepint-git-grep-locate-root) "/.mnp-project")
+;	   "git_grep_path")))
 
 ; (defvar my-hs-hide nil "Current state of hideshow for toggling all.")
 
@@ -557,6 +562,12 @@ it.  This will look in parent dirs up to root for it as well."
   The CHAR is replaced and the point is put before CHAR."
   (insert char)
   (forward-char -1))
+
+; experimental
+(defadvice yes-or-no-p (after acknowdge activate)
+  "User should get immediate feedback from a y-or-n response. Package, for example, is bad at this."
+  (message "working...")
+  (sleep-for 1))
 
 ;; TODO: this should go to most recent buffer if already in *gud*
 
