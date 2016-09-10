@@ -238,7 +238,7 @@
 ;; C-c C-j 
 (use-package org-journal
   :ensure t
-  :init (setq org-journal-dir my-journal-orgfile))
+  :init (setq org-journal-dir my-journal-dir))
 
 (use-package deft
   :ensure t
