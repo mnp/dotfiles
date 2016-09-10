@@ -247,7 +247,7 @@ m()
 
     if [ -d /Applications ]; then
 	case "$1" in
-	    *.wmv|*.mpg|*.WMV|*.rm|*.MPG|*.avi|*.AVI|*.mp4|*.3gp|*.wav|*.mp3|\
+	    *.wmv|*.mpg|*.WMV|*.rm|*.MPG|*.avi|*.AVI|*.mp4|*.3gp|*.wav|*.mp3|*.mkv|\
 	    *.pnm|*.pbm|*.jpg|*.jpeg|*.JPG|*.gif|*.GIF|*.tif|*.tiff|\
 	    *.doc|*.DOC|*.docx|\
 	    *.odp|*.ppt|*.pptx|*.PPT|\
@@ -258,7 +258,7 @@ m()
 	esac
     else
 	case "$1" in
-	    *.wmv|*.mpg|*.WMV|*.rm|*.MPG|*.avi|*.AVI|*.mp4|*.3gp) mplayer "$1";;
+	    *.wmv|*.mpg|*.WMV|*.rm|*.MPG|*.avi|*.AVI|*.mp4|*.3gp|*.mkv) mplayer "$1";;
 	    *.wav|*.mp3) vlc "$1";;
 	    *.pnm|*.pbm|*.jpg|*.jpeg|*.JPG|*.gif|*.GIF|*.tif|*.tiff) eog "$1";;
 	    *.doc|*.DOC|*.docx) libreoffice "$1";;
