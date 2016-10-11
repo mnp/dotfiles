@@ -345,6 +345,11 @@ function pc ()
     echo $?
 }
 
+function fj ()
+{
+    find ${1:-.} -type f -name \*.java
+}
+
 type ack    > /dev/null 2>&1 || alias ack='ack-grep'
 type gradle > /dev/null 2>&1 || alias gd='gradle'
 
