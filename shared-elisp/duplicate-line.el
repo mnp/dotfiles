@@ -37,8 +37,8 @@
 
 (defmacro point-at (&rest forms)
   "Evaluate list of forms, and return the value of point after evaluation."
-  ` (progn (,@ forms)
-	    (,@ '((point)))))
+  `(progn ,@ forms
+	  ,@ '((point))))
 
 (defun duplicate-line (n dir)
   "Copy the Nth following line to point.
