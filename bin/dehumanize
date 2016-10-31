@@ -6,7 +6,7 @@
 use strict;
 use warnings;
 
-s {  ([\d\.]*)\s*([gkm])\s }
+s {  ([\d\.]*)\s*([gkm]b?)\s }
   { sprintf "%u\n", $1 * suffix($2) }xoie;
 
 sub suffix {

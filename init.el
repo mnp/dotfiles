@@ -32,14 +32,21 @@
 
 ;; no point in checking if package is available, we use it too much
 (require 'package)
-(add-to-list 'package-archives
-	     '("melpa" . "http://melpa.org/packages/") t)
-(package-initialize)
-(setq package-enable-at-startup nil)
+(setq package-archives '(("gnu" . "https://elpa.gnu.org/packages/")
+                         ("marmalade" . "https://marmalade-repo.org/packages/")
+                         ("melpa" . "https://melpa.org/packages/")
+                         ("melpa-stable" . "https://stable.melpa.org/packages/")))
 
-(eval-when-compile
-  (require 'use-package))
-(require 'bind-key)                ;; needed by use-package :bind
+(package-initialize)
+(when (not package-archive-contents)
+  (package-refresh-contents)
+  (package-install 'use-package))
+(require 'use-package)
+
+;(setq package-enable-at-startup nil)
+;(eval-when-compile
+;  (require 'use-package))
+; (require 'bind-key)                ;; needed by use-package :bind
 
 (use-package hideshow
   :ensure t)
@@ -50,6 +57,14 @@
 (use-package calc
  :init (load-library "my-calc-extras")
  :bind ("M-#" . calc))
+
+;; remember it needs # as separators
+;; see https://github.com/pashky/restclient.el
+(use-package restclient
+  :init (progn
+	  (add-hook 'restclient-mode-hook
+		    (lambda ()
+		      (local-set-key (kbd "<C-return>") 'restclient-http-send-current-stay-in-window)))))
 
 (use-package cider
   :ensure t
@@ -121,16 +136,16 @@
 ;; 	    '(define-key helm-map (kbd "C-c g") 'helm-git-grep-from-helm))))
 
 ;; https://github.com/kopoli/helm-grepint
-; (use-package helm-grepint
-;   :ensure t
-;   :init (helm-grepint-set-default-config)
-;   :bind ("C-c g" . helm-grepint-grep)
-;   :config (helm-grepint-add-grep-config
-; 	   restricted-git-grep
-; 	   :command "git"
-; 	   :arguments (get-restricted-git-command)
-; 	   :enable-function my-helm-grepint-git-grep-locate-root
-; 	   :root-directory-function my-helm-grepint-git-grep-locate-root))
+(use-package helm-grepint
+  :ensure t
+  :init (helm-grepint-set-default-config)
+  :bind ("C-c g" . helm-grepint-grep)
+  :config (helm-grepint-add-grep-config
+	   restricted-git-grep
+	   :command "git"
+	   :arguments (get-restricted-git-command)
+	   :enable-function my-helm-grepint-git-grep-locate-root
+	   :root-directory-function my-helm-grepint-git-grep-locate-root))
 
 ; local
 (use-package duplicate-line
@@ -184,7 +199,8 @@
 
 ;; depends on (executable-find "sbt")  ~~ "/usr/local/bin/sbt"
 (use-package ensime
-;  :pin melpa-stable
+  :ensure t
+  :pin melpa-stable
 )
 
 (use-package go-mode
@@ -217,10 +233,20 @@
 (use-package extended-insert
   :bind ("C-x i" . extended-insert))
 
-(defconst my-org-dir         (expand-file-name "~/org/00-notes.org"))
+(defconst my-org-dir         (expand-file-name "~/org"))
 (defconst my-notes-orgfile   (expand-file-name "~/org/00-notes.org"))
 (defconst my-journal-dir     (expand-file-name "~/org/00-journal"))
 (defconst my-task-orgfile    (expand-file-name "~/org/00-todo.org"))
+
+(defun my-journal-find-file ()
+  (find-file (format "~/org/00-journal/%s.org" (format-time-string "%Y-%02m-%02d")))
+  (goto-char (point-max)))
+
+(setq org-capture-templates
+      '(("t" "Todo" entry (file+headline "~/org/00-todo.org" "Tasks")
+	 "* TODO %?\n  %i\n  %a")
+        ("j" "Journal" entry (function my-journal-find-file)
+	 "* %?\nEntered on %U\n  %i\n  %a")))
 
 (use-package org-mode
   :ensure org
@@ -272,7 +298,7 @@
 ;   :init (yas-global-mode 1))
 
 ; Elisp
-(use-package browsekill
+(use-package browse-kill-ring
   :bind ("C-x 4 y" . browse-kill-ring))
 
 (use-package easy-kill
@@ -321,8 +347,10 @@
       (setq redisplay-dont-pause t)	
 
       (mouse-avoidance-mode 'jump)
-      (add-hook 'server-visit-hook 
-		'(lambda () (raise-frame) (recenter)))
+;;      (add-hook 'server-visit-hook 
+;;		'(lambda ()
+;;		   (raise-frame)
+;;		   (recenter)))
       (mouse-wheel-mode 1)
       (delete-selection-mode 1)
       (global-set-key "\C-z" 'undo)))
@@ -374,22 +402,22 @@ M-<NUM> M-x modi/font-size-adj increases font size by NUM points if NUM is +ve,
  show-paren-style 'expression
  show-paren-delay 0)
 
-(require 'erc)
-
-(erc-autojoin-mode t)
-(setq erc-autojoin-channels-alist
-      '((".*\\.perlhack.net" "#gaia")))
-(setq erc-hide-list '("JOIN" "PART" "QUIT" "NICK"))
-
-(defun my-erc-start-or-switch ()
-  "Connect to ERC, or switch to last active buffer"
-  (interactive)
-  (if (get-buffer "#gaia") ;; ERC already active?
-      (erc-track-switch-buffer 1) ;; yes: switch to last active
-    (when (y-or-n-p "Start ERC? ") ;; no: maybe start ERC
-      (erc :server "irc.perlhack.net" :port 6667 :nick "mnp" :full-name "mitchell perilstein"))))
-
-(global-set-key (kbd "C-c e") 'my-erc-start-or-switch)
+;; (require 'erc)
+;; 
+;; (erc-autojoin-mode t)
+;; (setq erc-autojoin-channels-alist
+;;       '((".*\\.perlhack.net" "#gaia")))
+;; (setq erc-hide-list '("JOIN" "PART" "QUIT" "NICK"))
+;; 
+;; (defun my-erc-start-or-switch ()
+;;   "Connect to ERC, or switch to last active buffer"
+;;   (interactive)
+;;   (if (get-buffer "#gaia") ;; ERC already active?
+;;       (erc-track-switch-buffer 1) ;; yes: switch to last active
+;;     (when (y-or-n-p "Start ERC? ") ;; no: maybe start ERC
+;;       (erc :server "irc.perlhack.net" :port 6667 :nick "mnp" :full-name "mitchell perilstein"))))
+;; 
+;; (global-set-key (kbd "C-c e") 'my-erc-start-or-switch)
 
 (load-library "my-org-mods")
 (add-hook 'org-mode-hook 'my-org-mode-hook)
@@ -507,8 +535,17 @@ narrowed."
   (let ((F (expand-file-name FILE)))
     (if (file-readable-p F)
 	(shell-command-to-string
-	 (format "bash -c '. %s; echo ${%s}' 2>/dev/null" F VAR))
+	 (format "bash -c '. %s; echo -n ${%s}' 2>/dev/null" F VAR))
       nil)))
+
+;; whooops see also .dir-locals.el - already invented
+
+(defun work()
+  "switch to main work context"
+  (interactive nil)
+  (let ((workdir (get-shell-file-env "~/.work" "WORK")))
+    (message workdir)
+    (find-file workdir)))
 
 (defun my-helm-grepint-git-grep-locate-root ()
   (expand-file-name
@@ -789,7 +826,7 @@ it.  This will look in parent dirs up to root for it as well."
  '(gradle-mode t)
  '(package-selected-packages
    (quote
-    (svg deft gradle-mode yasnippet yari xcscope use-package tangotango-theme sx svg-mode-line-themes svg-clock slime-volleyball powerline paredit org-journal magit helm-git-grep google-c-style git-gutter-fringe git-gutter+ frame-cmds flycheck emacs-eclim dot-mode company cider auto-complete aggressive-indent ack ace-window)))
+    (groovy-mode helm-grepint ensime easy-kill go-mode ggtags git-gutter restclient-helm restclient browse-kill-ring yaml-mode svg deft gradle-mode yasnippet yari xcscope use-package tangotango-theme sx svg-mode-line-themes svg-clock slime-volleyball powerline paredit org-journal magit helm-git-grep google-c-style git-gutter-fringe git-gutter+ frame-cmds flycheck emacs-eclim dot-mode company cider auto-complete aggressive-indent ack ace-window)))
  '(safe-local-variable-values
    (quote
     ((git-grep-path . "thingworx-platform-common thingworx-platform-postgres")))))

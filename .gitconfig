@@ -2,7 +2,6 @@
 	name = Mitchell Perilstein
 	email = mitchell.perilstein@thingworx.com
 [github]
-	user = mnp
 [push]
 	default = simple
 [alias]

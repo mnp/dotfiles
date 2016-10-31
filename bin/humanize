@@ -5,30 +5,48 @@
 
 use strict;
 use warnings;
+use BigNum;
 
-use constant KiB => 1 << 10;
-use constant MiB => 1 << 20;
-use constant GiB => 1 << 30;
-use constant TiB => 1 << 40;
+my $u02 = [[1 <<  0,    ''],
+	   [1 << 10, 'KiB'],
+	   [1 << 20, 'MiB'],
+	   [1 << 30, 'GiB'],
+	   [1 << 40, 'TiB'], 
+	   [1 << 50, 'PiB'],
+	  ];
 
-use constant KB => 10**3;
-use constant MB => 10**4;
-use constant GB => 10**5;
-use constant TB => 10**6;
+my $u10 = [[10**3,  ''],
+	   [10**6,  'KB'],
+	   [10**9,  'MB'],
+	   [10**12, 'GB'],
+	   [10**15, 'TB'],
+	  ];
 
-#print humanize($ARGV[0]), "\n";
+my $units = $u02;
+
+if ($ARGV[0]) {
+  if ($ARGV[0] eq '-2') {
+    $units = $u02;
+  }
+  elsif ($ARGV[0] eq '-10') {
+    $units = $u10;
+  }
+}
 
 while (<>) {
-  s/(\d+)/humanize($1)/eg;
+  s/(\d+)/humanize($1, $units)/eg;
   print;
 }
 
 sub humanize {
-  my $n = shift;
+  my ($n, $units) = @_;
 
-  $n < KiB and return $n;
-  $n < MiB and return sprintf "%.2fk", $n/KiB;
-  $n < GiB and return sprintf "%.2fM", $n/MiB;
-  $n < TiB and return sprintf "%.2fM", $n/GiB;
-  return sprintf "%.2fG", $n/TiB;
+  my $i = 0;
+  while ($i < scalar @$units) {
+    if ($n < $units->[$i][0]) {
+      return sprintf "%.2f %s", $n/$units->[$i][0], $units->[$i][1];
+    }
+    $i++;
+  }
+  return "OVERFLOW";
 }

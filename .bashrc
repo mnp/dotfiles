@@ -139,7 +139,7 @@ stty -ixon
 # no prompt command for console
 case $TERM in
     rxvt|xterm*) 
- 	PS1BASE="${PS1COLOR}\u@\h${CLEAR}:${WHITE}\w${YELLOW}\$(__git_ps1)${CLEAR}\$ "
+ 	PS1BASE="${PS1COLOR}\u@\h${CLEAR}:${WHITE}\w${YELLOW}\$(__git_ps1)${CLEAR}\n\$ "
  	;;
 
     screen|vt100)
@@ -149,7 +149,7 @@ case $TERM in
 
     *)
 	PROMPT_COMMAND=''
-	PS1BASE='\u@\h:\w\$ '
+	PS1BASE='\u@\h:\w\n\$ '
 	;;
 esac
 
@@ -348,6 +348,23 @@ function pc ()
 function fj ()
 {
     find ${1:-.} -type f -name \*.java
+}
+
+#
+# remember what we were doing and where
+# todo? keep some k,v in that file for notes or context
+# or maybe use emacs' .dir-locals.el?  (work) would be okay..
+#
+work() {
+    if [ -n "$1" ]; then
+	cd $1
+	echo WORK=\"`pwd`\" > ~/.work
+    elif [ -f ~/.work ]; then
+	.  ~/.work
+	cd $WORK
+    else
+	echo you have to set work
+    fi
 }
 
 type ack    > /dev/null 2>&1 || alias ack='ack-grep'

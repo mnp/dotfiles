@@ -24,23 +24,23 @@
 	  org-refile-targets '((my-notes-orgfile  . (:level . 1))))
     (auto-fill-mode 1))
 
-(setq org-capture-templates
-      '(
-	("j" "Journal entry with date" plain
-         (file+datetree+prompt my-journal-dir)
-         "* "
-         :unnarrowed t)
-
-	("t" "Quick task" entry
-         (file+headline  "Tasks")
-         "* TODO %^{Task}"
-         :immediate-finish t)
-
-	("T" "Full task" entry
-         (file+headline my-task-orgfile "Tasks")
-         "* TODO "
-         :unnarrowed t)
-
-	("n" "Quick note" item
-	 (file+headline my-notes-org "Quick notes"))))
+; (setq org-capture-templates
+;       '(
+; 	("j" "Journal entry with date" plain
+;          (file+datetree+prompt my-journal-dir)
+;          "* "
+;          :unnarrowed t)
+; 
+; 	("t" "Quick task" entry
+;          (file+headline  "Tasks")
+;          "* TODO %^{Task}"
+;          :immediate-finish t)
+; 
+; 	("T" "Full task" entry
+;          (file+headline my-task-orgfile "Tasks")
+;          "* TODO "
+;          :unnarrowed t)
+; 
+; 	("n" "Quick note" item
+; 	 (file+headline my-notes-org "Quick notes"))))
 
