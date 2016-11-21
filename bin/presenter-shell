@@ -1,0 +1,48 @@
+#!/bin/bash
+
+# execute a directory of commands, prompted nicely
+
+set -u
+
+RED=$(tput setaf 1)
+GREEN=$(tput setaf 2)
+NORM=$(tput sgr0)
+
+cmddir=${1:-.}
+cmdfiles=(`cd $cmddir; ls`)
+ncommands=${#cmdfiles[*]}
+idx=0
+
+prompt() {
+    tput sc
+    tput cup $(tput lines) 0
+    read -p "$RED $1 $NORM" -s -n 1
+    tput rc
+}
+
+while true; do
+    clear
+
+    # show the command first and pause
+    echo "(${cmdfiles[$idx]}) $" $GREEN $(cat ${cmdfiles[$idx]}) $NORM
+    echo
+    prompt ...
+
+    # now run it below and pause for action input
+    bash ${cmdfiles[$idx]}
+    prompt "[Next/Prev/Quit]:"
+
+    case $REPLY in
+        n)
+            idx=$[idx+1]
+            [[ $idx -ge $ncommands ]] && idx=$[ncommands - 1]
+            ;;
+        p)
+            idx=$[idx-1]
+            [[ $idx -lt 0 ]] && idx=0
+            ;;
+        q)
+            exit 0
+            ;;
+    esac
+done
