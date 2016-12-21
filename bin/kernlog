@@ -1,0 +1,8 @@
+#!/bin/bash
+
+# Read dmesg, prepending wallclock time
+
+dmesg \
+      | perl -ne 'BEGIN{ open X, "/proc/uptime"; ($boot) = (<X> =~ /^(\d+)/); } \
+    	          /\[(\d+)/ and printf("%s %s", scalar localtime(time() - $boot + $1), $_)' \
+      | $PAGER
