@@ -1,6 +1,15 @@
 #!/bin/bash
 
-# execute a directory of commands, prompted nicely
+# Execute a directory of commands, prompted nicely.
+#
+# Create a ".d" style directory of files in sort order, each containing a shell command to display in the presentation:
+#
+#    01: pwd
+#    02: wc -l *
+#    03: du -sk * | sort -nr | head -3
+#
+# Then run presenter-shell with the dir path as arg.  Press any key to perform each command, then N/P/Q for next/prev/quit.
+# Adding commentary should be easy if commands can be multiple lines, just use # or : comments.
 
 set -u
 
