@@ -24,7 +24,10 @@ while true; do
     clear
 
     # show the command first and pause
-    echo "(${cmdfiles[$idx]}) $" $GREEN $(cat ${cmdfiles[$idx]}) $NORM
+    echo $GREEN
+    cat ${cmdfiles[$idx]}
+    echo $NORM
+#    echo "(${cmdfiles[$idx]}) $" 
     echo
     prompt ...
 

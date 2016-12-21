@@ -1,0 +1,22 @@
+#!/bin/bash
+
+# Apply a command to two files and sdiff the results
+#
+# cmddiff file1 file2 command [args...]
+#
+
+f1=$1
+shift
+
+f2=$1
+shift
+
+echo $f1 > /tmp/a
+echo ------------------------------ >> /tmp/a
+$@ $f1 >> /tmp/a 
+
+echo $f2 > /tmp/b
+echo ------------------------------ >> /tmp/b
+$@ $f2 >> /tmp/b
+
+sdiff -w 222 /tmp/a /tmp/b | $PAGER

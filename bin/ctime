@@ -1,0 +1,176 @@
+#!/usr/bin/perl -w
+#
+# Usage: ctime [secs...]
+#     or ctime secs1 - secs2
+#
+# Secs can be either seconds or milliseconds or nanosecs
+#
+# Converts local seconds since epoch to local human time. Sort of does
+# milliseconds also (< 10 chars taken as seconds, more as ms).
+#
+# Interesting inputs:
+#
+#   $ perl -MDate::Parse -le 'print str2time("00:00 6-Jan-1980 UTC")'
+#   315964800
+#   ctime 315964800		-- this is the GPS epoch
+#
+#   ctime 0			-- this is the Unix epoch
+#
+#   ctime --parse 2012-03-11 7:00:00 UTC
+#
+# TODO
+#   ctime --parse 0 30 10 12 11 95 -- mktime(sec, min, hour, mday, mon, year)
+#   figure out --parse and mktime modes by itself
+
+# MNP 11/2010
+
+use strict;
+use warnings;
+use POSIX qw(strftime);
+use Date::Manip qw/ParseDate UnixDate/;
+use File::Basename qw /basename/;
+
+use constant YEARSECS  => 365 * 24 * 60 * 60;
+use constant DAYSECS   => 24 * 60 * 60;
+use constant HOURSECS  => 60 * 60;
+use constant MINSECS   => 60;
+use constant LEAPSECS  => 15;	      # leap offset from UTC to GPS as of april 2011
+use constant GPS_UTC   => 315964800;  # UTC/Unix - GPS secs: 10y 7d 0h 0m 00s
+
+my $showfull = 1;
+my $showutc  = 0;
+my $parse    = 0;
+
+if ($ARGV[0] eq '--full') {
+  $showfull = 1;
+  shift @ARGV;
+}
+elsif ($ARGV[0] eq '--utc') {
+  $showutc = 1;
+  shift @ARGV;
+}
+
+# Symlink me to "emitc", ctime backwards, get it?
+elsif ($ARGV[0] eq '--parse' || basename($0) eq 'emitc') {
+  $parse    = 1;
+  $showfull = 1;
+  shift @ARGV;
+}
+
+if ($parse) {
+  my $parsed = UnixDate(ParseDate(\@ARGV), "%s\n");
+  @ARGV = ( $parsed );
+}
+
+if ($#ARGV == 2 && $ARGV[0] =~ /\d+/ && $ARGV[1] eq '-' && $ARGV[2] =~ /[\d.]+/) {
+    my ($s1,$ms1) = preprocess($ARGV[0]);
+    my ($s2,$ms2) = preprocess($ARGV[2]);
+    my ($ds, $dms) = preprocess( sprintf("%010.03f", abs( "${s1}.${ms1}" - "${s2}.${ms2}" )));
+    print "difference: $ds.${dms}s = ", dur_str($ds, $dms);
+}
+else {
+  show_cal("now", time, 0) if $showfull;
+  for my $i (@ARGV) {
+    my ($s2,$ms2) = preprocess($i);
+    show_cal("arg", preprocess($i));
+    my ($ds, $dms) = preprocess( sprintf("%010.03f", abs( time - "${s2}.${ms2}" )));
+    print "now - arg = $ds.${dms}s = ", dur_str($ds, $dms);
+  }
+}
+
+# ----------------------------------------------------------------------------
+
+# return (S, MS)
+
+sub preprocess {
+  my $t = shift;
+
+  # 1303689600.000
+  if ($t =~ /^(\d+)\.(\d+)$/) {
+      return ($1, $2);
+  }
+
+  # 1303689600000 --> 1303689600.000
+  elsif ($t =~ /^(\d{10})(\d{3})$/) {
+      return ($1, $2);
+  }
+
+  # 1303689600000       --> 1303689600.000  ms
+  # 1321378558744312104 --> 1321378558.744  ns to ms
+  # discard 6 digits
+  elsif ($t =~ /^(\d{10})(\d{3})\d{6}$/) {
+      return ($1, $2);
+  }
+
+  # ASSUME (S, 0)
+  elsif ($t =~ /^(\d*)$/) {
+      return ($1, 0);
+  }
+
+  # smlc log format - save off MS and add back after parsing
+  # 2011-04-29 14:19:33.040Z
+  elsif ($t =~ /(.*?)\.(\d\d\d)Z/) {
+      my $ms = $2;
+      my $epoch = UnixDate(ParseDate($1), "%s");
+      die "'$t' doesn't look like a time or date I understand" unless $epoch;
+      return ($epoch, $2);
+  }
+
+  # not at all standard - a GPS timezone!
+  elsif ($t =~ /^(\d+)\s*gps/i) {
+      my $epoch = $1 + GPS_UTC + LEAPSECS;
+      return ($epoch, 0);
+  }
+
+  # not at all standard - a GPS timezone!
+  elsif ($t =~ /^(\d+)\.(\d+)\s*gps/i) {
+      my $epoch = $1 + GPS_UTC + LEAPSECS;
+      return ($epoch, $2);
+  }
+
+  else {
+      my $epoch = UnixDate(ParseDate($t), "%s");
+      die "'$t' doesn't look like a time or date I understand" unless $epoch;
+      return ($epoch, 0);
+  }
+}
+
+sub show_cal {			# calendar time
+  my ($title, $s, $ms) = @_;
+  my $gps_s = $s - GPS_UTC - LEAPSECS;
+  my $gps_ms = $ms;
+  my $FMT2 = "$title %-12s: %s\n";
+
+  if ($showfull) {
+    #    print "$title\n";
+    printf $FMT2, 'Unix Epoch', sprintf("%010u.%03d", $s, $ms);
+    printf $FMT2, 'GPS Epoch', sprintf("%010.03f", $gps_s + $gps_ms / 1000);
+    printf $FMT2, 'Nanoseconds', sprintf("%d", $s * 1e9);
+    printf $FMT2, 'Local', strftime "%a %b %e %H:%M:%S %Y UTC%z (%Z)", localtime($s);
+    printf $FMT2, 'UTC', strftime "%a %b %e %H:%M:%S %Y UTC", gmtime($s);
+    printf $FMT2, 'Duration', dur_str($s, $ms);
+  }
+  elsif ($showutc) {
+    print strftime "%a %b %e %H:%M:%S %Y UTC\n", gmtime($s);
+  }
+  else {
+    print strftime "%a %b %e %H:%M:%S %Y UTC%z (%Z)\n", localtime($s);
+  }
+}
+
+sub dur_str {			# absolute time
+  my ($s, $ms) = @_;
+  my $years = int($s / YEARSECS);
+  $s -= $years * YEARSECS;
+
+  my $days = int($s / DAYSECS);
+  $s -= $days * DAYSECS;
+
+  my $hours = int($s / HOURSECS);
+  $s -= $hours * HOURSECS;
+
+  my $minutes = int($s / MINSECS);
+  $s -= $minutes * MINSECS;
+
+  sprintf "%dy %dd %dh %dm %ds %dms\n", $years, $days, $hours, $minutes, $s, $ms;
+}

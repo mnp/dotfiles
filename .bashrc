@@ -14,7 +14,7 @@ case $OSTYPE in
     darwin*) OS=darwin;;
 esac
 
-PATH=$HOME/bin:$HOME/hosts:/usr/local/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin
+PATH=$HOME/bin:$HOME/hosts:/usr/local/bin:/usr/local/bin:/usr/local/sbin:/usr/bin:/bin:/usr/sbin:/sbin
 pathadd PATH /usr/local/go/bin
 pathadd PATH $HOME/perl5/bin
 pathadd PATH $HOME/osbin    
@@ -543,10 +543,17 @@ PERL_MB_OPT="--install_base \"/Users/Mitchell/perl5\""; export PERL_MB_OPT;
 PERL_MM_OPT="INSTALL_BASE=/Users/Mitchell/perl5"; export PERL_MM_OPT;
 
 if docker-machine > /dev/null 2>&1 ; then
+    echo -n docker-machine: 
     eval "$(docker-machine env default)" 
     alias dm=docker-machine
     alias dk=docker-compose
 fi
  
-# type cf_completion > /dev/null 2>&1 && complete -C cf_completion cf
+if [ -d $HOME/workbin ]; then
+    . ~/.work-bashrc
+fi
+
+if [ -d $HOME/homebin ]; then
+    . ~/.home-bashrc
+fi
 

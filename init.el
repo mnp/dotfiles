@@ -32,10 +32,15 @@
 
 ;; no point in checking if package is available, we use it too much
 (require 'package)
-(setq package-archives '(("gnu" . "https://elpa.gnu.org/packages/")
-                         ("marmalade" . "https://marmalade-repo.org/packages/")
+(setq package-archives '(; ("gnu" . "https://elpa.gnu.org/packages/")
+                         ; ("marmalade" . "https://marmalade-repo.org/packages/")
                          ("melpa" . "https://melpa.org/packages/")
-                         ("melpa-stable" . "https://stable.melpa.org/packages/")))
+			 ; ("melpa-stable" . "https://stable.melpa.org/packages/")
+      ))
+
+(when (< emacs-major-version 24)
+  ;; For important compatibility libraries like cl-lib
+  (add-to-list 'package-archives '("gnu" . "http://elpa.gnu.org/packages/")))
 
 (package-initialize)
 (when (not package-archive-contents)
@@ -200,7 +205,7 @@
 ;; depends on (executable-find "sbt")  ~~ "/usr/local/bin/sbt"
 (use-package ensime
   :ensure t
-  :pin melpa-stable
+  ;; :pin melpa-stable
 )
 
 (use-package go-mode
@@ -335,6 +340,9 @@
 ;; 	  (smooth-scroll-mode t)
 ;; 	  (setq smooth-scroll/vscroll-step-size 25)))
 
+(use-package iedit
+  :ensure t)
+
 (if window-system 
     (progn
       ;;      (set-default-font "Mono-10")
@@ -464,21 +472,36 @@ M-<NUM> M-x modi/font-size-adj increases font size by NUM points if NUM is +ve,
 
 (add-to-list 'completion-ignored-extensions ".dep")
 
-;; http://endlessparentheses.com/emacs-narrow-or-widen-dwim.html
 (defun narrow-or-widen-dwim (p)
-  "If the buffer is narrowed, it widens. Otherwise, it narrows intelligently.
-Intelligently means: region, subtree, or defun, whichever applies
-first.
+  "Widen if buffer is narrowed, narrow-dwim otherwise.
+Dwim means: region, org-src-block, org-subtree, or
+defun, whichever applies first. Narrowing to
+org-src-block actually calls `org-edit-src-code'.
 
-With prefix P, don't widen, just narrow even if buffer is already
-narrowed."
+With prefix P, don't widen, just narrow even if buffer
+is already narrowed."
   (interactive "P")
   (declare (interactive-only))
   (cond ((and (buffer-narrowed-p) (not p)) (widen))
         ((region-active-p)
-         (narrow-to-region (region-beginning) (region-end)))
-        ((derived-mode-p 'org-mode) (org-narrow-to-subtree))
+         (narrow-to-region (region-beginning)
+                           (region-end)))
+        ((derived-mode-p 'org-mode)
+         ;; `org-edit-src-code' is not a real narrowing
+         ;; command. Remove this first conditional if
+         ;; you don't want it.
+         (cond ((ignore-errors (org-edit-src-code) t)
+                (delete-other-windows))
+               ((ignore-errors (org-narrow-to-block) t))
+               (t (org-narrow-to-subtree))))
+        ((derived-mode-p 'latex-mode)
+         (LaTeX-narrow-to-environment))
         (t (narrow-to-defun))))
+
+;; This line actually replaces Emacs' entire narrowing
+;; keymap, that's how much I like this command. Only
+;; copy it if that's what you want.
+(define-key ctl-x-map "n" #'narrow-or-widen-dwim)
 
 ;; Then do M-x perl-outline-mode after you opened the Perl code
 ;; file. You can then expand and contract subroutines (with C-c @
@@ -606,6 +629,18 @@ it.  This will look in parent dirs up to root for it as well."
   (message "working...")
   (sleep-for 1))
 
+;; edit-which
+(defun ew (prog)
+  (interactive "sProgram: ")
+  (find-file (or (executable-find prog)
+		 (error (concat prog " not found in exec-path")))))
+
+;; more-which
+(defun mw (prog)
+  (interactive "sProgram: ")
+  (view-file (or (executable-find prog)
+		 (error (concat prog " not found in exec-path")))))
+
 ;; TODO: this should go to most recent buffer if already in *gud*
 
 (defun word-at-point ()
@@ -676,6 +711,9 @@ it.  This will look in parent dirs up to root for it as well."
 
       ;; i hate splitting vertically in most cases
       split-width-threshold nil
+
+      ;; disable novice mode
+      disabled-command-function nil
 )
 
 ;; save minibuffer history across sessions
@@ -730,39 +768,6 @@ it.  This will look in parent dirs up to root for it as well."
 ;; see bs mode above, disabled
 (global-set-key "\C-x\C-b" 'electric-buffer-list)
 
-
-;;;
-;;; MEW
-;;; http://www.mew.org/en/info/release/mew_1.html#Overview
-;;;
-(if (equal (system-name) "dx832503tp.trueposition.com") 	; hack only on desktop
-    (progn
-      (autoload 'mew "mew" nil t)
-      (autoload 'mew-send "mew" nil t)
-      (setq mew-name "Mitchell Perilstein") ; (user-full-name)
-      ;; (setq mew-user "mperilstein") ; (user-login-name)
-      (setq mew-mail-domain "trueposition.com")
-      
-      (setq mew-smtp-server "mail.trueposition.com")
-      (setq mew-proto "%")
-      (setq mew-imap-server "mail.trueposition.com")
-
-      ;; Optional setup (e.g. C-xm for sending a message):
-      (autoload 'mew-user-agent-compose "mew" nil t)
-      (if (boundp 'mail-user-agent)
-	  (setq mail-user-agent 'mew-user-agent))
-      (if (fboundp 'define-mail-user-agent)
-	  (define-mail-user-agent
-	    'mew-user-agent
-	    'mew-user-agent-compose
-	    'mew-draft-send-message
-	    'mew-draft-kill
-	    'mew-send-hook))
-
-      (setq mew-use-cached-passwd t)
-      ))
-
-
 ;; experiment
 
 ;; minimap.  see also sublimity, with different bugs
@@ -813,8 +818,6 @@ it.  This will look in parent dirs up to root for it as well."
 
 (if window-system (server-start))
 
-(put 'narrow-to-region 'disabled nil)
-
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -826,7 +829,7 @@ it.  This will look in parent dirs up to root for it as well."
  '(gradle-mode t)
  '(package-selected-packages
    (quote
-    (groovy-mode helm-grepint ensime easy-kill go-mode ggtags git-gutter restclient-helm restclient browse-kill-ring yaml-mode svg deft gradle-mode yasnippet yari xcscope use-package tangotango-theme sx svg-mode-line-themes svg-clock slime-volleyball powerline paredit org-journal magit helm-git-grep google-c-style git-gutter-fringe git-gutter+ frame-cmds flycheck emacs-eclim dot-mode company cider auto-complete aggressive-indent ack ace-window)))
+    (helm-google iedit groovy-mode helm-grepint ensime easy-kill go-mode ggtags git-gutter restclient-helm restclient browse-kill-ring yaml-mode svg deft gradle-mode yasnippet yari xcscope use-package tangotango-theme sx svg-mode-line-themes svg-clock slime-volleyball powerline paredit org-journal magit helm-git-grep google-c-style git-gutter-fringe git-gutter+ frame-cmds flycheck emacs-eclim dot-mode company cider auto-complete aggressive-indent ack ace-window)))
  '(safe-local-variable-values
    (quote
     ((git-grep-path . "thingworx-platform-common thingworx-platform-postgres")))))

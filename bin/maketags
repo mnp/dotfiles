@@ -1,0 +1,12 @@
+#!/bin/bash
+
+if [ $# -lt 1 ]; then 
+    set .
+fi
+
+echo -n creating TAGS in `pwd` ... 
+find $@ -name unittest -prune -o -name test -prune -o \( -name \*.c -o -name \.h -o -name \*.cpp \
+    -o -name \*.cxx -o -name \*.cc -o -name \*.hpp -o -name \*.x  -o -name \*.pl -o  -name \*.pm \
+    -o -name \*.java \
+    \) -print0 | xargs -0 etags --append
+echo done
