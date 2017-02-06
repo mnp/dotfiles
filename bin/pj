@@ -6,6 +6,8 @@ use warnings;
 my $arg = $ARGV[0] ||= 'java';
 
 my $pids = `pgrep $arg`;
+$pids or die "None found\n";
+
 $pids =~ s/\n/ /g;
 
 my $cmd = "ps l -p $pids";

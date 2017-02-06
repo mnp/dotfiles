@@ -11,7 +11,6 @@
 (add-to-list 'load-path (expand-file-name "~/prj/dotfiles/shared-elisp"))
 (add-to-list 'exec-path (expand-file-name "~/bin"))
 (add-to-list 'exec-path "/usr/local/bin")
-(setenv "PATH" (concat "/usr/local/bin:" (getenv "PATH")))
 
 ;; OSX Hacks
 (if (memq system-type '(darwin))
@@ -144,7 +143,7 @@
 (use-package helm-grepint
   :ensure t
   :init (helm-grepint-set-default-config)
-  :bind ("C-c g" . helm-grepint-grep)
+  :bind ("C-c g" . helm-grepint-grep-root)
   :config (helm-grepint-add-grep-config
 	   restricted-git-grep
 	   :command "git"
@@ -208,7 +207,25 @@
   ;; :pin melpa-stable
 )
 
+;; 
+;; Golang
+;; nice howto: http://tleyden.github.io/blog/2014/05/22/configure-emacs-as-a-go-editor-from-scratch/
+;; 
+(add-to-list 'exec-path "/usr/local/opt/go/libexec/bin")
+(add-to-list 'exec-path "~/go/bin")
+
+(setenv "PATH" (concat "/usr/local/bin:/usr/local/opt/go/libexec/bin:" (getenv "PATH")))
+(setenv "GOPATH" (expand-file-name "~/go"))
+; (setenv "GOROOT" "/usr/local/opt/go")
+
 (use-package go-mode
+  :bind (("M-." . godef-jump)
+	 ("M-*" . pop-tag-mark))
+  :init (add-hook 'before-save-hook 'gofmt-before-save)
+  :ensure t)
+
+(use-package go-eldoc
+  :init (add-hook 'go-mode-hook 'go-eldoc-setup)
   :ensure t)
 
 (use-package clojure-mode
@@ -444,9 +461,9 @@ M-<NUM> M-x modi/font-size-adj increases font size by NUM points if NUM is +ve,
 ;(add-hook 'find-file-hooks 'my-find-file-hook)
 
 (defun my-prog-mode-hook ()
-  (setq fill-column 90)
   (show-paren-mode 1)
-  (ggtags-mode 1))
+  ;(ggtags-mode 1)
+)
 
 (add-hook 'prog-mode-hook 'my-prog-mode-hook)
 
@@ -703,8 +720,8 @@ it.  This will look in parent dirs up to root for it as well."
       visible-bell nil
       ring-bell-function 'ignore
 
-      comment-column 70
-      fill-column 79
+      comment-column 80
+      fill-column 95
       eval-expression-print-length 99
       regex-tool-backend 'perl
       c-style-variables-are-local-p nil
@@ -829,7 +846,7 @@ it.  This will look in parent dirs up to root for it as well."
  '(gradle-mode t)
  '(package-selected-packages
    (quote
-    (helm-google iedit groovy-mode helm-grepint ensime easy-kill go-mode ggtags git-gutter restclient-helm restclient browse-kill-ring yaml-mode svg deft gradle-mode yasnippet yari xcscope use-package tangotango-theme sx svg-mode-line-themes svg-clock slime-volleyball powerline paredit org-journal magit helm-git-grep google-c-style git-gutter-fringe git-gutter+ frame-cmds flycheck emacs-eclim dot-mode company cider auto-complete aggressive-indent ack ace-window)))
+    (go-eldoc hackernews helm-google iedit groovy-mode helm-grepint ensime easy-kill go-mode ggtags git-gutter restclient-helm restclient browse-kill-ring yaml-mode svg deft gradle-mode yasnippet yari xcscope use-package tangotango-theme sx svg-mode-line-themes svg-clock slime-volleyball powerline paredit org-journal magit helm-git-grep google-c-style git-gutter-fringe git-gutter+ frame-cmds flycheck emacs-eclim dot-mode company cider auto-complete aggressive-indent ack ace-window)))
  '(safe-local-variable-values
    (quote
     ((git-grep-path . "thingworx-platform-common thingworx-platform-postgres")))))

@@ -15,7 +15,6 @@ case $OSTYPE in
 esac
 
 PATH=$HOME/bin:$HOME/hosts:/usr/local/bin:/usr/local/bin:/usr/local/sbin:/usr/bin:/bin:/usr/sbin:/sbin
-pathadd PATH /usr/local/go/bin
 pathadd PATH $HOME/perl5/bin
 pathadd PATH $HOME/osbin    
 pathadd PATH $HOME/workbin  
@@ -31,7 +30,7 @@ export PERL5LIB
 export MVS_BROWSER=firefox
 
 # Go lang
-pathadd PATH /usr/local/go/bin
+pathadd PATH /usr/local/opt/go/libexec/bin
 
 if [ -d $HOME/go ]; then
     GOPATH=$HOME/go
@@ -474,6 +473,9 @@ _xw_sub ()
 }
 
 
+# <@keck> less for tab-delimited files
+aless(){ perl -e 'BEGIN{$f=shift;%cs=();} open(IN,"<", $f); while(<IN>){$c=0; map{ $s=length;$cs{$c}=($s>$cs{$c})?$s:$cs{$c}; $c++;}split /\t/;}END{$cs{0}++;$x=join
+              ",",map{($_>0)?($cs{$_}=$cs{$_}+$cs{$_-1}+1):$cs{$_}; $cs{$_}} sort{$a<=>$b}keys %cs;system("less -S -x$x $f");}' $1; }
 #
 # select java versions; provide java7 and java8 aliases to switch on
 # the fly
@@ -550,10 +552,10 @@ if docker-machine > /dev/null 2>&1 ; then
 fi
  
 if [ -d $HOME/workbin ]; then
-    . ~/.work-bashrc
+    . ~/.bashrc-work
 fi
 
 if [ -d $HOME/homebin ]; then
-    . ~/.home-bashrc
+    . ~/.bashrc-home
 fi
 
