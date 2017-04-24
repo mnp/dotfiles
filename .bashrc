@@ -377,9 +377,10 @@ function .. ()
 {
     local arg=${1:-1};
     while [ $arg -gt 0 ]; do
-	cd .. >&/dev/null;
+	builtin cd .. >&/dev/null;
 	arg=$(($arg - 1));
     done
+    nametab `basename $PWD`;
 }
 # function cd_dot_dot
 # alias ..=cd_dot_dot

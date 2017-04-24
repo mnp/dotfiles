@@ -70,9 +70,12 @@
 		    (lambda ()
 		      (local-set-key (kbd "<C-return>") 'restclient-http-send-current-stay-in-window)))))
 
-(use-package cider
-  :ensure t
-  :init (setq cider-lein-command "/usr/local/bin/lein"))
+(use-package dockerfile-mode
+  :ensure t)
+
+;(use-package cider
+;  :ensure t
+;  :init (setq cider-lein-command "/usr/local/bin/lein"))
 
 (use-package compile
   :ensure t
@@ -227,6 +230,15 @@
 (use-package go-eldoc
   :init (add-hook 'go-mode-hook 'go-eldoc-setup)
   :ensure t)
+
+(use-package go-direx
+  ;; reminder: might mess with popwin.el here
+  :bind (:map go-mode-map
+	      ("C-c ;" . go-direx-pop-to-buffer)))
+
+;(use-package hideshow
+;  :bind ((kbd "f12") . hs-toggle-hiding))
+
 
 (use-package clojure-mode
   :ensure t)
@@ -386,8 +398,11 @@
 ;;
 (if window-system
     (progn
-      (setq default-font-size-pt 12)
-      
+      (setq default-font-size-pt 12
+
+	    ;; assuming many buffers persisting
+            confirm-kill-emacs #'yes-or-no-p)
+
       (defun modi/font-size-adj (&optional arg)
 	"The default C-x C-0/-/= bindings do an excellent job of font resizing.
 They, though, do not change the font sizes for the text outside the buffer,
@@ -785,6 +800,18 @@ it.  This will look in parent dirs up to root for it as well."
 ;; see bs mode above, disabled
 (global-set-key "\C-x\C-b" 'electric-buffer-list)
 
+
+;; I keep hitting Cmd on Mac keyboard because it's where Alt is.
+;; Can you remap the whole s- map to meta- ?
+(if (memq system-type '(darwin))
+    (progn
+      (global-set-key (kbd "s-q") 'fill-paragraph)
+      (global-set-key (kbd "s-w") 'kill-buffer)
+      (global-set-key (kbd "s-p") 'duplicate-previous-line)
+      (global-set-key (kbd "s-n") 'duplicate-following-line)
+      (global-set-key (kbd "s-f") 'forward-word)))
+
+
 ;; experiment
 
 ;; minimap.  see also sublimity, with different bugs
@@ -846,7 +873,7 @@ it.  This will look in parent dirs up to root for it as well."
  '(gradle-mode t)
  '(package-selected-packages
    (quote
-    (go-eldoc hackernews helm-google iedit groovy-mode helm-grepint ensime easy-kill go-mode ggtags git-gutter restclient-helm restclient browse-kill-ring yaml-mode svg deft gradle-mode yasnippet yari xcscope use-package tangotango-theme sx svg-mode-line-themes svg-clock slime-volleyball powerline paredit org-journal magit helm-git-grep google-c-style git-gutter-fringe git-gutter+ frame-cmds flycheck emacs-eclim dot-mode company cider auto-complete aggressive-indent ack ace-window)))
+    (hierarchy erlang go-direx tree-mode json-mode dockerfile-mode go-eldoc hackernews helm-google iedit groovy-mode helm-grepint ensime easy-kill go-mode ggtags git-gutter restclient-helm restclient browse-kill-ring yaml-mode svg deft gradle-mode yasnippet yari xcscope use-package tangotango-theme sx svg-mode-line-themes svg-clock slime-volleyball powerline paredit org-journal magit helm-git-grep google-c-style git-gutter-fringe git-gutter+ frame-cmds flycheck emacs-eclim dot-mode company auto-complete aggressive-indent ack ace-window)))
  '(safe-local-variable-values
    (quote
     ((git-grep-path . "thingworx-platform-common thingworx-platform-postgres")))))
