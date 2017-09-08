@@ -74,6 +74,16 @@
   :ensure t
   :init (setq cider-lein-command "/usr/local/bin/lein"))
 
+(use-package elpy
+  :ensure t
+  :init (progn
+	  (elpy-enable)
+	  (setq python-shell-completion-native-enable nil)))
+
+(use-package projectile
+  :ensure t
+  :init (projectile-mode))
+
 (use-package compile
   :ensure t
   :init (setq compilation-scroll-output 1	
@@ -179,7 +189,6 @@
 	    (set (make-local-variable 'compile-command)
 		 "cd /Users/Mitchell/src/tw-server/thingworx-platform-postgres; gradle build -x test")))
 
-
 ;;(use-package eclim
 ;;  :init (my-elcim-setup)
 ;;  :bind ("C-c C-e c" . eclim-java-call-hierarchy))
@@ -219,8 +228,8 @@
 ; (setenv "GOROOT" "/usr/local/opt/go")
 
 (use-package go-mode
-  :bind (("M-." . godef-jump)
-	 ("M-*" . pop-tag-mark))
+;  :bind (("M-." . godef-jump)
+;	 ("M-*" . pop-tag-mark))
   :init (add-hook 'before-save-hook 'gofmt-before-save)
   :ensure t)
 
@@ -230,6 +239,10 @@
 
 (use-package clojure-mode
   :ensure t)
+
+(use-package groovy-mode
+  :ensure t
+  :init (add-to-list 'auto-mode-alist '("\\.gradle$" . groovy-mode)))
 
 (use-package gradle-mode
   :ensure t)
@@ -462,7 +475,7 @@ M-<NUM> M-x modi/font-size-adj increases font size by NUM points if NUM is +ve,
 
 (defun my-prog-mode-hook ()
   (show-paren-mode 1)
-  ;(ggtags-mode 1)
+  (ggtags-mode 1)
 )
 
 (add-hook 'prog-mode-hook 'my-prog-mode-hook)
@@ -733,6 +746,22 @@ it.  This will look in parent dirs up to root for it as well."
       disabled-command-function nil
 )
 
+(setq eshell-prompt-function
+      (lambda ()
+	(concat
+	 (propertize "┌─[" 'face `(:foreground "green"))
+	 (propertize (user-login-name) 'face `(:foreground "red"))
+	 (propertize "@" 'face `(:foreground "green"))
+	 (propertize (system-name) 'face `(:foreground "blue"))
+	 (propertize "]──[" 'face `(:foreground "green"))
+	 (propertize (format-time-string "%H:%M" (current-time)) 'face `(:foreground "yellow"))
+	 (propertize "]──[" 'face `(:foreground "green"))
+	 (propertize (concat (eshell/pwd)) 'face `(:foreground "white"))
+	 (propertize "]\n" 'face `(:foreground "green"))
+	 (propertize "└─>" 'face `(:foreground "green"))
+	 (propertize (if (= (user-uid) 0) " # " " $ ") 'face `(:foreground "green"))
+	 )))
+
 ;; save minibuffer history across sessions
 (savehist-mode 1)
 
@@ -842,11 +871,11 @@ it.  This will look in parent dirs up to root for it as well."
  ;; If there is more than one, they won't work right.
  '(custom-safe-themes
    (quote
-    ("8db4b03b9ae654d4a57804286eb3e332725c84d7cdab38463cb6b97d5762ad26" default)))
+    ("5999e12c8070b9090a2a1bbcd02ec28906e150bb2cdce5ace4f965c76cf30476" "8db4b03b9ae654d4a57804286eb3e332725c84d7cdab38463cb6b97d5762ad26" default)))
  '(gradle-mode t)
  '(package-selected-packages
    (quote
-    (go-eldoc hackernews helm-google iedit groovy-mode helm-grepint ensime easy-kill go-mode ggtags git-gutter restclient-helm restclient browse-kill-ring yaml-mode svg deft gradle-mode yasnippet yari xcscope use-package tangotango-theme sx svg-mode-line-themes svg-clock slime-volleyball powerline paredit org-journal magit helm-git-grep google-c-style git-gutter-fringe git-gutter+ frame-cmds flycheck emacs-eclim dot-mode company cider auto-complete aggressive-indent ack ace-window)))
+    (meghanada elpy helm-projectile projectile yahtzee json-navigator hierarchy erlang go-direx tree-mode json-mode dockerfile-mode go-eldoc hackernews helm-google iedit groovy-mode helm-grepint ensime easy-kill go-mode ggtags git-gutter restclient-helm restclient browse-kill-ring yaml-mode svg deft gradle-mode yasnippet yari xcscope use-package tangotango-theme sx svg-mode-line-themes svg-clock slime-volleyball powerline paredit org-journal magit helm-git-grep google-c-style git-gutter-fringe git-gutter+ frame-cmds flycheck emacs-eclim dot-mode company auto-complete aggressive-indent ack ace-window)))
  '(safe-local-variable-values
    (quote
     ((git-grep-path . "thingworx-platform-common thingworx-platform-postgres")))))

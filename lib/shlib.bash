@@ -1,11 +1,18 @@
 # bash utilities library
 
-# pathadd PATHVAR DIR
+# path_prepend/append PATHVAR DIR
 
-pathadd()
+path_append()
 {
     if [ -d "$2" ] && [[ ! ${!1} =~ (^|:)$2(:|$) ]]; then
         eval "$1+=:$2"
+    fi
+}
+
+path_prepend()
+{
+    if [ -d "$2" ] && [[ ! ${!1} =~ (^|:)$2(:|$) ]]; then
+        eval "$1=$2:\$$1"
     fi
 }
 

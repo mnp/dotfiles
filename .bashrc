@@ -5,7 +5,7 @@
 
 
 for d in /usr/man /usr/share/man /usr/local/man $HOME/perl5/man; do 
-    pathadd MANPATH $d
+    path_append MANPATH $d
 done
 export MANPATH
 
@@ -15,14 +15,14 @@ case $OSTYPE in
 esac
 
 PATH=$HOME/bin:$HOME/hosts:/usr/local/bin:/usr/local/bin:/usr/local/sbin:/usr/bin:/bin:/usr/sbin:/sbin
-pathadd PATH $HOME/perl5/bin
-pathadd PATH $HOME/osbin    
-pathadd PATH $HOME/workbin  
-pathadd PATH $HOME/homebin  
+path_append PATH $HOME/perl5/bin
+path_append PATH $HOME/osbin    
+path_append PATH $HOME/workbin  
+path_append PATH $HOME/homebin  
 export PATH
 
 for dir in $HOME/perl $HOME/perl5/lib/perl5 /usr/local/share/perl/* /usr/local/lib/perl/* /usr/local/lib/perl5/site_perl; do
-    pathadd PERL5LIB $dir
+    path_append PERL5LIB $dir
 done
 export PERL5LIB
 
@@ -30,11 +30,11 @@ export PERL5LIB
 export MVS_BROWSER=firefox
 
 # Go lang
-pathadd PATH /usr/local/opt/go/libexec/bin
+path_append PATH /usr/local/opt/go/libexec/bin
 
 if [ -d $HOME/go ]; then
     GOPATH=$HOME/go
-    pathadd PATH $GOPATH/bin
+    path_append PATH $GOPATH/bin
 fi
 export GOPATH
 
@@ -134,6 +134,10 @@ fi
 
 # disable ctrl-s software flow control
 stty -ixon
+
+my_prompt_command() {
+:
+}
 
 # no prompt command for console
 case $TERM in
@@ -387,20 +391,19 @@ function .. ()
 clean () 
 { 
     if [ $# -lt 1 ]; then
-	/bin/rm -f ,* *~ .*~ \#*\#;
-	echo ,* *~ .*~ \#*\#;
+	echo ,* *~ .*~ \#*\#  *.pyc __pycache__
+	/bin/rm -rf ,* *~ .*~ \#*\# *.pyc  __pycache__	
     else
-	for i in $@;
-	do
+	for i in $@; do
 	    if [ -d "$i" ]; then
-		echo ---- Cleaning $i ----;
-		( builtin cd $i;
-		  echo ,* *~ .*~ \#*\#;
-		  /bin/rm -f ,* *~ .*~ \#*\# );
+		echo ---- Cleaning $i ----
+		( builtin cd $i
+		  echo ,* *~ .*~ \#*\#  *.pyc __pycache__
+		  /bin/rm -rf ,* *~ .*~ \#*\#  *.pyc __pycache__ )
 	    else
-		echo Huh?;
-	    fi;
-	done;
+		echo Huh?
+	    fi
+	done
     fi
 }
 
@@ -551,6 +554,17 @@ if docker-machine > /dev/null 2>&1 ; then
     alias dk=docker-compose
 fi
  
+# Last Container operations
+lc ()
+{
+    last=$(docker ps -q)
+    case $1 in
+        sh)   docker exec -it $last sh ;;
+        kill) docker kill $last ;;
+        *) echo 'Usage: lc sh | kill' ;;
+    esac
+}
+
 if [ -d $HOME/workbin ]; then
     . ~/.bashrc-work
 fi
