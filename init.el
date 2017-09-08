@@ -70,9 +70,12 @@
 		    (lambda ()
 		      (local-set-key (kbd "<C-return>") 'restclient-http-send-current-stay-in-window)))))
 
-(use-package cider
-  :ensure t
-  :init (setq cider-lein-command "/usr/local/bin/lein"))
+(use-package dockerfile-mode
+  :ensure t)
+
+;(use-package cider
+;  :ensure t
+;  :init (setq cider-lein-command "/usr/local/bin/lein"))
 
 (use-package elpy
   :ensure t
@@ -237,6 +240,15 @@
   :init (add-hook 'go-mode-hook 'go-eldoc-setup)
   :ensure t)
 
+(use-package go-direx
+  ;; reminder: might mess with popwin.el here
+  :bind (:map go-mode-map
+	      ("C-c ;" . go-direx-pop-to-buffer)))
+
+;(use-package hideshow
+;  :bind ((kbd "f12") . hs-toggle-hiding))
+
+
 (use-package clojure-mode
   :ensure t)
 
@@ -399,8 +411,11 @@
 ;;
 (if window-system
     (progn
-      (setq default-font-size-pt 12)
-      
+      (setq default-font-size-pt 12
+
+	    ;; assuming many buffers persisting
+            confirm-kill-emacs #'yes-or-no-p)
+
       (defun modi/font-size-adj (&optional arg)
 	"The default C-x C-0/-/= bindings do an excellent job of font resizing.
 They, though, do not change the font sizes for the text outside the buffer,
@@ -813,6 +828,18 @@ it.  This will look in parent dirs up to root for it as well."
 
 ;; see bs mode above, disabled
 (global-set-key "\C-x\C-b" 'electric-buffer-list)
+
+
+;; I keep hitting Cmd on Mac keyboard because it's where Alt is.
+;; Can you remap the whole s- map to meta- ?
+(if (memq system-type '(darwin))
+    (progn
+      (global-set-key (kbd "s-q") 'fill-paragraph)
+      (global-set-key (kbd "s-w") 'kill-buffer)
+      (global-set-key (kbd "s-p") 'duplicate-previous-line)
+      (global-set-key (kbd "s-n") 'duplicate-following-line)
+      (global-set-key (kbd "s-f") 'forward-word)))
+
 
 ;; experiment
 
