@@ -47,6 +47,10 @@
   (package-install 'use-package))
 (require 'use-package)
 
+(use-package smart-backspace
+  :ensure t
+  :bind ("<backspace>" . smart-backspace))
+
 ;(setq package-enable-at-startup nil)
 ;(eval-when-compile
 ;  (require 'use-package))
@@ -902,7 +906,7 @@ it.  This will look in parent dirs up to root for it as well."
  '(gradle-mode t)
  '(package-selected-packages
    (quote
-    (meghanada elpy helm-projectile projectile yahtzee json-navigator hierarchy erlang go-direx tree-mode json-mode dockerfile-mode go-eldoc hackernews helm-google iedit groovy-mode helm-grepint ensime easy-kill go-mode ggtags git-gutter restclient-helm restclient browse-kill-ring yaml-mode svg deft gradle-mode yasnippet yari xcscope use-package tangotango-theme sx svg-mode-line-themes svg-clock slime-volleyball powerline paredit org-journal magit helm-git-grep google-c-style git-gutter-fringe git-gutter+ frame-cmds flycheck emacs-eclim dot-mode company auto-complete aggressive-indent ack ace-window)))
+    (smart-backspace toml-mode meghanada elpy helm-projectile projectile yahtzee json-navigator hierarchy erlang go-direx tree-mode json-mode dockerfile-mode go-eldoc hackernews helm-google iedit groovy-mode helm-grepint ensime easy-kill go-mode ggtags git-gutter restclient-helm restclient browse-kill-ring yaml-mode svg deft gradle-mode yasnippet yari xcscope use-package tangotango-theme sx svg-mode-line-themes svg-clock slime-volleyball powerline paredit org-journal magit helm-git-grep google-c-style git-gutter-fringe git-gutter+ frame-cmds flycheck emacs-eclim dot-mode company auto-complete aggressive-indent ack ace-window)))
  '(safe-local-variable-values
    (quote
     ((git-grep-path . "thingworx-platform-common thingworx-platform-postgres")))))
