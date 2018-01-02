@@ -60,12 +60,15 @@ export BC_ENV_ARGS='-l $HOME/etc/mylib.bc'
 if type brew > /dev/null 2>&1; then
     # iterm
     nametab() { echo -ne "\033]0;"$@"\007"; }
-    cd()      { builtin cd $1; nametab `basename $PWD`; }
+    cd()      { builtin cd "$1"; nametab `basename $PWD`; }
 fi
 
-# this load all the .d files
-BASH_COMPLETION=${BASH_COMPLETION:-/usr/local/etc/bash_completion}
+BASH_COMPLETION=${BASH_COMPLETION:-/usr/local/opt/bash-completion/etc/bash_completion}
 test -f $BASH_COMPLETION && . $BASH_COMPLETION
+
+path_append PATH /usr/local/Cellar/python/2.7.13_1/Frameworks/Python.framework/Versions/2.7/bin
+
+eval "`pip completion --bash`"
 
 # make less more friendly for non-text input files, see lesspipe(1)
 #[ -x /usr/bin/lesspipe ] && eval "$(lesspipe)"
@@ -373,6 +376,11 @@ work() {
 type ack    > /dev/null 2>&1 || alias ack='ack-grep'
 type gradle > /dev/null 2>&1 || alias gd='gradle'
 
+# This works in iterm and xterm
+function nametab() {
+    echo -ne "\033]0;"$@"\007"
+}
+
 #
 # ..   - Does a "cd .."
 # .. 3 - Does a "cd ../../.."
@@ -549,22 +557,53 @@ PERL_MB_OPT="--install_base \"/Users/Mitchell/perl5\""; export PERL_MB_OPT;
 PERL_MM_OPT="INSTALL_BASE=/Users/Mitchell/perl5"; export PERL_MM_OPT;
 
 if docker-machine > /dev/null 2>&1 ; then
-    echo -n docker-machine: 
     eval "$(docker-machine env default)" 
+    echo docker-machine: $(docker-machine active) $(docker-machine status)
     alias dm=docker-machine
     alias dk=docker-compose
+    [[ $DOCKER_HOST =~ ([0-9.]+) ]] && export DM=${BASH_REMATCH[1]}
 fi
  
 # Last Container operations
 lc ()
 {
-    last=$(docker ps -q)
+    last=$(docker ps -q | head -1)
     case $1 in
         sh)   docker exec -it $last sh ;;
         kill) docker kill $last ;;
         *) echo 'Usage: lc sh | kill' ;;
     esac
 }
+
+# Last Image operations
+li () {
+    echo NIY
+    return
+
+    last=$(docker images -q | head -1)
+    case $1 in
+	tag)  docker tag $last $1;;
+	push) docker push $(docker images | awk '!/^REPO/ { print $1 ":" $2; exit; }') ;;
+	bash) docker run --entrypoint bash -it $last;;
+	sh)   docker run --entrypoint sh -it $last;;
+	*) echo 'Usage: li tag FOO | push | sh | bash'
+	   ;;
+    esac
+}
+
+
+function dtag() {
+    docker tag $(docker images -q | head -1) $1
+}
+
+function dpush() {
+    docker push $(docker images | awk '!/^REPO/ { print $1 ":" $2; exit; }')
+}
+
+function dbash () {
+    docker run --entrypoint bash -it $(docker images -q | head -1)
+}
+
 
 if [ -d $HOME/workbin ]; then
     . ~/.bashrc-work

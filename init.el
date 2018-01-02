@@ -24,7 +24,7 @@
 	browse-url-generic-program "firefox"))
 
 ;; host specific
-(let ((host-specific-filename 
+(let ((host-specific-filename
        (concat (expand-file-name "~/Elisp/") (system-name) ".el")))
   (when (file-exists-p host-specific-filename)
       (load-file host-specific-filename)))
@@ -47,6 +47,10 @@
   (package-install 'use-package))
 (require 'use-package)
 
+(use-package exec-path-from-shell
+  :ensure t
+  :init (exec-path-from-shell-initialize))
+
 (use-package smart-backspace
   :ensure t
   :bind ("<backspace>" . smart-backspace))
@@ -65,6 +69,19 @@
 (use-package calc
  :init (load-library "my-calc-extras")
  :bind ("M-#" . calc))
+
+(use-package elfeed
+  :ensure t
+  ;; do this to reload feeds if you update list at runtime
+  ;; (elfeed-update)
+  :init (progn
+	  (setq elfeed-feeds
+		'("http://nullprogram.com/feed/"
+		  "http://planet.emacsen.org/atom.xml"
+		  "https://www.cringely.com/feed"
+		  "http://chalkdustmagazine.com/feed"))
+	  (add-hook 'elfeed-show-mode-hook
+		    (lambda () (modi/font-size-adj +1)))))
 
 ;; remember it needs # as separators
 ;; see https://github.com/pashky/restclient.el
@@ -93,7 +110,7 @@
 
 (use-package compile
   :ensure t
-  :init (setq compilation-scroll-output 1	
+  :init (setq compilation-scroll-output 1
 	      compile-command "make ")
   :bind ("C-x C-k" . compile))
 
@@ -105,13 +122,13 @@
 
 ;;      (use-package aggressive-indent
 ;;	:init (progn
-;;		(mapcar '(lambda (z) 
-;;			   (add-to-list 'aggressive-indent-excluded-modes z)) 
+;;		(mapcar '(lambda (z)
+;;			   (add-to-list 'aggressive-indent-excluded-modes z))
 ;;			'(Eshell Debugger html-mode))
 ;;		(global-aggressive-indent-mode 1)))
 
-;; helm does this 
-; (use-package bs 
+;; helm does this
+; (use-package bs
 ;   :bind ("C-x C-b" . bs-show))
 
 (use-package git-gutter
@@ -124,7 +141,7 @@
 ;;
 ;; ((nil . ((git-grep-path . "PLATFORM thingworx-platform-postgres")
 ;; 	 (compile-command . "cd ~/src/tw-server; ./gradlew build"))))
-;; 
+;;
 
 (use-package helm
   :ensure t
@@ -132,7 +149,7 @@
 	    (helm-mode 1)
 	    (helm-adaptive-mode 1)
 	    (helm-push-mark-mode 1)
-	    (add-to-list 'helm-completing-read-handlers-alist 
+	    (add-to-list 'helm-completing-read-handlers-alist
 			 '(find-file . helm-completing-read-symbols))
 	    (unless (boundp 'completion-in-region-function)
 	      (define-key lisp-interaction-mode-map [remap completion-at-point] 'helm-lisp-completion-at-point)
@@ -151,7 +168,7 @@
 ;;   :init (progn
 ;; 	  ;; Invoke `helm-git-grep' from isearch.
 ;; 	  (define-key isearch-mode-map (kbd "C-c g") 'helm-git-grep-from-isearch)
-;; 
+;;
 ;; 	  ;; Invoke `helm-git-grep' from other helm.
 ;; 	  (eval-after-load 'helm
 ;; 	    '(define-key helm-map (kbd "C-c g") 'helm-git-grep-from-helm))))
@@ -202,14 +219,14 @@
 
 (defun my-eclim-setup ()
   (message "starting my eclim setup (slow) ...")
-  (setq 
+  (setq
    ;; another pkg will start it for us if needed
    ;; eclimd-executable "~/eclipse/eclimd"
    eclim-eclipse-dirs '("~/eclipse")
    eclim-executable  (expand-file-name "~/eclipse/eclim"))
   (global-eclim-mode)
   (message "... finished my eclim setup"))
-   
+
 ;; develop eclim
 (add-to-list 'load-path (expand-file-name "~/prj/emacs-eclim/"))
 (my-eclim-setup)
@@ -223,10 +240,10 @@
   ;; :pin melpa-stable
 )
 
-;; 
+;;
 ;; Golang
 ;; nice howto: http://tleyden.github.io/blog/2014/05/22/configure-emacs-as-a-go-editor-from-scratch/
-;; 
+;;
 (add-to-list 'exec-path "/usr/local/opt/go/libexec/bin")
 (add-to-list 'exec-path "~/go/bin")
 
@@ -273,7 +290,7 @@
 ;; ;	  (setq ack-default-directory-function 'my-ack-default-directory))
 ;;   :bind ("C-c k" . ack)
 ;;   )
-;; 
+;;
 ;; (defun my-ack-default-directory (arg)
 ;;   "wrap ack-default-directory-function and reverse his behavior: if ARG is
 ;;   given, call him with none, while if no ARG is given, call him with
@@ -293,26 +310,56 @@
   (find-file (format "~/org/00-journal/%s.org" (format-time-string "%Y-%02m-%02d")))
   (goto-char (point-max)))
 
+(defun my-org-todo-list ()
+  (interactive nil)
+  (progn
+    (message "Loading TODO's")
+    (org-todo-list "TODO")))
+
 (setq org-capture-templates
       '(("t" "Todo" entry (file+headline "~/org/00-todo.org" "Tasks")
 	 "* TODO %?\n  %i\n  %a")
         ("j" "Journal" entry (function my-journal-find-file)
-	 "* %?\nEntered on %U\n  %i\n  %a")))
+	 "* %?\nEntered on %U\n  %i\n  %a")
+	("p" "Problem with Polya explorations" entry (file+headline "~/org/00-problems.org" "Problems")
+	 "* %U %i
+** (I)dentify the problem
+What is the unknown? What are the data? What is the condition?
+Draw a figure. Introduce suitable notation.
+*** %?
+
+** (D)evelop a plan
+Draw connection between data and the unknown. Have you seen it before? Perhaps a problem with similar unknown?
+Try solving a SIMPLER problem. Try specialization and generalization of problem.
+***
+
+** (E)xecute the plan
+Execute the plan that you just developed. If it doesn't work, go back to step 2 and develop another plan.
+***
+
+** (A)ssess the solution
+Can you derive the solution differently? Can you use the result or method in some other problem?
+***
+")))
 
 (use-package org-mode
   :ensure org
   :bind (("C-c c" . org-capture)
+	 ("C-c a t" . my-org-todo-list)
          ;; todo: bind  org-return-indent
 	 ("C-c t" . org-time-stamp))	; or maybe C-c .
-  :init (progn 
-	  (setq 
+  :init (progn
+	  (setq
+	   org-startup-indented t
+	   org-startup-folded "showall"
 	   org-todo-keywords '((sequence "TODO" "WAIT" "DONE"))
 	   org-hide-leading-stars t
+	   org-agenda-files '("~/org/00-todo.org" "~/org/00-notes.org" "~/org/00-journal")
 	   org-export-with-sub-superscripts nil
 	   org-directory (expand-file-name "~/.deft")
 	   org-default-notes-file my-notes-orgfile)))
 
-;; C-c C-j 
+;; C-c C-j
 (use-package org-journal
   :ensure t
   :init (setq org-journal-dir my-journal-dir))
@@ -330,16 +377,16 @@
 
 ;;(use-package powerline
 ;;  :ensure powerline
-;;  :init (progn 
+;;  :init (progn
 ;;	  (powerline-center-theme)
 ;;
 ;;	  ;; Separate behavior for inactive
 ;;	  ;; buffers. smart-mode-line does this out of the box,
 ;;	  ;; switch if we get bored.
 ;;	  (set-face-attribute  'mode-line-inactive
-;;			       nil 
+;;			       nil
 ;;			       :foreground "gray30"
-;;			       :background "black" 
+;;			       :background "black"
 ;;			       :box '(:line-width 1 :style released-button))))
 
 ; (use-package yasnippet
@@ -389,7 +436,7 @@
 (use-package iedit
   :ensure t)
 
-(if window-system 
+(if window-system
     (progn
       ;;      (set-default-font "Mono-10")
       ;;      (set-face-attribute 'default nil :font "terminus-12")
@@ -398,10 +445,10 @@
 
       ;; this maybe also good for local terminal, but how do we tell
       ;; that from a remote?
-      (setq redisplay-dont-pause t)	
+      (setq redisplay-dont-pause t)
 
       (mouse-avoidance-mode 'jump)
-;;      (add-hook 'server-visit-hook 
+;;      (add-hook 'server-visit-hook
 ;;		'(lambda ()
 ;;		   (raise-frame)
 ;;		   (recenter)))
@@ -410,7 +457,7 @@
       (global-set-key "\C-z" 'undo)))
 
 ;;
-;; dynamic global font handling - handles all buffers, not just current one 
+;; dynamic global font handling - handles all buffers, not just current one
 ;; http://emacs.stackexchange.com/questions/7583/transiently-adjust-text-size-in-mode-line-and-minibuffer/7584#7584
 ;;
 (if window-system
@@ -452,20 +499,20 @@ M-<NUM> M-x modi/font-size-adj increases font size by NUM points if NUM is +ve,
 ;; Modes
 ;; ------------------------------------------------------
 
-(set-face-attribute 'show-paren-match nil 
+(set-face-attribute 'show-paren-match nil
 		    :background "DarkOrange4"
 		    :foreground "white")
-(setq 
+(setq
  show-paren-style 'expression
  show-paren-delay 0)
 
 ;; (require 'erc)
-;; 
+;;
 ;; (erc-autojoin-mode t)
 ;; (setq erc-autojoin-channels-alist
 ;;       '((".*\\.perlhack.net" "#gaia")))
 ;; (setq erc-hide-list '("JOIN" "PART" "QUIT" "NICK"))
-;; 
+;;
 ;; (defun my-erc-start-or-switch ()
 ;;   "Connect to ERC, or switch to last active buffer"
 ;;   (interactive)
@@ -473,7 +520,7 @@ M-<NUM> M-x modi/font-size-adj increases font size by NUM points if NUM is +ve,
 ;;       (erc-track-switch-buffer 1) ;; yes: switch to last active
 ;;     (when (y-or-n-p "Start ERC? ") ;; no: maybe start ERC
 ;;       (erc :server "irc.perlhack.net" :port 6667 :nick "mnp" :full-name "mitchell perilstein"))))
-;; 
+;;
 ;; (global-set-key (kbd "C-c e") 'my-erc-start-or-switch)
 
 (load-library "my-org-mods")
@@ -484,7 +531,7 @@ M-<NUM> M-x modi/font-size-adj increases font size by NUM points if NUM is +ve,
   (if (equalp (buffer-name) "*Deft*")
       (kill-buffer deft-buffer)
     (deft)))
-    
+
 ;(defun my-find-file-hook ()
 ;  ;; not good idea along with sshct, which see
 ;;  (git-gutter)
@@ -560,7 +607,7 @@ is already narrowed."
 (defun perl-outline-mode ()
   "set customized outline minor mode for Perl"
   (interactive)
-  (setq outline-regexp 
+  (setq outline-regexp
     "#!.\\|\\(pac\\)kage\\|sub\\|\\(=he\\)ad\\|\\(=po\\)d")
   (outline-minor-mode))
 
@@ -636,7 +683,7 @@ is already narrowed."
 
 ; (defvar my-hs-hide nil "Current state of hideshow for toggling all.")
 
-;(defun my-toggle-hideshow-all () 
+;(defun my-toggle-hideshow-all ()
 ;  "Toggle hideshow all."
 ;  (interactive)
 ;  (setq my-hs-hide (not my-hs-hide))
@@ -693,7 +740,7 @@ it.  This will look in parent dirs up to root for it as well."
 ;; TODO: this should go to most recent buffer if already in *gud*
 
 (defun word-at-point ()
-  (save-excursion 
+  (save-excursion
     (let* ((end (progn (skip-syntax-forward "w_") (point)))
 	   (begin (progn (skip-syntax-backward "w_") (point))))
       (buffer-substring begin end))))
@@ -788,7 +835,7 @@ it.  This will look in parent dirs up to root for it as well."
 (global-auto-revert-mode 1)
 (setq auto-revert-check-vc-info t)
 
-;; if we don't use vc saves go much faster if nil? 
+;; if we don't use vc saves go much faster if nil?
 ;(setq vc-handled-backends '(Git))
 (setq vc-handled-backends nil)
 (remove-hook 'find-file-hooks 'vc-find-file-hook)
@@ -849,7 +896,7 @@ it.  This will look in parent dirs up to root for it as well."
 
 ;; minimap.  see also sublimity, with different bugs
 ;(use-package minimap
-;  :init 
+;  :init
 ;  (progn
 ;    (setq minimap-major-modes '(prog-mode text-mode)
 ;	  minimap-window-location 'right)
@@ -864,7 +911,7 @@ it.  This will look in parent dirs up to root for it as well."
 ;;
 ;; Sync elpa package list on all machines.  Save to a file and version
 ;; control it.
-;; 
+;;
 (defvar my-shared-package-file (concat user-emacs-directory "all-platforms-packages.el"))
 
 (defun my-elpa-package-names ()
@@ -884,9 +931,23 @@ it.  This will look in parent dirs up to root for it as well."
 ;    (my-elpa-save-shared-packages)
 ; (package-install-from-archive pkg-desc)
 
+(defun find-file-most-recent (dir)
+  "Open most recently created file in DIR."
+  (let ((files (directory-files-and-attributes dir nil nil t)))
+    (find-file (concat dir "/" (caadr (sort
+				       files
+				       (lambda (a b) (time-less-p (nth 6 b) (nth 6 a)))))))))
+
+(defun erd ()
+  "Edit most Recent Download"
+  (interactive nil)
+  (find-file-most-recent "~/Downloads"))
+
+
+
 ;; keep this last
 
-;(if window-system 
+;(if window-system
 ;    (progn
 ;      (if (require 'edit-server)
 ;	  (edit-server-start)
@@ -906,7 +967,7 @@ it.  This will look in parent dirs up to root for it as well."
  '(gradle-mode t)
  '(package-selected-packages
    (quote
-    (smart-backspace toml-mode meghanada elpy helm-projectile projectile yahtzee json-navigator hierarchy erlang go-direx tree-mode json-mode dockerfile-mode go-eldoc hackernews helm-google iedit groovy-mode helm-grepint ensime easy-kill go-mode ggtags git-gutter restclient-helm restclient browse-kill-ring yaml-mode svg deft gradle-mode yasnippet yari xcscope use-package tangotango-theme sx svg-mode-line-themes svg-clock slime-volleyball powerline paredit org-journal magit helm-git-grep google-c-style git-gutter-fringe git-gutter+ frame-cmds flycheck emacs-eclim dot-mode company auto-complete aggressive-indent ack ace-window)))
+    (exec-path-from-shell elfeed smart-backspace toml-mode meghanada elpy helm-projectile projectile yahtzee json-navigator hierarchy erlang go-direx tree-mode json-mode dockerfile-mode go-eldoc hackernews helm-google iedit groovy-mode helm-grepint ensime easy-kill go-mode ggtags git-gutter restclient-helm restclient browse-kill-ring yaml-mode svg deft gradle-mode yasnippet yari xcscope use-package tangotango-theme sx svg-mode-line-themes svg-clock slime-volleyball powerline paredit org-journal magit helm-git-grep google-c-style git-gutter-fringe git-gutter+ frame-cmds flycheck emacs-eclim dot-mode company auto-complete aggressive-indent ack ace-window)))
  '(safe-local-variable-values
    (quote
     ((git-grep-path . "thingworx-platform-common thingworx-platform-postgres")))))

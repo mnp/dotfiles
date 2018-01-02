@@ -1,5 +1,9 @@
 # bash utilities library
 
+fatal() { echo `date -u` $0 Fatal Error - $@; exit 1; }
+warn()  { echo `date -u` $0 Warning - $@; }
+info()  { echo `date -u` $0 Info - $@; }
+
 # path_prepend/append PATHVAR DIR
 
 path_append()
