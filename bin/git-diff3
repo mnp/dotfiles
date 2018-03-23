@@ -1,0 +1,11 @@
+#!/bin/bash
+
+# see https://stackoverflow.com/questions/33440597/use-three-way-diff-for-diff
+
+rev1="$1"
+rev2="$2" 
+file="$3"
+
+diff3 <(git show "$rev1" "$file") \
+      <(git show $(git merge-base "$rev1" "$rev2" "$file")) \
+      <(git show "$rev2" "$file")

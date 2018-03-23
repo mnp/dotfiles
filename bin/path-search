@@ -1,0 +1,6 @@
+#!/bin/bash
+
+( IFS=:
+  for d in $PATH; do
+      ls -1 "$d" | egrep "$1"
+  done )

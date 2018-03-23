@@ -1,10 +1,17 @@
 #!/bin/bash
 
-if [ -f .mnp-project ]; then
-   . .mnp-project
-   find $git_grep_path -name \*.java | grep -v /test/ | gtags -f -
-   echo Tagged:  $git_grep_path
-else
-   echo "I can't find a .mnp-project file"
-   exit 0
-fi
+while [ ! -d .git ]; do
+    if [ $PWD == / ]; then
+	echo 'Ascended to root but no .git dir (ie, project root) found.'
+	exit 1
+    fi
+    cd ..
+done
+
+echo Tagging: $PWD
+exec find . -name \*.java | grep -v /test/ | gtags -f -
+
+# if [ -f .mnp-project ]; then
+#    . .mnp-project
+#    find $git_grep_path -name \*.java | grep -v /test/ | gtags -f -
+#    echo Tagged:  $git_grep_path

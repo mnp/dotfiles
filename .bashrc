@@ -91,6 +91,9 @@ BLUE="\[\033[01;34m\]"
 WHITE="\[\033[01;37m\]"
 MAGEN="\[\033[01;35m\]"
 
+INVERSE="\[\033[7m\]"
+
+
 # PS1="$TITLEBAR\
 # $LTGRN\u$CLEAR\
 # @$LTGRN\h$CLEAR\
@@ -109,6 +112,7 @@ if type git > /dev/null 2>&1; then
     alias gds=' git diff --stat'
     alias gdp=' git diff        HEAD~1 --'
     alias gdps='git diff --stat HEAD~1 --'
+    alias glgp='git log --graph --decorate --pretty=oneline --abbrev-commit'
     alias gls='git ls-files -t'
 #    alias gg='git grep'
 
@@ -122,6 +126,7 @@ if type git > /dev/null 2>&1; then
 	cd $top
 	git grep $1 -- $git_grep_path
     }
+
     if [ -f ~/.git-prompt.sh ]; then
 	source ~/.git-prompt.sh
     fi
@@ -201,7 +206,7 @@ export VISUAL='fe'
 export LANG=C
 
 # enable color support of ls
-if dircolors > /dev/null 2>&1; then
+if type dircolors > /dev/null 2>&1; then
     if [ "$TERM" != "dumb" ]; then
 	# http://www.linux-sxs.org/housekeeping/lscolors.html
 	# black is giving trouble in some terminals so remap it
@@ -284,6 +289,13 @@ mrt ()
     $PAGER $1/$(ls -rt $1|tail -1)
 }
 
+# edit the last "ls -lrt"
+ert () 
+{ 
+    test -z $1 && set .
+    e $1/$(ls -rt $1|tail -1)
+}
+
 lrt() {
     if [ -z $1 ]; then
 	set .
@@ -301,6 +313,14 @@ lstoday()
 {
     ls -l $@ | egrep "$(date '+%b %_d')"
 }
+
+# saves to clipboard
+rsatoken()		
+{
+    stoken | tr -d '\n' | pbcopy
+}
+
+type ack    > /dev/null 2>&1 && alias ack='ack-grep'
 
 alias l='ls $LS_OPTIONS'
 alias ls='ls $LS_OPTIONS'
@@ -322,7 +342,9 @@ alias bye='exit'
 alias y='echo Oops\!'
 alias pf='perldoc -f'
 alias r='fc -s'
-alias ig='grep -i'
+alias g='grep -i'
+
+alias gd='./gradlew'
 
 alias ct='cleartool'
 alias lsck='cleartool lscheckout -me -all -cview'
@@ -372,9 +394,6 @@ work() {
 	echo you have to set work
     fi
 }
-
-type ack    > /dev/null 2>&1 || alias ack='ack-grep'
-type gradle > /dev/null 2>&1 || alias gd='gradle'
 
 # This works in iterm and xterm
 function nametab() {
@@ -556,12 +575,25 @@ fi
 PERL_MB_OPT="--install_base \"/Users/Mitchell/perl5\""; export PERL_MB_OPT;
 PERL_MM_OPT="INSTALL_BASE=/Users/Mitchell/perl5"; export PERL_MM_OPT;
 
-if docker-machine > /dev/null 2>&1 ; then
+if type docker-machine > /dev/null 2>&1 ; then
     eval "$(docker-machine env default)" 
     echo docker-machine: $(docker-machine active) $(docker-machine status)
     alias dm=docker-machine
     alias dk=docker-compose
+    function dkr() 
+    {
+	docker-compose kill $1
+	docker-compose rm -f $1
+	docker-compose up -d $1
+	echo ' ---- TAILING -----' $1 logs
+	docker-compose logs --follow $1
+    }
     [[ $DOCKER_HOST =~ ([0-9.]+) ]] && export DM=${BASH_REMATCH[1]}
+
+    function jc()
+    {
+	curl -s $DM:$1 | jq .
+    }
 fi
  
 # Last Container operations
@@ -597,7 +629,9 @@ function dtag() {
 }
 
 function dpush() {
-    docker push $(docker images | awk '!/^REPO/ { print $1 ":" $2; exit; }')
+    tag=$(docker images | awk '!/^REPO/ { print $1 ":" $2; exit; }')
+    echo Pushing $tag ...
+    docker push $tag
 }
 
 function dbash () {

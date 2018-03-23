@@ -80,6 +80,10 @@
 		  "http://planet.emacsen.org/atom.xml"
 		  "https://www.cringely.com/feed"
 		  "http://chalkdustmagazine.com/feed"))
+	  (defun waste-time ()
+	    (interactive nil)
+	    (elfeed)
+	    (elfeed-update))
 	  (add-hook 'elfeed-show-mode-hook
 		    (lambda () (modi/font-size-adj +1)))))
 
@@ -87,6 +91,7 @@
 ;; see https://github.com/pashky/restclient.el
 (use-package restclient
   :init (progn
+	  (add-to-list 'auto-mode-alist '("\\.http$" . restclient-mode))
 	  (add-hook 'restclient-mode-hook
 		    (lambda ()
 		      (local-set-key (kbd "<C-return>") 'restclient-http-send-current-stay-in-window)))))
@@ -148,7 +153,7 @@
   :config (progn
 	    (helm-mode 1)
 	    (helm-adaptive-mode 1)
-	    (helm-push-mark-mode 1)
+	;    (helm-push-mark-mode 1)
 	    (add-to-list 'helm-completing-read-handlers-alist
 			 '(find-file . helm-completing-read-symbols))
 	    (unless (boundp 'completion-in-region-function)
@@ -178,12 +183,19 @@
   :ensure t
   :init (helm-grepint-set-default-config)
   :bind ("C-c g" . helm-grepint-grep-root)
-  :config (helm-grepint-add-grep-config
-	   restricted-git-grep
-	   :command "git"
-	   :arguments (get-restricted-git-command)
-	   :enable-function my-helm-grepint-git-grep-locate-root
-	   :root-directory-function my-helm-grepint-git-grep-locate-root))
+  
+  ;; (twx) can also turn this extra config by using ".dir-locals.el" in
+  ;; platform projects
+  :config (progn 
+	    (helm-grepint-add-grep-config
+	      platform
+	      :command "ag"
+	      :arguments "--nocolor --search-zip --nogroup --java"
+	;      :extra-arguements "thingworx-common thingworx-platform-postgres thingworx-platform-common thingworx-integrationTests"
+	      :ignore-case-arg "--ignore-case"
+	      :root-directory-function helm-grepint-git-grep-locate-root)
+	    (add-to-list 'helm-grepint-grep-list 'platform))
+)
 
 ; local
 (use-package duplicate-line
@@ -201,9 +213,24 @@
   :ensure t
   :mode "\\.md\\'")
 
-;; jtags mode has rotted. gnu global has many more features atm
+; jtags mode has rotted. gnu global has many more features atm
 (use-package ggtags
-  :ensure t)
+  :ensure t
+  :init (progn
+	  ;; this was to pass in a --scope switch, but doing it in
+	  ;; gtags.conf was a better idea.
+	  ;; (load-library "my-ggtags")
+	  (setq ggtags-global-abbreviate-filename "No"
+		ggtags-global-window-height 15)))
+
+;;;;;;;;;;;;; alternately, ... ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;  
+
+;(use-package helm-gtags
+;  :ensure t
+;  :init (custom-set-variables
+;	 '(helm-gtags-path-style 'relative)
+;	 '(helm-gtags-ignore-case t)
+;	 '(helm-gtags-auto-update t)))
 
 ;; todo need a work init and a home one
 ;; todo  (locate-dominating-file (buffer-file-name) "build.gradle")
@@ -235,10 +262,10 @@
 ;; scala
 
 ;; depends on (executable-find "sbt")  ~~ "/usr/local/bin/sbt"
-(use-package ensime
-  :ensure t
-  ;; :pin melpa-stable
-)
+;(use-package ensime
+;  :ensure t
+;  ;; :pin melpa-stable
+;)
 
 ;;
 ;; Golang
@@ -541,7 +568,8 @@ M-<NUM> M-x modi/font-size-adj increases font size by NUM points if NUM is +ve,
 
 (defun my-prog-mode-hook ()
   (show-paren-mode 1)
-  (ggtags-mode 1)
+    (ggtags-mode 1)
+  ;;; (helm-gtags-mode)			;; see also disabled gtags paragraph
 )
 
 (add-hook 'prog-mode-hook 'my-prog-mode-hook)
@@ -615,6 +643,8 @@ is already narrowed."
 
 (add-to-list 'auto-mode-alist '("Rakefile" . ruby-mode))
 
+(add-to-list 'auto-mode-alist '("\\.xml.j2" . xml-mode))
+(add-to-list 'auto-mode-alist '("\\.ini.j2" . conf-mode))
 (add-to-list 'auto-mode-alist '("\\.yml.j2" . yaml-mode))
 (add-to-list 'auto-mode-alist '("\\.conf.j2" . json-mode))
 (add-to-list 'auto-mode-alist '("\\.conf" . json-mode))
@@ -627,6 +657,7 @@ is already narrowed."
 
 (defun my-xml-mode-hook ()
   (hs-minor-mode 1)
+  (set-variable nxml-child-indent 4)
   (local-set-key [f11] 'sgml-expand-element)
   (local-set-key [f12] 'sgml-fold-element))
 
@@ -691,24 +722,45 @@ is already narrowed."
 ;      (progn (hs-hide-all) (message "hid"))
 ;    (progn (hs-show-all) (message "show"))))
 
-(defun my-toggle-selective-display (column)
-  "cheap hideshow - http://emacs.wordpress.com/2007/01/16/quick-and-dirty-code-folding/"
-  (interactive "P")
-  (set-selective-display
-   (or column ; disable toggle if column was supplied
-       (unless selective-display 1))))
+;(defun my-toggle-selective-display (column)
+;  "cheap hideshow - http://emacs.wordpress.com/2007/01/16/quick-and-dirty-code-folding/"
+;  (interactive "P")
+;  (set-selective-display
+;   (or column ; disable toggle if column was supplied
+;       (unless selective-display 1))))
 
+    ;; https://www.emacswiki.org/emacs/HideShow
+
+    (defun toggle-selective-display (column)
+      (interactive "P")
+      (set-selective-display
+       (or column
+           (unless selective-display
+             (1+ (current-column))))))
+
+    ;(defun toggle-hiding (column)
+    (defun my-toggle-selective-display (column)
+      (interactive "P")
+      (if hs-minor-mode
+          (if (condition-case nil
+                  (hs-toggle-hiding)
+                (error t))
+              (hs-show-all))
+        (toggle-selective-display column)))
+
+    
 
 (ffap-bindings) ;; replaces find-file
 
-(defadvice find-tag (before find-tags-table () activate)
-  "find-tag (M-.) will load ./TAGS by default, the first time you use
-it.  This will look in parent dirs up to root for it as well."
-  (or (get-buffer "TAGS")
-      (let ((tagfile (concat (locate-dominating-file (buffer-file-name) "TAGS") "TAGS")))
-	(if tagfile
-	    (visit-tags-table tagfile)
-	  (error "Can't find TAGS looking upwards from %s" default-directory)))))
+;;; ggtags does this based on project root already
+;(defadvice find-tag (before find-tags-table () activate)
+;  "find-tag (M-.) will load ./TAGS by default, the first time you use
+;it.  This will look in parent dirs up to root for it as well."
+;  (or (get-buffer "TAGS")
+;      (let ((tagfile (concat (locate-dominating-file (buffer-file-name) "TAGS") "TAGS")))
+;	(if tagfile
+;	    (visit-tags-table tagfile)
+;	  (error "Can't find TAGS looking upwards from %s" default-directory)))))
 
 ;; idea: compile() can look upwards until it finds a makefile
 
@@ -798,7 +850,7 @@ it.  This will look in parent dirs up to root for it as well."
 (setq my-initials "MNP"
       visible-bell nil
       ring-bell-function 'ignore
-
+      indent-tabs-mode nil
       comment-column 80
       fill-column 95
       eval-expression-print-length 99
@@ -943,7 +995,13 @@ it.  This will look in parent dirs up to root for it as well."
   (interactive nil)
   (find-file-most-recent "~/Downloads"))
 
+(defun mrd ()
+  "View most Recent Download"
+  (interactive nil)
+  (erd)
+  (log-view-mode))
 
+(defalias 'adventure 'dunnet)
 
 ;; keep this last
 
@@ -965,9 +1023,12 @@ it.  This will look in parent dirs up to root for it as well."
    (quote
     ("5999e12c8070b9090a2a1bbcd02ec28906e150bb2cdce5ace4f965c76cf30476" "8db4b03b9ae654d4a57804286eb3e332725c84d7cdab38463cb6b97d5762ad26" default)))
  '(gradle-mode t)
+ '(helm-gtags-auto-update t)
+ '(helm-gtags-ignore-case t)
+ '(helm-gtags-path-style (quote relative))
  '(package-selected-packages
    (quote
-    (exec-path-from-shell elfeed smart-backspace toml-mode meghanada elpy helm-projectile projectile yahtzee json-navigator hierarchy erlang go-direx tree-mode json-mode dockerfile-mode go-eldoc hackernews helm-google iedit groovy-mode helm-grepint ensime easy-kill go-mode ggtags git-gutter restclient-helm restclient browse-kill-ring yaml-mode svg deft gradle-mode yasnippet yari xcscope use-package tangotango-theme sx svg-mode-line-themes svg-clock slime-volleyball powerline paredit org-journal magit helm-git-grep google-c-style git-gutter-fringe git-gutter+ frame-cmds flycheck emacs-eclim dot-mode company auto-complete aggressive-indent ack ace-window)))
+    (helm-gtags "sokoban" lognav-mode ag helm-ag 2048-game cakecrumbs exec-path-from-shell elfeed smart-backspace toml-mode meghanada elpy helm-projectile projectile yahtzee json-navigator hierarchy erlang go-direx tree-mode json-mode dockerfile-mode go-eldoc hackernews helm-google iedit groovy-mode helm-grepint easy-kill go-mode ggtags git-gutter restclient-helm restclient browse-kill-ring yaml-mode svg deft gradle-mode yasnippet yari xcscope use-package tangotango-theme sx svg-mode-line-themes svg-clock slime-volleyball powerline paredit org-journal magit helm-git-grep google-c-style git-gutter-fringe git-gutter+ frame-cmds flycheck emacs-eclim dot-mode company auto-complete aggressive-indent ack ace-window)))
  '(safe-local-variable-values
    (quote
     ((git-grep-path . "thingworx-platform-common thingworx-platform-postgres")))))

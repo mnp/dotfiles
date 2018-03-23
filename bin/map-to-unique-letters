@@ -1,0 +1,20 @@
+#!/usr/bin/perl
+
+# Map input stream of white-delimted symbols--which can be any
+# length--one to one into an output stream of symbols A, B, C ...
+
+use strict; 
+use warnings;
+
+my %xs;
+my $a0 = 'A';
+
+while (<>) {
+    for (split) { 
+	if (! exists($xs{$_})) {
+	    $xs{$_} = $a0;
+	    $a0++;
+	}
+	print $xs{$_};
+    } 
+}
