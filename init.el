@@ -297,8 +297,9 @@
 ;  :bind ((kbd "f12") . hs-toggle-hiding))
 
 
-(use-package clojure-mode
-  :ensure t)
+(use-package magit
+  :ensure t
+  :config (global-set-key "\C-xg" 'magit-status))
 
 (use-package groovy-mode
   :ensure t
@@ -932,7 +933,6 @@ is already narrowed."
 ;; see bs mode above, disabled
 (global-set-key "\C-x\C-b" 'electric-buffer-list)
 
-
 ;; I keep hitting Cmd on Mac keyboard because it's where Alt is.
 ;; Can you remap the whole s- map to meta- ?
 (if (memq system-type '(darwin))
@@ -1021,14 +1021,14 @@ is already narrowed."
  ;; If there is more than one, they won't work right.
  '(custom-safe-themes
    (quote
-    ("5999e12c8070b9090a2a1bbcd02ec28906e150bb2cdce5ace4f965c76cf30476" "8db4b03b9ae654d4a57804286eb3e332725c84d7cdab38463cb6b97d5762ad26" default)))
+    ("8aebf25556399b58091e533e455dd50a6a9cba958cc4ebb0aab175863c25b9a4" "e11569fd7e31321a33358ee4b232c2d3cf05caccd90f896e1df6cab228191109" "5999e12c8070b9090a2a1bbcd02ec28906e150bb2cdce5ace4f965c76cf30476" "8db4b03b9ae654d4a57804286eb3e332725c84d7cdab38463cb6b97d5762ad26" default)))
  '(gradle-mode t)
  '(helm-gtags-auto-update t)
  '(helm-gtags-ignore-case t)
  '(helm-gtags-path-style (quote relative))
  '(package-selected-packages
    (quote
-    (helm-gtags "sokoban" lognav-mode ag helm-ag 2048-game cakecrumbs exec-path-from-shell elfeed smart-backspace toml-mode meghanada elpy helm-projectile projectile yahtzee json-navigator hierarchy erlang go-direx tree-mode json-mode dockerfile-mode go-eldoc hackernews helm-google iedit groovy-mode helm-grepint easy-kill go-mode ggtags git-gutter restclient-helm restclient browse-kill-ring yaml-mode svg deft gradle-mode yasnippet yari xcscope use-package tangotango-theme sx svg-mode-line-themes svg-clock slime-volleyball powerline paredit org-journal magit helm-git-grep google-c-style git-gutter-fringe git-gutter+ frame-cmds flycheck emacs-eclim dot-mode company auto-complete aggressive-indent ack ace-window)))
+    (solarized-theme zenburn-theme helm-gtags "sokoban" lognav-mode ag helm-ag 2048-game cakecrumbs exec-path-from-shell elfeed smart-backspace toml-mode meghanada elpy helm-projectile projectile yahtzee json-navigator hierarchy erlang go-direx tree-mode json-mode dockerfile-mode go-eldoc hackernews helm-google iedit groovy-mode helm-grepint easy-kill go-mode ggtags git-gutter restclient-helm restclient browse-kill-ring yaml-mode svg deft gradle-mode yasnippet yari xcscope use-package tangotango-theme sx svg-mode-line-themes svg-clock slime-volleyball powerline paredit org-journal magit helm-git-grep google-c-style git-gutter-fringe git-gutter+ frame-cmds flycheck emacs-eclim dot-mode company auto-complete aggressive-indent ack ace-window)))
  '(safe-local-variable-values
    (quote
     ((git-grep-path . "thingworx-platform-common thingworx-platform-postgres")))))
