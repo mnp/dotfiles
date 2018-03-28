@@ -6,6 +6,7 @@
 	default = simple
 [alias]
 	stashed = stash list --pretty=format:'%gd: %Cred%h%Creset %Cgreen[%ar]%Creset %s'
+	lg = log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit
 
 # for $deity's sake, check that anything we're getting is complete and sane on a regular basis
 [transfer]
@@ -18,3 +19,4 @@
     prompt = false
 [difftool "icdiff"]
     cmd = icdiff $LOCAL $REMOTE | less -R
+[grep]

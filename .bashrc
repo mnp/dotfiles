@@ -60,7 +60,11 @@ export BC_ENV_ARGS='-l $HOME/etc/mylib.bc'
 if type brew > /dev/null 2>&1; then
     # iterm
     nametab() { echo -ne "\033]0;"$@"\007"; }
-    cd()      { builtin cd "$1"; nametab `basename $PWD`; }
+
+    cd() {
+	builtin cd "$@"
+	nametab "${PWD##*/}"
+    }
 fi
 
 BASH_COMPLETION=${BASH_COMPLETION:-/usr/local/opt/bash-completion/etc/bash_completion}
