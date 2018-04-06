@@ -289,15 +289,15 @@ m()
 # more the last "ls -rt"
 mrt () 
 { 
-    test -z $1 && set .
-    $PAGER $1/$(ls -rt $1|tail -1)
+    test -z "$1" && set .
+    m "$1"/"$(ls -rt "$1"|tail -1)"
 }
 
 # edit the last "ls -lrt"
 ert () 
 { 
-    test -z $1 && set .
-    e $1/$(ls -rt $1|tail -1)
+    test -z "$1" && set .
+    e "$1"/"$(ls -rt "$1"|tail -1)"
 }
 
 lrt() {

@@ -9,16 +9,30 @@
 ; todo: source a refactored bash environment file
 ;(add-to-list 'load-path (expand-file-name "~/Elisp"))
 (add-to-list 'load-path (expand-file-name "~/prj/dotfiles/shared-elisp"))
+(add-to-list 'load-path (expand-file-name "~/Dropbox/work-elisp"))
 (add-to-list 'exec-path (expand-file-name "~/bin"))
 (add-to-list 'exec-path "/usr/local/bin")
 
 ;; OSX Hacks
 (if (memq system-type '(darwin))
-    ;;; mac
-    ;; open -a /Applications/Emacs.app "$@"
-    ;; If you are annoyed by the fact that it opens a new frame (window) for each file -- add
-    (setq ns-pop-up-frames nil
-	  browse-url-browser-function 'browse-url-default-macosx-browser)
+    (progn
+      ;; open -a /Applications/Emacs.app "$@"
+      ;; If you are annoyed by the fact that it opens a new frame (window) for each file -- add
+      (setq ns-pop-up-frames nil)
+      (setq browse-url-browser-function 'browse-url-default-macosx-browser)
+
+      ;; Two metas is better for hardware reasons, this week.
+      ;; see https://stackoverflow.com/questions/7743402/how-can-i-change-meta-key-from-alt-to-cmd-on-mac-in-emacs-24#7743625
+      (setq mac-command-modifier 'meta)
+      (setq mac-option-modifier 'meta)
+  
+      ;; Env to hit docker VM. Could be evalled from bash instead.
+      (setenv "DOCKER_HOST" "tcp://192.168.99.100:2376")
+      (setenv "DOCKER_MACHINE_NAME" "default")
+      (setenv "DOCKER_TLS_VERIFY" "1")
+      (setenv "DOCKER_CERT_PATH" "/Users/Mitchell/.docker/machine/machines/default")))
+
+(if (not (memq system-type '(darwin)))
   ;;; not mac
   (setq browse-url-browser-function 'browse-url-generic
 	browse-url-generic-program "firefox"))
@@ -46,6 +60,10 @@
   (package-refresh-contents)
   (package-install 'use-package))
 (require 'use-package)
+
+(use-package diminish
+  :init (diminish 'abbrev-mode)
+  :ensure t)
 
 (use-package exec-path-from-shell
   :ensure t
@@ -77,6 +95,7 @@
   :init (progn
 	  (setq elfeed-feeds
 		'("http://nullprogram.com/feed/"
+                  "https://news.ycombinator.com/rss"
 		  "http://planet.emacsen.org/atom.xml"
 		  "https://www.cringely.com/feed"
 		  "http://chalkdustmagazine.com/feed"))
@@ -138,8 +157,8 @@
 
 (use-package git-gutter
   :ensure t
+  :diminish
   :init (global-git-gutter-mode +1))
-
 
 ;;
 ;; A .dir-locals.el file helps a bunch here:
@@ -150,6 +169,7 @@
 
 (use-package helm
   :ensure t
+  :diminish
   :config (progn
 	    (helm-mode 1)
 	    (helm-adaptive-mode 1)
@@ -220,7 +240,7 @@
 	  ;; this was to pass in a --scope switch, but doing it in
 	  ;; gtags.conf was a better idea.
 	  ;; (load-library "my-ggtags")
-	  (setq ggtags-global-abbreviate-filename "No"
+	  (setq ggtags-global-abbreviate-filename 80 ;;;;;; "No"
 		ggtags-global-window-height 15)))
 
 ;;;;;;;;;;;;; alternately, ... ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;  
@@ -239,6 +259,9 @@
 	    (setq indent-tabs-mode nil) ; force indent with spaces, never TABs
 	    (set (make-local-variable 'compile-command)
 		 "cd /Users/Mitchell/src/tw-server/thingworx-platform-postgres; gradle build -x test")))
+
+(use-package lua-mode
+  :ensure t)
 
 ;;(use-package eclim
 ;;  :init (my-elcim-setup)
@@ -306,6 +329,7 @@
   :init (add-to-list 'auto-mode-alist '("\\.gradle$" . groovy-mode)))
 
 (use-package gradle-mode
+  :diminish
   :ensure t)
 
 ;; subsumed by grepint probably
@@ -753,6 +777,11 @@ is already narrowed."
 
 (ffap-bindings) ;; replaces find-file
 
+(condition-case nil
+    (load-library "view-jira") ;;  twx/ptc specific
+  (error nil))
+
+
 ;;; ggtags does this based on project root already
 ;(defadvice find-tag (before find-tags-table () activate)
 ;  "find-tag (M-.) will load ./TAGS by default, the first time you use
@@ -933,17 +962,6 @@ is already narrowed."
 ;; see bs mode above, disabled
 (global-set-key "\C-x\C-b" 'electric-buffer-list)
 
-;; I keep hitting Cmd on Mac keyboard because it's where Alt is.
-;; Can you remap the whole s- map to meta- ?
-(if (memq system-type '(darwin))
-    (progn
-      (global-set-key (kbd "s-q") 'fill-paragraph)
-      (global-set-key (kbd "s-w") 'kill-buffer)
-      (global-set-key (kbd "s-p") 'duplicate-previous-line)
-      (global-set-key (kbd "s-n") 'duplicate-following-line)
-      (global-set-key (kbd "s-f") 'forward-word)))
-
-
 ;; experiment
 
 ;; minimap.  see also sublimity, with different bugs
@@ -1029,7 +1047,7 @@ is already narrowed."
  '(magit-log-arguments (quote ("--graph" "--color" "--decorate" "-n256")))
  '(package-selected-packages
    (quote
-    (solarized-theme zenburn-theme helm-gtags "sokoban" lognav-mode ag helm-ag 2048-game cakecrumbs exec-path-from-shell elfeed smart-backspace toml-mode meghanada elpy helm-projectile projectile yahtzee json-navigator hierarchy erlang go-direx tree-mode json-mode dockerfile-mode go-eldoc hackernews helm-google iedit groovy-mode helm-grepint easy-kill go-mode ggtags git-gutter restclient-helm restclient browse-kill-ring yaml-mode svg deft gradle-mode yasnippet yari xcscope use-package tangotango-theme sx svg-mode-line-themes svg-clock slime-volleyball powerline paredit org-journal magit helm-git-grep google-c-style git-gutter-fringe git-gutter+ frame-cmds flycheck emacs-eclim dot-mode company auto-complete aggressive-indent ack ace-window)))
+    (diminish lua-mode solarized-theme zenburn-theme helm-gtags "sokoban" lognav-mode ag helm-ag 2048-game cakecrumbs exec-path-from-shell elfeed smart-backspace toml-mode meghanada elpy helm-projectile projectile yahtzee json-navigator hierarchy erlang go-direx tree-mode json-mode dockerfile-mode go-eldoc hackernews helm-google iedit groovy-mode helm-grepint easy-kill go-mode ggtags git-gutter restclient-helm restclient browse-kill-ring yaml-mode svg deft gradle-mode yasnippet yari xcscope use-package tangotango-theme sx svg-mode-line-themes svg-clock slime-volleyball powerline paredit org-journal magit helm-git-grep google-c-style git-gutter-fringe git-gutter+ frame-cmds flycheck emacs-eclim dot-mode company auto-complete aggressive-indent ack ace-window)))
  '(safe-local-variable-values
    (quote
     ((git-grep-path . "thingworx-platform-common thingworx-platform-postgres")))))

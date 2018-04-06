@@ -9,7 +9,7 @@ while [ ! -d .git ]; do
 done
 
 echo Tagging: $PWD
-exec find . -name \*.java | grep -v /test/ | gtags -f -
+files=$(gtags --verbose 2>&1 | grep extracting | wc -l) && echo scanned $files
 
 # if [ -f .mnp-project ]; then
 #    . .mnp-project
