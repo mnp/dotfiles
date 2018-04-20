@@ -6,10 +6,12 @@
       initial-scratch-message nil
       debug-on-error nil)
 
+(defconst work-elisp "~/Dropbox/work-elisp" 
+  "Work-only files - we will load all .el found.")
+
 ; todo: source a refactored bash environment file
 ;(add-to-list 'load-path (expand-file-name "~/Elisp"))
 (add-to-list 'load-path (expand-file-name "~/prj/dotfiles/shared-elisp"))
-(add-to-list 'load-path (expand-file-name "~/Dropbox/work-elisp"))
 (add-to-list 'exec-path (expand-file-name "~/bin"))
 (add-to-list 'exec-path "/usr/local/bin")
 
@@ -88,23 +90,98 @@
  :init (load-library "my-calc-extras")
  :bind ("M-#" . calc))
 
+(use-package search-web
+  :ensure t
+  :bind ("C-c s" . my-search-web-dwim)
+  :init (progn
+	  (defun my-search-web-dwim ()
+	    "Seach words you select as region or at point."
+	    (interactive nil)
+	    (search-web-dwim "duck"))))
+
 (use-package elfeed
   :ensure t
   ;; do this to reload feeds if you update list at runtime
   ;; (elfeed-update)
   :init (progn
-	  (setq elfeed-feeds
-		'("http://nullprogram.com/feed/"
-                  "https://news.ycombinator.com/rss"
-		  "http://planet.emacsen.org/atom.xml"
-		  "https://www.cringely.com/feed"
-		  "http://chalkdustmagazine.com/feed"))
+
+	  (setq elfeed-feeds '("http://aperiodical.com/feed/"
+		"http://chalkdustmagazine.com/feed/"
+		"http://bit-player.org/feed"
+		"http://feeds.feedburner.com/Betterexplained"
+		"http://helloimnadia.com/rss"
+		"https://medium.com/feed/@nayafia"
+		"http://techblog.netflix.com/feeds/posts/default"
+		"http://esr.ibiblio.org/?feed=rss2"
+		"http://www.allthingsdistributed.com/atom.xml"
+		"https://engineering.linkedin.com/blog.rss"
+		"http://feeds.feedburner.com/AFewThoughtsOnCryptographicEngineering"
+		"http://armstrongonsoftware.blogspot.com/feeds/posts/default"
+		"http://feeds.feedburner.com/nmss/SOik"
+		"http://blog.jrock.us/feeds/articles/atom"
+		"http://debian-administration.org/atom.xml"
+		"http://feeds.feedburner.com/FutilityCloset"
+		"http://www.gabrielweinberg.com/blog/atom.xml"
+		"http://feeds.feedburner.com/getrichslowly"
+		"http://feeds.feedburner.com/GoogleOperatingSystem"
+		"http://feeds2.feedburner.com/hackaday/LgoM"
+		"http://www.cringely.com/feed/"
+		"http://feeds.feedburner.com/IeeeSpectrumFullText"
+		"http://lambda-the-ultimate.org/rss.xml"
+		"https://emacs.wordpress.com/feed/"
+		"http://www.modernperlbooks.com/mt/atom.xml"
+		"http://cds-srv.sun.com:8700/rss/insert/public/sunalert_insert.xml"
+		"http://www.qbyte.org/puzzles/rss2.xml"
+		"http://nooface.net/nooface.rss"
+		"http://www.math.columbia.edu/~woit/wordpress/?feed=rss2"
+		"http://www.aaronsw.com/2002/feeds/pgessays.rss"
+		"http://prog21.dadgum.com/atom.xml"
+		"http://randsinrepose.com/feed/?_=5778"
+		"https://www.schneier.com:443/blog/index2.rdf"
+		"http://rss.sciam.com/ScientificAmerican-Global"
+		"http://rss.slashdot.org/slashdot/classic"
+		"http://feeds.feedburner.com/oreilly/radar/atom"
+		"http://feeds.feedburner.com/tedtalks_video"
+		"http://feeds2.feedburner.com/timferriss"
+		"http://zenhabits.net/feed/"
+		"http://feeds.feedburner.com/http/wwwslowcarbfoodiecom"
+		"http://www.xkcd.com/rss.xml"
+		"http://feeds.feedburner.com/JamesOnSoftware"
+		"http://www.quantamagazine.org/archives/feed/"
+		"http://blog.sciencevsmagic.net/feed/"
+		"https://medium.com/feed/the-physics-arxiv-blog"
+		"http://feeds.feedburner.com/MostlyMaths"
+		"http://mindfuckmath.com/rss"
+		"http://fledglingphysicist.com/feed/"
+		"http://www.johndcook.com/blog/feed/"
+		"http://directed-procrastination.blogspot.com/feeds/posts/default"
+		"http://www.jwz.org/blog/feed/"
+		"http://adamilab.blogspot.com/feeds/posts/default"
+		"http://blog.tanyakhovanova.com/feed/"
+		"https://firstlook.org/theintercept/feed/"
+		"http://vigoroushandwaving.wordpress.com/feed/"
+		"http://lwn.net/headlines/newrss"
+		"http://www.preposterousuniverse.com/blog/feed/"
+		"http://www.kasparov.com/feed/"
+		"http://nullprogram.com/feed/"
+		"http://planet.emacsen.org/atom.xml"
+		"https://www.cringely.com/feed"
+		"http://chalkdustmagazine.com/feed"
+		"https://www.twitrss.me/twitter_user_to_rss/?user=ChileSpot"
+		"https://www.twitrss.me/twitter_user_to_rss/?user=fermatslibrary"))
+
+;;		"https://news.ycombinator.com/rss"
+
 	  (defun waste-time ()
 	    (interactive nil)
 	    (elfeed)
 	    (elfeed-update))
-	  (add-hook 'elfeed-show-mode-hook
-		    (lambda () (modi/font-size-adj +1)))))
+	  (setq shr-width 100)
+	  (setq shr-use-fonts nil)))
+
+;	  (add-hook 'elfeed-show-mode-hook
+;		    (set-face-attribute 'variable-pitch (selected-frame) :font (font-spec :family "DejaVuSansMono" :size 16)))))q
+
 
 ;; remember it needs # as separators
 ;; see https://github.com/pashky/restclient.el
@@ -427,19 +504,40 @@ Can you derive the solution differently? Can you use the result or method in som
   :init
   (bind-key [f11] 'toggle-max-frame))
 
-;;(use-package powerline
-;;  :ensure powerline
-;;  :init (progn
-;;	  (powerline-center-theme)
-;;
-;;	  ;; Separate behavior for inactive
-;;	  ;; buffers. smart-mode-line does this out of the box,
-;;	  ;; switch if we get bored.
-;;	  (set-face-attribute  'mode-line-inactive
-;;			       nil
-;;			       :foreground "gray30"
-;;			       :background "black"
-;;			       :box '(:line-width 1 :style released-button))))
+(use-package powerline
+  :ensure powerline
+  :init (progn
+	  ; works
+	  ; (custom-set-faces
+	  ; '(mode-line ((t (:foreground "Black" :background "DarkOrange" :box nil))))
+	  ; '(mode-line-inactive ((t (:foreground "#f9f9f9" :background "#666666" :overline "gray" :underline "gray" :box nil)))))
+
+	  ;; see also powerline-active0, 1, 2 and -inactive0, 1, 2
+	  ;; can check current values by (face-attribute 'powerline-active1 :foreground)
+	  ;; TODO: (make-hud face1 face2).  Or look at Smart Mode Line
+	  (set-face-attribute 'powerline-active0 nil
+			      :foreground "Black"
+			      :background "DarkOrange")
+
+	  (set-face-attribute 'mode-line nil
+			      :foreground "Black"
+			      :background "DarkOrange")
+	  (set-face-attribute 'mode-line-inactive nil
+			      :foreground "#f9f9f9"
+			      :background "#666666"
+			      :overline "gray"
+			      :underline "gray")
+	  (set-face-attribute 'powerline-active1 nil 
+			      :background "white"
+			      :foreground "black")
+	  (set-face-attribute 'mode-line-buffer-id nil
+			      :overline   "gray"
+			      :underline  "gray"
+			      :foreground "black")
+	  (powerline-default-theme)))
+
+(use-package material-theme
+  :ensure t)
 
 ; (use-package yasnippet
 ;   :defer t
@@ -493,7 +591,10 @@ Can you derive the solution differently? Can you use the result or method in som
       ;;      (set-default-font "Mono-10")
       ;;      (set-face-attribute 'default nil :font "terminus-12")
 
-      (load-theme 'tangotango t)
+      (load-theme 'tangotango t)	; we also like zenburn, material-theme, solarized
+
+      ;; consider all themes safe to load
+      (setq custom-safe-themes t)
 
       ;; this maybe also good for local terminal, but how do we tell
       ;; that from a remote?
@@ -773,14 +874,12 @@ is already narrowed."
               (hs-show-all))
         (toggle-selective-display column)))
 
-    
 
 (ffap-bindings) ;; replaces find-file
 
-(condition-case nil
-    (load-library "view-jira") ;;  twx/ptc specific
-  (error nil))
-
+;; must come after ffap is set up
+(if (file-exists-p work-elisp)
+    (mapcar 'load-file work-elisp))
 
 ;;; ggtags does this based on project root already
 ;(defadvice find-tag (before find-tags-table () activate)
@@ -866,6 +965,13 @@ is already narrowed."
   (interactive "")
   (shell-command-on-region (point-min) (point-max) "xmllint --format -" t t))
 
+(defun pop-to-scratch ()
+  "If in *scratch*, bury it, otherwise pop to it."
+  (interactive nil)
+  (if (equal (buffer-name) "*scratch*")
+      (bury-buffer)
+    (switch-to-buffer "*scratch*")))
+
 (defun parent-directory (path)
   (file-name-nondirectory (directory-file-name (file-name-directory path))))
 
@@ -943,7 +1049,7 @@ is already narrowed."
 
 (global-set-key [f1] 		'switch-to-most-recent-org-buffer)
 (global-set-key [f2] 		'narrow-or-widen-dwim)
-(global-set-key [f3]            'my-perldb)
+(global-set-key [f3]            'pop-to-scratch)
 (global-set-key [f4]            'my-code-search)
 (global-set-key [f5]   		(lambda () (interactive) (revert-buffer t nil)))
 (global-set-key [f6]   		(lambda () (interactive) (switch-to-buffer nil)))
@@ -1032,6 +1138,9 @@ is already narrowed."
 
 (if window-system (server-start))
 
+;; I don't like fighting with customize
+;; TODO - https://www.emacswiki.org/emacs/CustomizingAndSaving#toc9
+
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -1039,7 +1148,10 @@ is already narrowed."
  ;; If there is more than one, they won't work right.
  '(custom-safe-themes
    (quote
-    ("4e63466756c7dbd78b49ce86f5f0954b92bf70b30c01c494b37c586639fa3f6f" "8aebf25556399b58091e533e455dd50a6a9cba958cc4ebb0aab175863c25b9a4" "e11569fd7e31321a33358ee4b232c2d3cf05caccd90f896e1df6cab228191109" "5999e12c8070b9090a2a1bbcd02ec28906e150bb2cdce5ace4f965c76cf30476" "8db4b03b9ae654d4a57804286eb3e332725c84d7cdab38463cb6b97d5762ad26" default)))
+    ("a24c5b3c12d147da6cef80938dca1223b7c7f70f2f382b26308eba014dc4833a" "8790269696322ff6821d75414c7d6ea8726d204cdeadedfd04c87b0c915296f7" "4e63466756c7dbd78b49ce86f5f0954b92bf70b30c01c494b37c586639fa3f6f" "8aebf25556399b58091e533e455dd50a6a9cba958cc4ebb0aab175863c25b9a4" "e11569fd7e31321a33358ee4b232c2d3cf05caccd90f896e1df6cab228191109" "5999e12c8070b9090a2a1bbcd02ec28906e150bb2cdce5ace4f965c76cf30476" "8db4b03b9ae654d4a57804286eb3e332725c84d7cdab38463cb6b97d5762ad26" default)))
+ '(elfeed-feeds
+   (quote
+    ("http://aperiodical.com/feed/" "http://chalkdustmagazine.com/feed/" "http://bit-player.org/feed" "http://feeds.feedburner.com/Betterexplained" "http://helloimnadia.com/rss" "https://medium.com/feed/@nayafia" "http://techblog.netflix.com/feeds/posts/default" "http://esr.ibiblio.org/?feed=rss2" "http://www.allthingsdistributed.com/atom.xml" "https://engineering.linkedin.com/blog.rss" "http://feeds.feedburner.com/AFewThoughtsOnCryptographicEngineering" "http://armstrongonsoftware.blogspot.com/feeds/posts/default" "http://feeds.feedburner.com/nmss/SOik" "http://blog.jrock.us/feeds/articles/atom" "http://debian-administration.org/atom.xml" "http://feeds.feedburner.com/FutilityCloset" "http://www.gabrielweinberg.com/blog/atom.xml" "http://feeds.feedburner.com/getrichslowly" "http://feeds.feedburner.com/GoogleOperatingSystem" "http://feeds2.feedburner.com/hackaday/LgoM" "http://www.cringely.com/feed/" "http://feeds.feedburner.com/IeeeSpectrumFullText" "http://lambda-the-ultimate.org/rss.xml" "https://emacs.wordpress.com/feed/" "http://www.modernperlbooks.com/mt/atom.xml" "http://cds-srv.sun.com:8700/rss/insert/public/sunalert_insert.xml" "http://www.qbyte.org/puzzles/rss2.xml" "http://nooface.net/nooface.rss" "http://www.math.columbia.edu/~woit/wordpress/?feed=rss2" "http://www.aaronsw.com/2002/feeds/pgessays.rss" "http://prog21.dadgum.com/atom.xml" "http://randsinrepose.com/feed/?_=5778" "https://www.schneier.com:443/blog/index2.rdf" "http://rss.sciam.com/ScientificAmerican-Global" "http://rss.slashdot.org/slashdot/classic" "http://feeds.feedburner.com/oreilly/radar/atom" "http://feeds.feedburner.com/tedtalks_video" "http://feeds2.feedburner.com/timferriss" "http://zenhabits.net/feed/" "http://feeds.feedburner.com/http/wwwslowcarbfoodiecom" "http://www.xkcd.com/rss.xml" "http://feeds.feedburner.com/JamesOnSoftware" "http://www.quantamagazine.org/archives/feed/" "http://blog.sciencevsmagic.net/feed/" "https://medium.com/feed/the-physics-arxiv-blog" "http://feeds.feedburner.com/MostlyMaths" "http://mindfuckmath.com/rss" "http://fledglingphysicist.com/feed/" "http://www.johndcook.com/blog/feed/" "http://directed-procrastination.blogspot.com/feeds/posts/default" "http://www.jwz.org/blog/feed/" "http://adamilab.blogspot.com/feeds/posts/default" "http://blog.tanyakhovanova.com/feed/" "https://firstlook.org/theintercept/feed/" "http://vigoroushandwaving.wordpress.com/feed/" "http://lwn.net/headlines/newrss" "http://www.preposterousuniverse.com/blog/feed/" "http://www.kasparov.com/feed/" "http://nullprogram.com/feed/" "https://news.ycombinator.com/rss" "http://planet.emacsen.org/atom.xml" "https://www.cringely.com/feed" "http://chalkdustmagazine.com/feed")))
  '(gradle-mode t)
  '(helm-gtags-auto-update t)
  '(helm-gtags-ignore-case t)
@@ -1047,7 +1159,7 @@ is already narrowed."
  '(magit-log-arguments (quote ("--graph" "--color" "--decorate" "-n256")))
  '(package-selected-packages
    (quote
-    (diminish lua-mode solarized-theme zenburn-theme helm-gtags "sokoban" lognav-mode ag helm-ag 2048-game cakecrumbs exec-path-from-shell elfeed smart-backspace toml-mode meghanada elpy helm-projectile projectile yahtzee json-navigator hierarchy erlang go-direx tree-mode json-mode dockerfile-mode go-eldoc hackernews helm-google iedit groovy-mode helm-grepint easy-kill go-mode ggtags git-gutter restclient-helm restclient browse-kill-ring yaml-mode svg deft gradle-mode yasnippet yari xcscope use-package tangotango-theme sx svg-mode-line-themes svg-clock slime-volleyball powerline paredit org-journal magit helm-git-grep google-c-style git-gutter-fringe git-gutter+ frame-cmds flycheck emacs-eclim dot-mode company auto-complete aggressive-indent ack ace-window)))
+    (material-theme search-web srcery-theme elfeed-web diminish lua-mode solarized-theme zenburn-theme helm-gtags "sokoban" lognav-mode ag helm-ag 2048-game cakecrumbs exec-path-from-shell elfeed smart-backspace toml-mode elpy helm-projectile projectile yahtzee json-navigator hierarchy erlang go-direx tree-mode json-mode dockerfile-mode go-eldoc hackernews helm-google iedit groovy-mode helm-grepint easy-kill go-mode ggtags git-gutter restclient-helm restclient browse-kill-ring yaml-mode svg deft gradle-mode yasnippet yari xcscope use-package tangotango-theme sx svg-mode-line-themes svg-clock slime-volleyball powerline paredit org-journal magit helm-git-grep google-c-style git-gutter-fringe git-gutter+ frame-cmds flycheck emacs-eclim dot-mode company auto-complete aggressive-indent ack ace-window)))
  '(safe-local-variable-values
    (quote
     ((git-grep-path . "thingworx-platform-common thingworx-platform-postgres")))))
@@ -1057,4 +1169,6 @@ is already narrowed."
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(cperl-array-face ((t (:background unspecified :foreground "yellow" :weight bold))))
- '(cperl-hash-face ((t (:background unspecified :foreground "green" :slant italic :weight bold)))))
+ '(cperl-hash-face ((t (:background unspecified :foreground "green" :slant italic :weight bold))))
+ '(mode-line ((t (:foreground "Black" :background "DarkOrange" :box nil))))
+ '(mode-line-inactive ((t (:foreground "#f9f9f9" :background "#666666" :box nil)))))

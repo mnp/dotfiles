@@ -20,3 +20,7 @@
 [difftool "icdiff"]
     cmd = icdiff $LOCAL $REMOTE | less -R
 [grep]
+[core]
+	autocrlf = input
+[branch]
+	autosetuprebase = always
