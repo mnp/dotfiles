@@ -176,11 +176,13 @@
 	    (interactive nil)
 	    (elfeed)
 	    (elfeed-update))
-	  (setq shr-width 100)
-	  (setq shr-use-fonts nil)))
+
+	  ;; bug? every invocation makes it larger
+;	  (setq shr-width 100)
+;	  (setq shr-use-fonts nil)))
 
 ;	  (add-hook 'elfeed-show-mode-hook
-;		    (set-face-attribute 'variable-pitch (selected-frame) :font (font-spec :family "DejaVuSansMono" :size 16)))))q
+;		    (set-face-attribute 'variable-pitch (selected-frame) :font (font-spec :family "DejaVuSansMono" :size 16)))))
 
 
 ;; remember it needs # as separators
@@ -258,9 +260,12 @@
 	      (define-key emacs-lisp-mode-map       [remap completion-at-point] 'helm-lisp-completion-at-point))
 	    (define-key global-map [remap occur] 'helm-occur)
 	    (define-key global-map [remap list-buffers] 'helm-buffers-list)
-	    (define-key global-map (kbd "M-C-/") 'helm-dabbrev))
+	    (define-key global-map (kbd "M-C-/") 'helm-dabbrev)
+	    ;; without this, the gray+white selection bar matches other elements
+	    (set-face-attribute 'helm-selection nil
+				:background "pink"
+				:foreground "black"))
   :bind (("M-x" . helm-M-x)))
-
 
 ;; (use-package helm-git-grep
 ;;   :ensure helm-git-grep
