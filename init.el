@@ -179,11 +179,12 @@
 
 	  ;; bug? every invocation makes it larger
 ;	  (setq shr-width 100)
-;	  (setq shr-use-fonts nil)))
+;	  (setq shr-use-fonts nil)
 
 ;	  (add-hook 'elfeed-show-mode-hook
-;		    (set-face-attribute 'variable-pitch (selected-frame) :font (font-spec :family "DejaVuSansMono" :size 16)))))
+;		    (set-face-attribute 'variable-pitch (selected-frame) :font (font-spec :family "DejaVuSansMono" :size 16)))
 
+	  ))
 
 ;; remember it needs # as separators
 ;; see https://github.com/pashky/restclient.el
@@ -263,7 +264,7 @@
 	    (define-key global-map (kbd "M-C-/") 'helm-dabbrev)
 	    ;; without this, the gray+white selection bar matches other elements
 	    (set-face-attribute 'helm-selection nil
-				:background "pink"
+				:background "LightYellow"
 				:foreground "black"))
   :bind (("M-x" . helm-M-x)))
 
