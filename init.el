@@ -6,7 +6,7 @@
       initial-scratch-message nil
       debug-on-error nil)
 
-(defconst work-elisp "~/Dropbox/work-elisp" 
+(defconst work-elisp "~/Dropbox/work-elisp"
   "Work-only files - we will load all .el found.")
 
 ; todo: source a refactored bash environment file
@@ -512,7 +512,7 @@ Can you derive the solution differently? Can you use the result or method in som
 
 (use-package powerline
   :ensure powerline
-  :init (progn
+  :config (progn
 	  ; works
 	  ; (custom-set-faces
 	  ; '(mode-line ((t (:foreground "Black" :background "DarkOrange" :box nil))))
@@ -521,7 +521,7 @@ Can you derive the solution differently? Can you use the result or method in som
 	  ;; see also powerline-active0, 1, 2 and -inactive0, 1, 2
 	  ;; can check current values by (face-attribute 'powerline-active1 :foreground)
 	  ;; TODO: (make-hud face1 face2).  Or look at Smart Mode Line
-	  (set-face-attribute 'powerline-active0 nil
+	  (set-face-attribute 'powerline-active0 nil 
 			      :foreground "Black"
 			      :background "DarkOrange")
 
@@ -885,7 +885,9 @@ is already narrowed."
 
 ;; must come after ffap is set up
 (if (file-exists-p work-elisp)
-    (mapcar 'load-file work-elisp))
+    (mapcar 
+     'load-file 
+     (directory-files work-elisp t ".*\.elc?$" t)))
 
 ;;; ggtags does this based on project root already
 ;(defadvice find-tag (before find-tags-table () activate)
