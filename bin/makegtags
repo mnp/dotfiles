@@ -9,7 +9,7 @@ while [ ! -d .git ]; do
 done
 
 echo Tagging: $PWD
-files=$(gtags --verbose 2>&1 | grep extracting | wc -l) && echo scanned $files
+files=$(gtags --verbose 2>&1 | grep extracting | wc -l) && echo scanned $files files
 
 # if [ -f .mnp-project ]; then
 #    . .mnp-project
