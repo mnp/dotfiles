@@ -6,7 +6,7 @@
       initial-scratch-message nil
       debug-on-error nil)
 
-(defconst work-elisp "~/Dropbox/work-elisp" 
+(defconst work-elisp "~/Dropbox/work-elisp"
   "Work-only files - we will load all .el found.")
 
 ; todo: source a refactored bash environment file
@@ -27,7 +27,7 @@
       ;; see https://stackoverflow.com/questions/7743402/how-can-i-change-meta-key-from-alt-to-cmd-on-mac-in-emacs-24#7743625
       (setq mac-command-modifier 'meta)
       (setq mac-option-modifier 'meta)
-  
+
       ;; Env to hit docker VM. Could be evalled from bash instead.
       (setenv "DOCKER_HOST" "tcp://192.168.99.100:2376")
       (setenv "DOCKER_MACHINE_NAME" "default")
@@ -172,16 +172,31 @@
 
 ;;		"https://news.ycombinator.com/rss"
 
+	  (setq elfeed-search-title-max-width 80)
+
 	  (defun waste-time ()
 	    (interactive nil)
 	    (elfeed)
 	    (elfeed-update))
-	  (setq shr-width 100)
-	  (setq shr-use-fonts nil)))
 
-;	  (add-hook 'elfeed-show-mode-hook
-;		    (set-face-attribute 'variable-pitch (selected-frame) :font (font-spec :family "DejaVuSansMono" :size 16)))))q
+	  ;; see https://github.com/skeeto/elfeed/issues/190
+	  (add-hook 'elfeed-show-mode-hook
+		(lambda ()
+		  (set-face-attribute 'variable-pitch (selected-frame)
+				      :font (font-spec :family "Century Schoolbook" :size 12))
+		  (setq fill-column 120)
+		  (setq elfeed-show-entry-switch #'my-show-elfeed)))
 
+	  (defun my-show-elfeed (buffer)
+	    (with-current-buffer buffer
+	      (setq buffer-read-only nil)
+	      (goto-char (point-min))
+	      (re-search-forward "\n\n")
+	      (fill-individual-paragraphs (point) (point-max))
+	      (setq buffer-read-only t))
+	    (switch-to-buffer buffer))
+
+	  ))
 
 ;; remember it needs # as separators
 ;; see https://github.com/pashky/restclient.el
@@ -258,9 +273,12 @@
 	      (define-key emacs-lisp-mode-map       [remap completion-at-point] 'helm-lisp-completion-at-point))
 	    (define-key global-map [remap occur] 'helm-occur)
 	    (define-key global-map [remap list-buffers] 'helm-buffers-list)
-	    (define-key global-map (kbd "M-C-/") 'helm-dabbrev))
+	    (define-key global-map (kbd "M-C-/") 'helm-dabbrev)
+	    ;; without this, the gray+white selection bar matches other elements
+	    (set-face-attribute 'helm-selection nil
+				:background "LightYellow"
+				:foreground "black"))
   :bind (("M-x" . helm-M-x)))
-
 
 ;; (use-package helm-git-grep
 ;;   :ensure helm-git-grep
@@ -280,10 +298,10 @@
   :ensure t
   :init (helm-grepint-set-default-config)
   :bind ("C-c g" . helm-grepint-grep-root)
-  
+
   ;; (twx) can also turn this extra config by using ".dir-locals.el" in
   ;; platform projects
-  :config (progn 
+  :config (progn
 	    (helm-grepint-add-grep-config
 	      platform
 	      :command "ag"
@@ -320,7 +338,7 @@
 	  (setq ggtags-global-abbreviate-filename 80 ;;;;;; "No"
 		ggtags-global-window-height 15)))
 
-;;;;;;;;;;;;; alternately, ... ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;  
+;;;;;;;;;;;;; alternately, ... ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;(use-package helm-gtags
 ;  :ensure t
@@ -381,7 +399,7 @@
 (use-package go-mode
 ;  :bind (("M-." . godef-jump)
 ;	 ("M-*" . pop-tag-mark))
-  :init (add-hook 'before-save-hook 'gofmt-before-save)
+  :init (add-hook 'before-save-hook #'gofmt-before-save t t)
   :ensure t)
 
 (use-package go-eldoc
@@ -518,7 +536,12 @@ Can you derive the solution differently? Can you use the result or method in som
 	  (set-face-attribute 'powerline-active0 nil
 			      :foreground "Black"
 			      :background "DarkOrange")
-
+	  (set-face-attribute 'powerline-active1 nil
+			      :background "white"
+			      :foreground "black")
+	  (set-face-attribute 'powerline-active2 nil
+			      :foreground "Black"
+			      :background "DarkOrange")
 	  (set-face-attribute 'mode-line nil
 			      :foreground "Black"
 			      :background "DarkOrange")
@@ -527,9 +550,6 @@ Can you derive the solution differently? Can you use the result or method in som
 			      :background "#666666"
 			      :overline "gray"
 			      :underline "gray")
-	  (set-face-attribute 'powerline-active1 nil 
-			      :background "white"
-			      :foreground "black")
 	  (set-face-attribute 'mode-line-buffer-id nil
 			      :overline   "gray"
 			      :underline  "gray"
@@ -548,6 +568,17 @@ Can you derive the solution differently? Can you use the result or method in som
 ; Elisp
 (use-package browse-kill-ring
   :bind ("C-x 4 y" . browse-kill-ring))
+
+;;  removes all whitespace entries from kill-ring.
+;;
+;;    (defun iswhite (s)
+;;      (not (null (string-match "^[[:space:]]*$" s))))
+;;
+;;    (cl-delete-if #'iswhite kill-ring)
+;;
+;;  But heavy handed, would rather:
+;;    (defvar browse-kill-ring-display-whitespace nil
+;;      "Don't show whitespace-only entries")
 
 (use-package easy-kill
   :ensure t
@@ -772,8 +803,23 @@ is already narrowed."
 (add-to-list 'auto-mode-alist '("\\.xml.j2" . xml-mode))
 (add-to-list 'auto-mode-alist '("\\.ini.j2" . conf-mode))
 (add-to-list 'auto-mode-alist '("\\.yml.j2" . yaml-mode))
+
+;;;; JSON ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 (add-to-list 'auto-mode-alist '("\\.conf.j2" . json-mode))
 (add-to-list 'auto-mode-alist '("\\.conf" . json-mode))
+
+(defun json-format-and-view-region (beg end)
+  "Format region as json and pop up new buffer to view it"
+  (interactive "r")
+  (let ((buf (get-buffer-create "*view-json*"))
+	(inhibit-read-only t))
+    (with-current-buffer buf
+	(erase-buffer))
+    (shell-command-on-region beg end "jq ." buf)
+    (json-mode)
+    (view-mode)
+    (pop-to-buffer buf)))
 
 (defun my-perl-mode-hook ()
   (load-library "mycperl")
@@ -879,7 +925,9 @@ is already narrowed."
 
 ;; must come after ffap is set up
 (if (file-exists-p work-elisp)
-    (mapcar 'load-file work-elisp))
+    (mapcar
+     'load-file
+     (directory-files work-elisp t ".*\.elc?$" t)))
 
 ;;; ggtags does this based on project root already
 ;(defadvice find-tag (before find-tags-table () activate)
@@ -999,6 +1047,9 @@ is already narrowed."
       ;; disable novice mode
       disabled-command-function nil
 )
+
+;; Delete whitespace every save, every mode
+(add-hook 'before-save-hook #'delete-trailing-whitespace)
 
 (setq eshell-prompt-function
       (lambda ()
