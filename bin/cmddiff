@@ -13,10 +13,10 @@ shift
 
 echo $f1 > /tmp/a
 echo ------------------------------ >> /tmp/a
-$@ $f1 >> /tmp/a 
+$@ $f1 >> /tmp/a
 
 echo $f2 > /tmp/b
 echo ------------------------------ >> /tmp/b
 $@ $f2 >> /tmp/b
 
-sdiff -w 222 /tmp/a /tmp/b | $PAGER
+sdiff -w ${COLUMNS:-222} /tmp/a /tmp/b | $PAGER

@@ -6,15 +6,15 @@ hardstatus string "%{.bW}%-w%{.rW}%n %t%{-}%+w %=%{..G} %H"
 #hardstatus string "%{.wk}Host:%{.yk} picard %{.gk} Load: %l %{.rw} %c:%s %{.bw} %n %t %{.wk} %W %{.wk}"
 
 # matching
-# shelltitle '$ |mysh:' 
-screen 1
+# shelltitle '$ |mysh:'
+# screen 1
 
 #
 # Keys
 #
 bind e screen emacs -nw
 
-# Automatically detach on hangup. 
+# Automatically detach on hangup.
 autodetach on				# default: on
 
 escape ^\\
@@ -66,4 +66,3 @@ termcapinfo rxvt 'hs:ts=\E]2;:fs=\007:ds=\E]2;screen\007'
 # Extend the vt100 desciption by some sequences.
 termcap  vt100* ms:AL=\E[%dL:DL=\E[%dM:UP=\E[%dA:DO=\E[%dB:LE=\E[%dD:RI=\E[%dC
 terminfo vt100* ms:AL=\E[%p1%dL:DL=\E[%p1%dM:UP=\E[%p1%dA:DO=\E[%p1%dB:LE=\E[%p1%dD:RI=\E[%p1%dC
-
