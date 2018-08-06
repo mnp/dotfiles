@@ -28,11 +28,15 @@
       (setq mac-command-modifier 'meta)
       (setq mac-option-modifier 'meta)
 
-      ;; Env to hit docker VM. Could be evalled from bash instead.
-      (setenv "DOCKER_HOST" "tcp://192.168.99.100:2376")
-      (setenv "DOCKER_MACHINE_NAME" "default")
-      (setenv "DOCKER_TLS_VERIFY" "1")
-      (setenv "DOCKER_CERT_PATH" "/Users/Mitchell/.docker/machine/machines/default")))
+      ;;      ;; Env to hit docker VM. Could be evalled from bash instead.
+      ;;      (setenv "DOCKER_HOST" "tcp://192.168.99.100:2376")
+      ;;      (setenv "DOCKER_MACHINE_NAME" "default")
+      ;;      (setenv "DOCKER_TLS_VERIFY" "1")
+      ;;      (setenv "DOCKER_CERT_PATH" "/Users/Mitchell/.docker/machine/machines/default")))
+
+      ;; Unset all docker env
+      (mapcar 'setenv '("DOCKER_HOST" "DOCKER_TLS_VERIFY" "DOCKER_CERT_PATH" "DOCKER_MACHINE_NAME"))
+))
 
 (if (not (memq system-type '(darwin)))
   ;;; not mac
@@ -47,7 +51,7 @@
 
 ;; no point in checking if package is available, we use it too much
 (require 'package)
-(setq package-archives '(; ("gnu" . "https://elpa.gnu.org/packages/")
+(setq package-archives '( ("gnu" . "https://elpa.gnu.org/packages/")
                          ; ("marmalade" . "https://marmalade-repo.org/packages/")
                          ("melpa" . "https://melpa.org/packages/")
 			 ; ("melpa-stable" . "https://stable.melpa.org/packages/")
@@ -94,109 +98,113 @@
   :ensure t
   :bind ("C-c s" . my-search-web-dwim)
   :init (progn
+	  (autoload #'search-web-dwim "search-web")
 	  (defun my-search-web-dwim ()
 	    "Seach words you select as region or at point."
 	    (interactive nil)
 	    (search-web-dwim "duck"))))
 
-(use-package elfeed
-  :ensure t
-  ;; do this to reload feeds if you update list at runtime
-  ;; (elfeed-update)
-  :init (progn
 
-	  (setq elfeed-feeds '("http://aperiodical.com/feed/"
-		"http://chalkdustmagazine.com/feed/"
-		"http://bit-player.org/feed"
-		"http://feeds.feedburner.com/Betterexplained"
-		"http://helloimnadia.com/rss"
-		"https://medium.com/feed/@nayafia"
-		"http://techblog.netflix.com/feeds/posts/default"
-		"http://esr.ibiblio.org/?feed=rss2"
-		"http://www.allthingsdistributed.com/atom.xml"
-		"https://engineering.linkedin.com/blog.rss"
-		"http://feeds.feedburner.com/AFewThoughtsOnCryptographicEngineering"
-		"http://armstrongonsoftware.blogspot.com/feeds/posts/default"
-		"http://feeds.feedburner.com/nmss/SOik"
-		"http://blog.jrock.us/feeds/articles/atom"
-		"http://debian-administration.org/atom.xml"
-		"http://feeds.feedburner.com/FutilityCloset"
-		"http://www.gabrielweinberg.com/blog/atom.xml"
-		"http://feeds.feedburner.com/getrichslowly"
-		"http://feeds.feedburner.com/GoogleOperatingSystem"
-		"http://feeds2.feedburner.com/hackaday/LgoM"
-		"http://www.cringely.com/feed/"
-		"http://feeds.feedburner.com/IeeeSpectrumFullText"
-		"http://lambda-the-ultimate.org/rss.xml"
-		"https://emacs.wordpress.com/feed/"
-		"http://www.modernperlbooks.com/mt/atom.xml"
-		"http://cds-srv.sun.com:8700/rss/insert/public/sunalert_insert.xml"
-		"http://www.qbyte.org/puzzles/rss2.xml"
-		"http://nooface.net/nooface.rss"
-		"http://www.math.columbia.edu/~woit/wordpress/?feed=rss2"
-		"http://www.aaronsw.com/2002/feeds/pgessays.rss"
-		"http://prog21.dadgum.com/atom.xml"
-		"http://randsinrepose.com/feed/?_=5778"
-		"https://www.schneier.com:443/blog/index2.rdf"
-		"http://rss.sciam.com/ScientificAmerican-Global"
-		"http://rss.slashdot.org/slashdot/classic"
-		"http://feeds.feedburner.com/oreilly/radar/atom"
-		"http://feeds.feedburner.com/tedtalks_video"
-		"http://feeds2.feedburner.com/timferriss"
-		"http://zenhabits.net/feed/"
-		"http://feeds.feedburner.com/http/wwwslowcarbfoodiecom"
-		"http://www.xkcd.com/rss.xml"
-		"http://feeds.feedburner.com/JamesOnSoftware"
-		"http://www.quantamagazine.org/archives/feed/"
-		"http://blog.sciencevsmagic.net/feed/"
-		"https://medium.com/feed/the-physics-arxiv-blog"
-		"http://feeds.feedburner.com/MostlyMaths"
-		"http://mindfuckmath.com/rss"
-		"http://fledglingphysicist.com/feed/"
-		"http://www.johndcook.com/blog/feed/"
-		"http://directed-procrastination.blogspot.com/feeds/posts/default"
-		"http://www.jwz.org/blog/feed/"
-		"http://adamilab.blogspot.com/feeds/posts/default"
-		"http://blog.tanyakhovanova.com/feed/"
-		"https://firstlook.org/theintercept/feed/"
-		"http://vigoroushandwaving.wordpress.com/feed/"
-		"http://lwn.net/headlines/newrss"
-		"http://www.preposterousuniverse.com/blog/feed/"
-		"http://www.kasparov.com/feed/"
-		"http://nullprogram.com/feed/"
-		"http://planet.emacsen.org/atom.xml"
-		"https://www.cringely.com/feed"
-		"http://chalkdustmagazine.com/feed"
-		"https://www.twitrss.me/twitter_user_to_rss/?user=ChileSpot"
-		"https://www.twitrss.me/twitter_user_to_rss/?user=fermatslibrary"))
+;; elfeed
+(add-to-list 'load-path (expand-file-name "~/prj/elfeed"))
+(load-library "elfeed")
+(custom-set-variables
+ '(elfeed-summary-as-default t))
 
-;;		"https://news.ycombinator.com/rss"
 
-	  (setq elfeed-search-title-max-width 80)
+(setq elfeed-feeds '("http://aperiodical.com/feed/"
+		     "http://chalkdustmagazine.com/feed/"
+		     "http://bit-player.org/feed"
+		     "http://feeds.feedburner.com/Betterexplained"
+		     "http://helloimnadia.com/rss"
+		     "https://medium.com/feed/@nayafia"
+		     "http://techblog.netflix.com/feeds/posts/default"
+		     "http://esr.ibiblio.org/?feed=rss2"
+		     "http://www.allthingsdistributed.com/atom.xml"
+		     "https://engineering.linkedin.com/blog.rss"
+		     "http://feeds.feedburner.com/AFewThoughtsOnCryptographicEngineering"
+		     "http://armstrongonsoftware.blogspot.com/feeds/posts/default"
+		     "http://feeds.feedburner.com/nmss/SOik"
+		     "http://blog.jrock.us/feeds/articles/atom"
+		     "http://debian-administration.org/atom.xml"
+		     "http://feeds.feedburner.com/FutilityCloset"
+		     "http://www.gabrielweinberg.com/blog/atom.xml"
+		     "http://feeds.feedburner.com/getrichslowly"
+		     "http://feeds.feedburner.com/GoogleOperatingSystem"
+		     "http://feeds2.feedburner.com/hackaday/LgoM"
+		     "http://www.cringely.com/feed/"
+		     "http://feeds.feedburner.com/IeeeSpectrumFullText"
+		     "http://lambda-the-ultimate.org/rss.xml"
+		     "https://emacs.wordpress.com/feed/"
+		     "http://www.modernperlbooks.com/mt/atom.xml"
+		     "http://cds-srv.sun.com:8700/rss/insert/public/sunalert_insert.xml"
+		     "http://www.qbyte.org/puzzles/rss2.xml"
+		     "http://nooface.net/nooface.rss"
+		     "http://www.math.columbia.edu/~woit/wordpress/?feed=rss2"
+		     "http://www.aaronsw.com/2002/feeds/pgessays.rss"
+		     "http://prog21.dadgum.com/atom.xml"
+		     "http://randsinrepose.com/feed/?_=5778"
+		     "https://www.schneier.com:443/blog/index2.rdf"
+		     "http://rss.sciam.com/ScientificAmerican-Global"
+		     "http://rss.slashdot.org/slashdot/classic"
+		     "http://feeds.feedburner.com/oreilly/radar/atom"
+		     "http://feeds.feedburner.com/tedtalks_video"
+		     "http://feeds2.feedburner.com/timferriss"
+		     "http://zenhabits.net/feed/"
+		     "http://feeds.feedburner.com/http/wwwslowcarbfoodiecom"
+		     "http://www.xkcd.com/rss.xml"
+		     "http://feeds.feedburner.com/JamesOnSoftware"
+		     "http://www.quantamagazine.org/archives/feed/"
+		     "http://blog.sciencevsmagic.net/feed/"
+		     "https://medium.com/feed/the-physics-arxiv-blog"
+		     "http://feeds.feedburner.com/MostlyMaths"
+		     "http://mindfuckmath.com/rss"
+		     "http://fledglingphysicist.com/feed/"
+		     "http://www.johndcook.com/blog/feed/"
+		     "http://directed-procrastination.blogspot.com/feeds/posts/default"
+		     "http://www.jwz.org/blog/feed/"
+		     "http://adamilab.blogspot.com/feeds/posts/default"
+		     "http://blog.tanyakhovanova.com/feed/"
+		     "https://firstlook.org/theintercept/feed/"
+		     "http://vigoroushandwaving.wordpress.com/feed/"
+		     "http://lwn.net/headlines/newrss"
+		     "http://www.preposterousuniverse.com/blog/feed/"
+		     "http://www.kasparov.com/feed/"
+		     "http://nullprogram.com/feed/"
+		     "http://planet.emacsen.org/atom.xml"
+		     "https://www.cringely.com/feed"
+		     "http://chalkdustmagazine.com/feed"
+                     "https://spreadprivacy.com/rss"
+		     "https://blog.jessfraz.com/"
+		     "https://www.twitrss.me/twitter_user_to_rss/?user=jessfraz"
+		     "https://www.twitrss.me/twitter_user_to_rss/?user=duckduckgo"
+		     "https://www.twitrss.me/twitter_user_to_rss/?user=ChileSpot"
+		     "https://www.twitrss.me/twitter_user_to_rss/?user=fermatslibrary"))
 
-	  (defun waste-time ()
-	    (interactive nil)
-	    (elfeed)
-	    (elfeed-update))
+(setq elfeed-search-title-max-width 80)
 
-	  ;; see https://github.com/skeeto/elfeed/issues/190
-	  (add-hook 'elfeed-show-mode-hook
-		(lambda ()
-		  (set-face-attribute 'variable-pitch (selected-frame)
-				      :font (font-spec :family "Century Schoolbook" :size 12))
-		  (setq fill-column 120)
-		  (setq elfeed-show-entry-switch #'my-show-elfeed)))
+(defun waste-time ()
+  (interactive nil)
+  (elfeed)
+  (elfeed-update))
 
-	  (defun my-show-elfeed (buffer)
-	    (with-current-buffer buffer
-	      (setq buffer-read-only nil)
-	      (goto-char (point-min))
-	      (re-search-forward "\n\n")
-	      (fill-individual-paragraphs (point) (point-max))
-	      (setq buffer-read-only t))
-	    (switch-to-buffer buffer))
+;; see https://github.com/skeeto/elfeed/issues/190
+(add-hook 'elfeed-show-mode-hook
+	  (lambda ()
+	    (set-face-attribute 'variable-pitch (selected-frame)
+				:font (font-spec :family "Century Schoolbook" :size 12))
+	    (setq fill-column 120)
+	    (setq elfeed-show-entry-switch #'my-show-elfeed)))
 
-	  ))
+(defun my-show-elfeed (buffer)
+  (with-current-buffer buffer
+    (setq buffer-read-only nil)
+    (goto-char (point-min))
+    (re-search-forward "\n\n")
+    (fill-individual-paragraphs (point) (point-max))
+    (setq buffer-read-only t))
+  (switch-to-buffer buffer))
+
 
 ;; remember it needs # as separators
 ;; see https://github.com/pashky/restclient.el
@@ -205,6 +213,7 @@
 	  (add-to-list 'auto-mode-alist '("\\.http$" . restclient-mode))
 	  (add-hook 'restclient-mode-hook
 		    (lambda ()
+		      (local-set-key (kbd "<C-enter>") 'restclient-http-send-current-stay-in-window)
 		      (local-set-key (kbd "<C-return>") 'restclient-http-send-current-stay-in-window)))))
 
 (use-package dockerfile-mode
@@ -336,7 +345,8 @@
 	  ;; gtags.conf was a better idea.
 	  ;; (load-library "my-ggtags")
 	  (setq ggtags-global-abbreviate-filename 80 ;;;;;; "No"
-		ggtags-global-window-height 15)))
+		ggtags-global-window-height 15))
+  :bind ("M-." . helm-gtags-dwim))
 
 ;;;;;;;;;;;;; alternately, ... ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -351,7 +361,8 @@
 ;; todo  (locate-dominating-file (buffer-file-name) "build.gradle")
 (add-hook 'java-mode-hook
 	  (lambda ()
-	    (setq indent-tabs-mode nil) ; force indent with spaces, never TABs
+	    (setq indent-tabs-mode nil ; force indent with spaces, never TABs
+                  c-basic-offset 4)
 	    (set (make-local-variable 'compile-command)
 		 "cd /Users/Mitchell/src/tw-server/thingworx-platform-postgres; gradle build -x test")))
 
@@ -496,6 +507,11 @@ Can you derive the solution differently? Can you use the result or method in som
          ;; todo: bind  org-return-indent
 	 ("C-c t" . org-time-stamp))	; or maybe C-c .
   :init (progn
+         ;; (org-babel-do-load-languages
+         ;;  '((sh . t)
+         ;;    (python . t)
+         ;;    (perl . t)
+         ;;    (emacs-lisp . nil)))
 	  (setq
 	   org-startup-indented t
 	   org-startup-folded "showall"
@@ -522,39 +538,31 @@ Can you derive the solution differently? Can you use the result or method in som
   :init
   (bind-key [f11] 'toggle-max-frame))
 
-(use-package powerline
-  :ensure powerline
-  :init (progn
-	  ; works
-	  ; (custom-set-faces
-	  ; '(mode-line ((t (:foreground "Black" :background "DarkOrange" :box nil))))
-	  ; '(mode-line-inactive ((t (:foreground "#f9f9f9" :background "#666666" :overline "gray" :underline "gray" :box nil)))))
+;; (use-package powerline
+;;   :ensure powerline
+;;   :init (powerline-default-theme)
+;;   :custom-face
+;;   (mode-line ((t (:foreground "Black" :background "DarkOrange"))))
+;;   (powerline-active0 ((t (:foreground "Black" :background "DarkOrange"))))
+;;   (powerline-active1 ((t (:background "white" :foreground "black"))))
+;;   (powerline-active2 ((t (:foreground "Black" :background "DarkOrange"))))
+;;   (mode-line-inactive ((t (:foreground "#f9f9f9" :background "#666666" :overline "gray" :underline "gray"))))
+;;   (mode-line-buffer-id ((t (:overline   "gray" :underline  "gray" :foreground "black")))))
+;;
+;; 	  ; works
+;; 	  ; (custom-set-faces
+;; 	  ; '(mode-line ((t (:foreground "Black" :background "DarkOrange" :box nil))))
+;; 	  ; '(mode-line-inactive ((t (:foreground "#f9f9f9" :background "#666666" :overline "gray" :underline "gray" :box nil)))))
+;;
+;; 	  ;; see also powerline-active0, 1, 2 and -inactive0, 1, 2
+;; 	  ;; can check current values by (face-attribute 'powerline-active1 :foreground)
+;; 	  ;; TODO: (make-hud face1 face2).  Or look at Smart Mode Line
 
-	  ;; see also powerline-active0, 1, 2 and -inactive0, 1, 2
-	  ;; can check current values by (face-attribute 'powerline-active1 :foreground)
-	  ;; TODO: (make-hud face1 face2).  Or look at Smart Mode Line
-	  (set-face-attribute 'powerline-active0 nil
-			      :foreground "Black"
-			      :background "DarkOrange")
-	  (set-face-attribute 'powerline-active1 nil
-			      :background "white"
-			      :foreground "black")
-	  (set-face-attribute 'powerline-active2 nil
-			      :foreground "Black"
-			      :background "DarkOrange")
-	  (set-face-attribute 'mode-line nil
-			      :foreground "Black"
-			      :background "DarkOrange")
-	  (set-face-attribute 'mode-line-inactive nil
-			      :foreground "#f9f9f9"
-			      :background "#666666"
-			      :overline "gray"
-			      :underline "gray")
-	  (set-face-attribute 'mode-line-buffer-id nil
-			      :overline   "gray"
-			      :underline  "gray"
-			      :foreground "black")
-	  (powerline-default-theme)))
+(use-package smart-mode-line
+  :init (progn
+	  (setq sml/no-confirm-load-theme t)
+	  (setq sml/theme 'light)
+	  (sml/setup)))
 
 (use-package material-theme
   :ensure t)
@@ -686,6 +694,7 @@ M-<NUM> M-x modi/font-size-adj increases font size by NUM points if NUM is +ve,
 (set-face-attribute 'show-paren-match nil
 		    :background "DarkOrange4"
 		    :foreground "white")
+
 (setq
  show-paren-style 'expression
  show-paren-delay 0)
@@ -711,7 +720,8 @@ M-<NUM> M-x modi/font-size-adj increases font size by NUM points if NUM is +ve,
 (add-hook 'org-mode-hook 'my-org-mode-hook)
 
 (defun my-deft ()
-  (interactive "")
+  "Show deft buffer, or kill it."
+  (interactive)
   (if (equalp (buffer-name) "*Deft*")
       (kill-buffer deft-buffer)
     (deft)))
@@ -726,6 +736,7 @@ M-<NUM> M-x modi/font-size-adj increases font size by NUM points if NUM is +ve,
 (defun my-prog-mode-hook ()
   (show-paren-mode 1)
     (ggtags-mode 1)
+    (setq fill-column 95)
   ;;; (helm-gtags-mode)			;; see also disabled gtags paragraph
 )
 
@@ -809,6 +820,9 @@ is already narrowed."
 (add-to-list 'auto-mode-alist '("\\.conf.j2" . json-mode))
 (add-to-list 'auto-mode-alist '("\\.conf" . json-mode))
 
+(use-package flymake-json
+  :init (add-hook 'json-mode-hook 'flymake-json-load))
+
 (defun json-format-and-view-region (beg end)
   "Format region as json and pop up new buffer to view it"
   (interactive "r")
@@ -820,6 +834,14 @@ is already narrowed."
     (json-mode)
     (view-mode)
     (pop-to-buffer buf)))
+
+(defun yank-json()
+  (interactive)
+  (yank)
+  (json-reformat-region (point) (mark)))
+
+(global-set-key "\C-cj" #'yank-json)
+
 
 (defun my-perl-mode-hook ()
   (load-library "mycperl")
@@ -1192,34 +1214,5 @@ is already narrowed."
 ;; I don't like fighting with customize
 ;; TODO - https://www.emacswiki.org/emacs/CustomizingAndSaving#toc9
 
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(custom-safe-themes
-   (quote
-    ("a24c5b3c12d147da6cef80938dca1223b7c7f70f2f382b26308eba014dc4833a" "8790269696322ff6821d75414c7d6ea8726d204cdeadedfd04c87b0c915296f7" "4e63466756c7dbd78b49ce86f5f0954b92bf70b30c01c494b37c586639fa3f6f" "8aebf25556399b58091e533e455dd50a6a9cba958cc4ebb0aab175863c25b9a4" "e11569fd7e31321a33358ee4b232c2d3cf05caccd90f896e1df6cab228191109" "5999e12c8070b9090a2a1bbcd02ec28906e150bb2cdce5ace4f965c76cf30476" "8db4b03b9ae654d4a57804286eb3e332725c84d7cdab38463cb6b97d5762ad26" default)))
- '(elfeed-feeds
-   (quote
-    ("http://aperiodical.com/feed/" "http://chalkdustmagazine.com/feed/" "http://bit-player.org/feed" "http://feeds.feedburner.com/Betterexplained" "http://helloimnadia.com/rss" "https://medium.com/feed/@nayafia" "http://techblog.netflix.com/feeds/posts/default" "http://esr.ibiblio.org/?feed=rss2" "http://www.allthingsdistributed.com/atom.xml" "https://engineering.linkedin.com/blog.rss" "http://feeds.feedburner.com/AFewThoughtsOnCryptographicEngineering" "http://armstrongonsoftware.blogspot.com/feeds/posts/default" "http://feeds.feedburner.com/nmss/SOik" "http://blog.jrock.us/feeds/articles/atom" "http://debian-administration.org/atom.xml" "http://feeds.feedburner.com/FutilityCloset" "http://www.gabrielweinberg.com/blog/atom.xml" "http://feeds.feedburner.com/getrichslowly" "http://feeds.feedburner.com/GoogleOperatingSystem" "http://feeds2.feedburner.com/hackaday/LgoM" "http://www.cringely.com/feed/" "http://feeds.feedburner.com/IeeeSpectrumFullText" "http://lambda-the-ultimate.org/rss.xml" "https://emacs.wordpress.com/feed/" "http://www.modernperlbooks.com/mt/atom.xml" "http://cds-srv.sun.com:8700/rss/insert/public/sunalert_insert.xml" "http://www.qbyte.org/puzzles/rss2.xml" "http://nooface.net/nooface.rss" "http://www.math.columbia.edu/~woit/wordpress/?feed=rss2" "http://www.aaronsw.com/2002/feeds/pgessays.rss" "http://prog21.dadgum.com/atom.xml" "http://randsinrepose.com/feed/?_=5778" "https://www.schneier.com:443/blog/index2.rdf" "http://rss.sciam.com/ScientificAmerican-Global" "http://rss.slashdot.org/slashdot/classic" "http://feeds.feedburner.com/oreilly/radar/atom" "http://feeds.feedburner.com/tedtalks_video" "http://feeds2.feedburner.com/timferriss" "http://zenhabits.net/feed/" "http://feeds.feedburner.com/http/wwwslowcarbfoodiecom" "http://www.xkcd.com/rss.xml" "http://feeds.feedburner.com/JamesOnSoftware" "http://www.quantamagazine.org/archives/feed/" "http://blog.sciencevsmagic.net/feed/" "https://medium.com/feed/the-physics-arxiv-blog" "http://feeds.feedburner.com/MostlyMaths" "http://mindfuckmath.com/rss" "http://fledglingphysicist.com/feed/" "http://www.johndcook.com/blog/feed/" "http://directed-procrastination.blogspot.com/feeds/posts/default" "http://www.jwz.org/blog/feed/" "http://adamilab.blogspot.com/feeds/posts/default" "http://blog.tanyakhovanova.com/feed/" "https://firstlook.org/theintercept/feed/" "http://vigoroushandwaving.wordpress.com/feed/" "http://lwn.net/headlines/newrss" "http://www.preposterousuniverse.com/blog/feed/" "http://www.kasparov.com/feed/" "http://nullprogram.com/feed/" "https://news.ycombinator.com/rss" "http://planet.emacsen.org/atom.xml" "https://www.cringely.com/feed" "http://chalkdustmagazine.com/feed")))
- '(gradle-mode t)
- '(helm-gtags-auto-update t)
- '(helm-gtags-ignore-case t)
- '(helm-gtags-path-style (quote relative))
- '(magit-log-arguments (quote ("--graph" "--color" "--decorate" "-n256")))
- '(package-selected-packages
-   (quote
-    (material-theme search-web srcery-theme elfeed-web diminish lua-mode solarized-theme zenburn-theme helm-gtags "sokoban" lognav-mode ag helm-ag 2048-game cakecrumbs exec-path-from-shell elfeed smart-backspace toml-mode elpy helm-projectile projectile yahtzee json-navigator hierarchy erlang go-direx tree-mode json-mode dockerfile-mode go-eldoc hackernews helm-google iedit groovy-mode helm-grepint easy-kill go-mode ggtags git-gutter restclient-helm restclient browse-kill-ring yaml-mode svg deft gradle-mode yasnippet yari xcscope use-package tangotango-theme sx svg-mode-line-themes svg-clock slime-volleyball powerline paredit org-journal magit helm-git-grep google-c-style git-gutter-fringe git-gutter+ frame-cmds flycheck emacs-eclim dot-mode company auto-complete aggressive-indent ack ace-window)))
- '(safe-local-variable-values
-   (quote
-    ((git-grep-path . "thingworx-platform-common thingworx-platform-postgres")))))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(cperl-array-face ((t (:background unspecified :foreground "yellow" :weight bold))))
- '(cperl-hash-face ((t (:background unspecified :foreground "green" :slant italic :weight bold))))
- '(mode-line ((t (:foreground "Black" :background "DarkOrange" :box nil))))
- '(mode-line-inactive ((t (:foreground "#f9f9f9" :background "#666666" :box nil)))))
+(setq custom-file "~/.emacs.d/emacs-custom.el")
+(load custom-file)

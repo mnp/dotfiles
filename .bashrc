@@ -4,7 +4,7 @@
 . ~/lib/shlib.bash
 
 
-for d in /usr/man /usr/share/man /usr/local/man $HOME/perl5/man; do 
+for d in /usr/man /usr/share/man /usr/local/man $HOME/perl5/man; do
     path_append MANPATH $d
 done
 export MANPATH
@@ -16,9 +16,9 @@ esac
 
 PATH=$HOME/bin:$HOME/hosts:/usr/local/bin:/usr/local/bin:/usr/local/sbin:/usr/bin:/bin:/usr/sbin:/sbin
 path_append PATH $HOME/perl5/bin
-path_append PATH $HOME/osbin    
-path_append PATH $HOME/workbin  
-path_append PATH $HOME/homebin  
+path_append PATH $HOME/osbin
+path_append PATH $HOME/workbin
+path_append PATH $HOME/homebin
 export PATH
 
 for dir in $HOME/perl $HOME/perl5/lib/perl5 /usr/local/share/perl/* /usr/local/lib/perl/* /usr/local/lib/perl5/site_perl; do
@@ -88,7 +88,7 @@ export LESS=-inXR
 if [ -d $HOME/terminfo ]; then
     export TERMINFO=$HOME/terminfo
     export TERM=xterm-color
-    export GREP_OPTIONS=--color=auto 
+    export GREP_OPTIONS=--color=auto
 fi
 
 YELLOW="\[\033[1;33m\]"
@@ -130,7 +130,7 @@ if type git > /dev/null 2>&1; then
 	local top=$(git rev-parse --show-toplevel)
 	if [ -f $top/.mnp-project ]; then
 	    . $top/.mnp-project
-	else 
+	else
 	    git_grep_path=.
 	fi
 	cd $top
@@ -159,7 +159,7 @@ my_prompt_command() {
 
 # no prompt command for console
 case $TERM in
-    rxvt|xterm*) 
+    rxvt|xterm*)
  	PS1BASE="${PS1COLOR}\u@\h${CLEAR}:${WHITE}\w${YELLOW}\$(__git_ps1)${CLEAR}\n\$ "
  	;;
 
@@ -190,7 +190,7 @@ NOW=$( date '+%Y%m%d-%H%M%S' )
 TTY=$( tty | sed s,/,-,g )
 
 test -d $MYHISTDIR || mkdir $MYHISTDIR
-if [ -d $MYHISTDIR ]; then  
+if [ -d $MYHISTDIR ]; then
     HISTFILE=${MYHISTDIR}/${NOW}-${HOSTNAME}${TTY}
     echo Saving history to $HISTFILE
 else
@@ -198,7 +198,7 @@ else
 fi
 
 # http://www.webupd8.org/2010/11/alternative-to-200-lines-kernel-patch.html
-#if [ "$PS1" -a $HOSTNAME == LT324011TP ] ; then  
+#if [ "$PS1" -a $HOSTNAME == LT324011TP ] ; then
 #   mkdir -p -m 0700 /dev/cgroup/cpu/user/$$ > /dev/null 2>&1
 #   echo $$ > /dev/cgroup/cpu/user/$$/tasks
 #   echo "1" > /dev/cgroup/cpu/user/$$/notify_on_release
@@ -206,7 +206,7 @@ fi
 
 if type beep-media-player > /dev/null 2>&1; then
     AUPLAY=beep-media-player
-else 
+else
     AUPLAY='echo need to set player'
 fi
 
@@ -250,9 +250,9 @@ m()
 
     # text cases
     case "$1" in
-	*.tar.gz|*.tgz) 
+	*.tar.gz|*.tgz)
 	    if [ $ZCAT != no ]; then
-		gzcat "$1" | tar tvf - | $PAGER 
+		gzcat "$1" | tar tvf - | $PAGER
 	    else
 		tar ztvf "$1" | $PAGER
 	    fi
@@ -293,15 +293,15 @@ m()
 }
 
 # more the last "ls -rt"
-mrt () 
-{ 
+mrt ()
+{
     test -z "$1" && set .
     m "$1"/"$(ls -rt "$1"|tail -1)"
 }
 
 # edit the last "ls -lrt"
-ert () 
-{ 
+ert ()
+{
     test -z "$1" && set .
     e "$1"/"$(ls -rt "$1"|tail -1)"
 }
@@ -325,7 +325,7 @@ lstoday()
 }
 
 # saves to clipboard
-rsatoken()		
+rsatoken()
 {
     stoken | tr -d '\n' | pbcopy
 }
@@ -414,7 +414,7 @@ function nametab() {
 #
 # ..   - Does a "cd .."
 # .. 3 - Does a "cd ../../.."
-# 
+#
 function .. ()
 {
     local arg=${1:-1};
@@ -427,11 +427,11 @@ function .. ()
 # function cd_dot_dot
 # alias ..=cd_dot_dot
 
-clean () 
-{ 
+clean ()
+{
     if [ $# -lt 1 ]; then
 	echo ,* *~ .*~ \#*\#  *.pyc __pycache__
-	/bin/rm -rf ,* *~ .*~ \#*\# *.pyc  __pycache__	
+	/bin/rm -rf ,* *~ .*~ \#*\# *.pyc  __pycache__
     else
 	for i in $@; do
 	    if [ -d "$i" ]; then
@@ -448,8 +448,8 @@ clean ()
 
 # moved to ~/bin/p
 # # ps grep
-# p () 
-# { 
+# p ()
+# {
 #     if [ $# -lt 1 ]; then
 # 	ps faux | $PAGER
 #     else
@@ -460,12 +460,12 @@ clean ()
 # 	    echo None found
 # 	fi
 #     fi
-# } 
+# }
 
 # more which
-mw () 
-{ 
-    _xw_sub $PAGER $1 
+mw ()
+{
+    _xw_sub $PAGER $1
 }
 
 # edit which
@@ -542,7 +542,7 @@ if [ -x /usr/libexec/java_home ]; then
 	export MANPATH=$MANPATH:$JAVA_HOME/man
     }
 
-    java7() 
+    java7()
     {
 	rejava $JAVA_7_HOME
 	PS1=${MAGEN}7${CLEAR}:$PS1BASE
@@ -557,7 +557,7 @@ if [ -x /usr/libexec/java_home ]; then
 elif [ -x /usr/sbin/update-java-alternatives ]; then
 
     # linux-ish /usr/sbin/update-java-alternatives
-    java7() 
+    java7()
     {
        sudo update-java-alternatives -s java-7-oracle
        PS1=${MAGEN}7${CLEAR}:$PS1BASE
@@ -575,38 +575,40 @@ fi
 java8
 
 # Avoid errors from any UTF8 in code; I guess eclipse can add them.
-export JAVA_TOOL_OPTIONS=-Dfile.encoding=UTF8
+export JAVA_TOOL_OPTIONS=-Dfile.encoding=UTF-8
 
 if [ -d ${HOME}/perl5/lib/perl5/local/lib.pm ]; then
     # added by duckpan installer
     eval $(perl -I${HOME}/perl5/lib/perl5 -Mlocal::lib)
-fi					    
-					     
+fi
+
 
 PERL_MB_OPT="--install_base \"/Users/Mitchell/perl5\""; export PERL_MB_OPT;
 PERL_MM_OPT="INSTALL_BASE=/Users/Mitchell/perl5"; export PERL_MM_OPT;
 
-if type docker-machine > /dev/null 2>&1 ; then
-    eval "$(docker-machine env default)" 
-    echo docker-machine: $(docker-machine active) $(docker-machine status)
-    alias dm=docker-machine
-    alias dk=docker-compose
-    function dkr() 
-    {
-	docker-compose kill $1
-	docker-compose rm -f $1
-	docker-compose up -d $1
-	echo ' ---- TAILING -----' $1 logs
-	docker-compose logs --follow $1
-    }
-    [[ $DOCKER_HOST =~ ([0-9.]+) ]] && export DM=${BASH_REMATCH[1]}
+# if type docker-machine > /dev/null 2>&1 ; then
+#     eval "$(docker-machine env default)"
+#     echo docker-machine: $(docker-machine active) $(docker-machine status)
+#     alias dm=docker-machine
+#
+#     function dkr()
+#     {
+# 	docker-compose kill $1
+# 	docker-compose rm -f $1
+# 	docker-compose up -d $1
+# 	echo ' ---- TAILING -----' $1 logs
+# 	docker-compose logs --follow $1
+#     }
+#     [[ $DOCKER_HOST =~ ([0-9.]+) ]] && export DM=${BASH_REMATCH[1]}
+#
+#     function jc()
+#     {
+# 	curl -s $DM:$1 | jq .
+#     }
+# fi
 
-    function jc()
-    {
-	curl -s $DM:$1 | jq .
-    }
-fi
- 
+alias dk=docker-compose
+
 # Last Container operations
 lc ()
 {
@@ -657,4 +659,3 @@ fi
 if [ -d $HOME/homebin ]; then
     . ~/.bashrc-home
 fi
-
