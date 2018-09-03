@@ -577,8 +577,10 @@ elif [ -x /usr/sbin/update-java-alternatives ]; then
 
 fi
 
-# default
-java8
+# set default at work at least
+if [ -d ~/workbin ]; then
+    java8
+fi
 
 # Avoid errors from any UTF8 in code; I guess eclipse can add them.
 export JAVA_TOOL_OPTIONS=-Dfile.encoding=UTF-8
