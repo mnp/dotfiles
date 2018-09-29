@@ -9,9 +9,12 @@
 (defconst work-elisp "~/Dropbox/work-elisp"
   "Work-only files - we will load all .el found.")
 
+(defconst shared-elisp "~/prj/dotfiles/shared-elisp"
+  "Version controlled and visible to all boxen.")
+
 ; todo: source a refactored bash environment file
 ;(add-to-list 'load-path (expand-file-name "~/Elisp"))
-(add-to-list 'load-path (expand-file-name "~/prj/dotfiles/shared-elisp"))
+(add-to-list 'load-path shared-elisp)
 (add-to-list 'exec-path (expand-file-name "~/bin"))
 (add-to-list 'exec-path "/usr/local/bin")
 
@@ -43,11 +46,10 @@
   (setq browse-url-browser-function 'browse-url-generic
 	browse-url-generic-program "firefox"))
 
-;; host specific
-(let ((host-specific-filename
-       (concat (expand-file-name "~/Elisp/") (system-name) ".el")))
-  (when (file-exists-p host-specific-filename)
-      (load-file host-specific-filename)))
+;; host specific - if a file HOSTNAME.el exists, load that
+(if (condition-case nil (load-library (concat shared-elisp "/" (system-name) ".el"))
+      (file-missing t))     ; ignore only this kind of error
+    (message "Loaded host specific file"))
 
 ;; no point in checking if package is available, we use it too much
 (require 'package)
@@ -61,7 +63,7 @@
   ;; For important compatibility libraries like cl-lib
   (add-to-list 'package-archives '("gnu" . "http://elpa.gnu.org/packages/")))
 
-(package-initialize)
+;(package-initialize)
 (when (not package-archive-contents)
   (package-refresh-contents)
   (package-install 'use-package))
@@ -357,7 +359,7 @@
 ;	 '(helm-gtags-ignore-case t)
 ;	 '(helm-gtags-auto-update t)))
 
-;; todo need a work init and a home one
+;; todo need a work init and a home one BUT see host specific section, better
 ;; todo  (locate-dominating-file (buffer-file-name) "build.gradle")
 (add-hook 'java-mode-hook
 	  (lambda ()
