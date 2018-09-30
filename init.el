@@ -739,7 +739,9 @@ M-<NUM> M-x modi/font-size-adj increases font size by NUM points if NUM is +ve,
   (show-paren-mode 1)
     (ggtags-mode 1)
     (setq fill-column 95)
-  ;;; (helm-gtags-mode)			;; see also disabled gtags paragraph
+    ;;; (helm-gtags-mode)			;; see also disabled gtags paragraph
+
+    (delete-trailing-whitespace)
 )
 
 (add-hook 'prog-mode-hook 'my-prog-mode-hook)
@@ -1071,9 +1073,6 @@ is already narrowed."
       ;; disable novice mode
       disabled-command-function nil
 )
-
-;; Delete whitespace every save, every mode
-(add-hook 'before-save-hook #'delete-trailing-whitespace)
 
 (setq eshell-prompt-function
       (lambda ()
