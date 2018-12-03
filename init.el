@@ -113,8 +113,10 @@
 (custom-set-variables
  '(elfeed-summary-as-default t))
 
+(setq twitterers '(adrianco jessfraz duckduckgo ChileSpot fermatslibrary))
 
-(setq elfeed-feeds '("http://aperiodical.com/feed/"
+(setq elfeed-feeds 
+      (append '("http://aperiodical.com/feed/"
 		     "http://chalkdustmagazine.com/feed/"
 		     "http://bit-player.org/feed"
 		     "http://feeds.feedburner.com/Betterexplained"
@@ -177,11 +179,10 @@
 		     "https://www.cringely.com/feed"
 		     "http://chalkdustmagazine.com/feed"
                      "https://spreadprivacy.com/rss"
-		     "https://blog.jessfraz.com/"
-		     "https://www.twitrss.me/twitter_user_to_rss/?user=jessfraz"
-		     "https://www.twitrss.me/twitter_user_to_rss/?user=duckduckgo"
-		     "https://www.twitrss.me/twitter_user_to_rss/?user=ChileSpot"
-		     "https://www.twitrss.me/twitter_user_to_rss/?user=fermatslibrary"))
+		     "https://blog.jessfraz.com/")
+	      (mapcar
+	       (lambda (x) (concat "https://www.twitrss.me/twitter_user_to_rss/?user=" (symbol-name x)))
+	       twitterers)))
 
 (setq elfeed-search-title-max-width 80)
 
@@ -409,10 +410,25 @@
 (setenv "GOPATH" (expand-file-name "~/go"))
 ; (setenv "GOROOT" "/usr/local/opt/go")
 
+
+(add-to-list 'load-path (expand-file-name "~/prj/dispwatch/"))
+
+(defun my-display-changed-hook (disp)
+  (message "rejiggering for %s" disp)
+  (cond ((equalp disp "3840x1080")   ; laptop + ext monitor
+	 (setq font-size-pt 10))
+	((equalp disp "1920x1080")      ; just laptop
+	 (setq font-size-pt 12))))
+
+(use-package dispwatch
+  :config (progn
+	  (add-hook 'dispwatch-display-change-hooks #'my-display-changed-hook)
+	  (dispwatch-enable)))
+
 (use-package go-mode
 ;  :bind (("M-." . godef-jump)
 ;	 ("M-*" . pop-tag-mark))
-  :init (add-hook 'before-save-hook #'gofmt-before-save t t)
+  :config (add-hook 'before-save-hook #'gofmt-before-save t t)
   :ensure t)
 
 (use-package go-eldoc
@@ -824,7 +840,7 @@ is already narrowed."
 (add-to-list 'auto-mode-alist '("\\.conf.j2" . json-mode))
 (add-to-list 'auto-mode-alist '("\\.conf" . json-mode))
 
-(use-package flymake-json
+(use-package flymake-json		; TODO: flycheck?
   :init (add-hook 'json-mode-hook 'flymake-json-load))
 
 (defun json-format-and-view-region (beg end)
@@ -848,7 +864,7 @@ is already narrowed."
 
 
 (defun my-perl-mode-hook ()
-  (load-library "mycperl")
+;   (load-library "mycperl")
   (cperl-mode)
   (flycheck-mode)
   )

@@ -1,4 +1,4 @@
 # Python debugger aliases
 
 # print instance variables
-alias pi for k in %1.__dict__.keys(): print("  %1.",k,"=",%1.__dict__[k])
+alias pi for k in %1.__dict__.keys(): print("  %1.{} = {}".format(k, %1.__dict__[k]))

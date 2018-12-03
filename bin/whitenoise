@@ -1,0 +1,6 @@
+#!/bin/sh
+
+play -q -n synth brownnoise synth pinknoise
+
+# tpdfnoise brownnoise pinknoise
+# mix synth sine amod 0.3 10
