@@ -19,27 +19,26 @@
 (add-to-list 'exec-path "/usr/local/bin")
 
 ;; OSX Hacks
-(if (memq system-type '(darwin))
-    (progn
-      ;; open -a /Applications/Emacs.app "$@"
-      ;; If you are annoyed by the fact that it opens a new frame (window) for each file -- add
-      (setq ns-pop-up-frames nil)
-      (setq browse-url-browser-function 'browse-url-default-macosx-browser)
+(when (memq system-type '(darwin))
+  ;; open -a /Applications/Emacs.app "$@"
+  ;; If you are annoyed by the fact that it opens a new frame (window) for each file -- add
+  (setq ns-pop-up-frames nil)
+  (setq browse-url-browser-function 'browse-url-default-macosx-browser)
 
-      ;; Two metas is better for hardware reasons, this week.
-      ;; see https://stackoverflow.com/questions/7743402/how-can-i-change-meta-key-from-alt-to-cmd-on-mac-in-emacs-24#7743625
-      (setq mac-command-modifier 'meta)
-      (setq mac-option-modifier 'meta)
+  ;; Two metas is better for hardware reasons, this week.
+  ;; see https://stackoverflow.com/questions/7743402/how-can-i-change-meta-key-from-alt-to-cmd-on-mac-in-emacs-24#7743625
+  (setq mac-command-modifier 'meta)
+  (setq mac-option-modifier 'meta)
 
-      ;;      ;; Env to hit docker VM. Could be evalled from bash instead.
-      ;;      (setenv "DOCKER_HOST" "tcp://192.168.99.100:2376")
-      ;;      (setenv "DOCKER_MACHINE_NAME" "default")
-      ;;      (setenv "DOCKER_TLS_VERIFY" "1")
-      ;;      (setenv "DOCKER_CERT_PATH" "/Users/Mitchell/.docker/machine/machines/default")))
+  ;;      ;; Env to hit docker VM. Could be evalled from bash instead.
+  ;;      (setenv "DOCKER_HOST" "tcp://192.168.99.100:2376")
+  ;;      (setenv "DOCKER_MACHINE_NAME" "default")
+  ;;      (setenv "DOCKER_TLS_VERIFY" "1")
+  ;;      (setenv "DOCKER_CERT_PATH" "/Users/Mitchell/.docker/machine/machines/default")))
 
-      ;; Unset all docker env
-      (mapcar 'setenv '("DOCKER_HOST" "DOCKER_TLS_VERIFY" "DOCKER_CERT_PATH" "DOCKER_MACHINE_NAME"))
-))
+  ;; Unset all docker env
+  (mapcar 'setenv '("DOCKER_HOST" "DOCKER_TLS_VERIFY" "DOCKER_CERT_PATH" "DOCKER_MACHINE_NAME")))
+
 
 (if (not (memq system-type '(darwin)))
   ;;; not mac
@@ -115,7 +114,7 @@
 
 (setq twitterers '(adrianco jessfraz duckduckgo ChileSpot fermatslibrary))
 
-(setq elfeed-feeds 
+(setq elfeed-feeds
       (append '("http://aperiodical.com/feed/"
 		     "http://chalkdustmagazine.com/feed/"
 		     "http://bit-player.org/feed"
@@ -179,6 +178,7 @@
 		     "https://www.cringely.com/feed"
 		     "http://chalkdustmagazine.com/feed"
                      "https://spreadprivacy.com/rss"
+                     "http://tomblomfield.com/rss"
 		     "https://blog.jessfraz.com/")
 	      (mapcar
 	       (lambda (x) (concat "https://www.twitrss.me/twitter_user_to_rss/?user=" (symbol-name x)))
@@ -477,27 +477,29 @@
 (use-package extended-insert
   :bind ("C-x i" . extended-insert))
 
-(defconst my-org-dir         (expand-file-name "~/org"))
-(defconst my-notes-orgfile   (expand-file-name "~/org/00-notes.org"))
-(defconst my-journal-dir     (expand-file-name "~/org/00-journal"))
-(defconst my-task-orgfile    (expand-file-name "~/org/00-todo.org"))
-
-(defun my-journal-find-file ()
-  (find-file (format "~/org/00-journal/%s.org" (format-time-string "%Y-%02m-%02d")))
-  (goto-char (point-max)))
+(defconst my-org-dir          "~/org")
+(defconst my-org-journal-dir  "~/org/journal")
+(defconst my-inbox-orgfile    "~/org/:gtd-inbox.org")
+(defconst my-projects-orgfile "~/org/:gtd-projects.org")
+(defconst my-someday-orgfile  "~/org/:gtd-someday.org")
+(defconst my-tickler-orgfile  "~/org/:gtd-tickler.org")
 
 (defun my-org-todo-list ()
   (interactive nil)
-  (progn
-    (message "Loading TODO's")
-    (org-todo-list "TODO")))
+  (message "Loading TODO's")
+  (org-todo-list "TODO"))
 
 (setq org-capture-templates
-      '(("t" "Todo" entry (file+headline "~/org/00-todo.org" "Tasks")
-	 "* TODO %?\n  %i\n  %a")
-        ("j" "Journal" entry (function my-journal-find-file)
-	 "* %?\nEntered on %U\n  %i\n  %a")
-	("p" "Problem with Polya explorations" entry (file+headline "~/org/00-problems.org" "Problems")
+      '(("t" "Todo [inbox]" entry
+         (file+headline "~/org/:gtd-inbox.org" "Tasks")
+         "* TODO %i%?")
+        ("T" "Tickler" entry
+         (file+headline "~/org/:gtd-tickler.org" "Tickler")
+         "* %i%? \n %U")
+        ("w" "Work log" entry
+         (file+headline "~/org/:gtd-worklog.org" "Work Log")
+         "* %U %i\n%?")
+	("p" "Problem with Polya explorations" entry (file+headline "~/org/problems.org" "Problems")
 	 "* %U %i
 ** (I)dentify the problem
 What is the unknown? What are the data? What is the condition?
@@ -521,29 +523,75 @@ Can you derive the solution differently? Can you use the result or method in som
 (use-package org-mode
   :ensure org
   :bind (("C-c c" . org-capture)
-	 ("C-c a t" . my-org-todo-list)
-         ;; todo: bind  org-return-indent
+	 ("C-c a" . org-agenda)
 	 ("C-c t" . org-time-stamp))	; or maybe C-c .
+         ;; todo: bind  org-return-indent?
+	 ;; and maybe
+	 ;; (global-set-key "\C-cb" 'org-switchb)
+	 ;; (global-set-key "\C-cl" 'org-store-link)
+
   :init (progn
-         ;; (org-babel-do-load-languages
-         ;;  '((sh . t)
-         ;;    (python . t)
-         ;;    (perl . t)
-         ;;    (emacs-lisp . nil)))
+          (org-babel-do-load-languages
+           '((sh . t)
+             (python . t)
+             (perl . t)
+             (js . t)
+             (http . t) ; uses package ob-http
+             (emacs-lisp . nil)))
+          
+          (setq org-babel-confirm-evaluate nil)
+
+          ;; examples
+          ;;
+          ;; #+BEGIN_SRC js
+          ;; console.log("hello");
+          ;; #+END_SRC
+          ;; 
+          ;; #+BEGIN_SRC http :pretty
+          ;; GET http://example.com
+          ;; #+END_SRC
+
+          (auto-fill-mode 1)
 	  (setq
+           fill-column 99
+           org-todo-keywords '((sequence "TODO(t)" "WAITING(w)" "|" "DONE(d)" "CANCELLED(c)"))
 	   org-startup-indented t
 	   org-startup-folded "showall"
-	   org-todo-keywords '((sequence "TODO" "WAIT" "DONE"))
 	   org-hide-leading-stars t
-	   org-agenda-files '("~/org/00-todo.org" "~/org/00-notes.org" "~/org/00-journal")
-	   org-export-with-sub-superscripts nil
-	   org-directory (expand-file-name "~/.deft")
-	   org-default-notes-file my-notes-orgfile)))
+	   org-agenda-files (list my-inbox-orgfile
+				  my-projects-orgfile
+				  my-someday-orgfile
+				  my-tickler-orgfile)
 
-;; C-c C-j
+	   org-refile-targets (list (cons my-projects-orgfile '(:maxlevel . 3))
+				    (cons my-someday-orgfile  '(:level . 1))
+				    (cons my-tickler-orgfile  '(:maxlevel . 2)))
+
+	   ;; org-agenda-text-search-extra-files (directory-files my-org-dir t "org$")
+	   org-export-with-toc nil    ;; do not generate a TOC on export please
+	   org-export-with-sub-superscripts nil
+	   org-directory my-org-dir
+	   org-default-notes-file my-inbox-orgfile)))
+
+
+;; (defun my-journal-find-file ()
+;;   (find-file (format "~/org/00-journal/%s.org" (format-time-string "%Y-%02m-%02d")))
+;;   (goto-char (point-max)))
+;;					;
+;; ("j" "Journal" entry (function my-journal-find-file)
+;;	 "* %?\nEntered on %U\n  %i\n  %a")
+
+(defun my-save-and-bury-buffer ()
+  (interactive)
+  (save-buffer)
+  (bury-buffer))
+
+;; C-c C-j  - capture
+;;
 (use-package org-journal
   :ensure t
-  :init (setq org-journal-dir my-journal-dir))
+;  :bind* ("C-c c" . my-save-and-bury-buffer)
+  :init (setq org-journal-dir my-org-journal-dir))
 
 (use-package deft
   :ensure t
@@ -556,30 +604,10 @@ Can you derive the solution differently? Can you use the result or method in som
   :init
   (bind-key [f11] 'toggle-max-frame))
 
-;; (use-package powerline
-;;   :ensure powerline
-;;   :init (powerline-default-theme)
-;;   :custom-face
-;;   (mode-line ((t (:foreground "Black" :background "DarkOrange"))))
-;;   (powerline-active0 ((t (:foreground "Black" :background "DarkOrange"))))
-;;   (powerline-active1 ((t (:background "white" :foreground "black"))))
-;;   (powerline-active2 ((t (:foreground "Black" :background "DarkOrange"))))
-;;   (mode-line-inactive ((t (:foreground "#f9f9f9" :background "#666666" :overline "gray" :underline "gray"))))
-;;   (mode-line-buffer-id ((t (:overline   "gray" :underline  "gray" :foreground "black")))))
-;;
-;; 	  ; works
-;; 	  ; (custom-set-faces
-;; 	  ; '(mode-line ((t (:foreground "Black" :background "DarkOrange" :box nil))))
-;; 	  ; '(mode-line-inactive ((t (:foreground "#f9f9f9" :background "#666666" :overline "gray" :underline "gray" :box nil)))))
-;;
-;; 	  ;; see also powerline-active0, 1, 2 and -inactive0, 1, 2
-;; 	  ;; can check current values by (face-attribute 'powerline-active1 :foreground)
-;; 	  ;; TODO: (make-hud face1 face2).  Or look at Smart Mode Line
-
 (use-package smart-mode-line
   :init (progn
 	  (setq sml/no-confirm-load-theme t)
-	  (setq sml/theme 'light)
+	  (setq sml/theme 'respectful)
 	  (sml/setup)))
 
 (use-package material-theme
@@ -627,12 +655,12 @@ Can you derive the solution differently? Can you use the result or method in som
 ;; save cursor positions and loaded files. consider projectile et al?
 ;; Or https://github.com/pashinin/workgroups2
 ;;
-(use-package saveplace
-  :ensure t
-  :init (progn
-	  (setq save-place-file (concat user-emacs-directory "saveplace.el"))
-	  (setq-default save-place t)
-	  (desktop-save-mode 1)))	; emacs --no-desktop ... to avoid this
+;;(use-package saveplace
+;;  :ensure t
+;;  :init (progn
+;;	  (setq save-place-file (concat user-emacs-directory "saveplace.el"))
+;;	  (setq-default save-place t)
+;;	  (desktop-save-mode 1)))	; emacs --no-desktop ... to avoid this
 
 ;; (use-package smooth-scroll
 ;;   :ensure smooth-scroll
@@ -643,66 +671,63 @@ Can you derive the solution differently? Can you use the result or method in som
 (use-package iedit
   :ensure t)
 
-(if window-system
-    (progn
-      ;;      (set-default-font "Mono-10")
-      ;;      (set-face-attribute 'default nil :font "terminus-12")
+(when window-system
+  ;;      (set-default-font "Mono-10")
+  ;;      (set-face-attribute 'default nil :font "terminus-12")
 
-      (load-theme 'tangotango t)	; we also like zenburn, material-theme, solarized
+  (load-theme 'tangotango t)	; we also like zenburn, material-theme, solarized
 
-      ;; consider all themes safe to load
-      (setq custom-safe-themes t)
+  ;; consider all themes safe to load
+  (setq custom-safe-themes t)
 
-      ;; this maybe also good for local terminal, but how do we tell
-      ;; that from a remote?
-      (setq redisplay-dont-pause t)
+  ;; this maybe also good for local terminal, but how do we tell
+  ;; that from a remote?
+  (setq redisplay-dont-pause t)
 
-      (mouse-avoidance-mode 'jump)
-;;      (add-hook 'server-visit-hook
-;;		'(lambda ()
-;;		   (raise-frame)
-;;		   (recenter)))
-      (mouse-wheel-mode 1)
-      (delete-selection-mode 1)
-      (global-set-key "\C-z" 'undo)))
+  (mouse-avoidance-mode 'jump)
+  ;;      (add-hook 'server-visit-hook
+  ;;		'(lambda ()
+  ;;		   (raise-frame)
+  ;;		   (recenter)))
+  (mouse-wheel-mode 1)
+  (delete-selection-mode 1)
+  (global-set-key "\C-z" 'undo))
 
 ;;
 ;; dynamic global font handling - handles all buffers, not just current one
 ;; http://emacs.stackexchange.com/questions/7583/transiently-adjust-text-size-in-mode-line-and-minibuffer/7584#7584
 ;;
-(if window-system
-    (progn
-      (setq default-font-size-pt 12
+(when window-system
+  (setq default-font-size-pt 12
 
-	    ;; assuming many buffers persisting
-            confirm-kill-emacs #'yes-or-no-p)
+	;; assuming many buffers persisting
+        confirm-kill-emacs #'yes-or-no-p)
 
-      (defun modi/font-size-adj (&optional arg)
-	"The default C-x C-0/-/= bindings do an excellent job of font resizing.
+  (defun modi/font-size-adj (&optional arg)
+    "The default C-x C-0/-/= bindings do an excellent job of font resizing.
 They, though, do not change the font sizes for the text outside the buffer,
 example in mode-line. Below function changes the font size in those areas too.
 
 M-<NUM> M-x modi/font-size-adj increases font size by NUM points if NUM is +ve,
                                decreases font size by NUM points if NUM is -ve
                                resets    font size if NUM is 0."
-	(interactive "p")
-	(if (= arg 0)
-	    (setq font-size-pt default-font-size-pt)
-	  (setq font-size-pt (+ font-size-pt arg)))
-	;; The internal font size value is 10x the font size in points unit.
-	;; So a 10pt font size is equal to 100 in internal font size value.
-	(set-face-attribute 'default nil :height (* font-size-pt 10)))
+    (interactive "p")
+    (if (= arg 0)
+	(setq font-size-pt default-font-size-pt)
+      (setq font-size-pt (+ font-size-pt arg)))
+    ;; The internal font size value is 10x the font size in points unit.
+    ;; So a 10pt font size is equal to 100 in internal font size value.
+    (set-face-attribute 'default nil :height (* font-size-pt 10)))
 
-      (defun modi/font-size-incr ()  (interactive) (modi/font-size-adj +1))
-      (defun modi/font-size-decr ()  (interactive) (modi/font-size-adj -1))
-      (defun modi/font-size-reset () (interactive) (modi/font-size-adj 0))
+  (defun modi/font-size-incr ()  (interactive) (modi/font-size-adj +1))
+  (defun modi/font-size-decr ()  (interactive) (modi/font-size-adj -1))
+  (defun modi/font-size-reset () (interactive) (modi/font-size-adj 0))
 
-      (modi/font-size-reset) ; Initialize font-size-pt var to the default value
+  (modi/font-size-reset) ; Initialize font-size-pt var to the default value
 
-      (global-set-key (kbd "C-+") 'modi/font-size-incr)
-      (global-set-key (kbd "C--") 'modi/font-size-decr)
-      (global-set-key (kbd "C-)") 'modi/font-size-reset)    ; ie, shift-ctrl-0
-))
+  (global-set-key (kbd "C-+") 'modi/font-size-incr)
+  (global-set-key (kbd "C--") 'modi/font-size-decr)
+  (global-set-key (kbd "C-)") 'modi/font-size-reset))    ; ie, shift-ctrl-0
 
 
 ;; ------------------------------------------------------
@@ -840,8 +865,8 @@ is already narrowed."
 (add-to-list 'auto-mode-alist '("\\.conf.j2" . json-mode))
 (add-to-list 'auto-mode-alist '("\\.conf" . json-mode))
 
-(use-package flymake-json		; TODO: flycheck?
-  :init (add-hook 'json-mode-hook 'flymake-json-load))
+; (use-package flymake-json		; TODO: flycheck?
+;   :init (add-hook 'json-mode-hook 'flymake-json-load))
 
 (defun json-format-and-view-region (beg end)
   "Format region as json and pop up new buffer to view it"
@@ -1074,6 +1099,7 @@ is already narrowed."
 ;; ------------------------------------------------------
 
 (setq my-initials "MNP"
+      vc-follow-symlinks t
       visible-bell nil
       ring-bell-function 'ignore
       indent-tabs-mode nil
@@ -1218,13 +1244,6 @@ is already narrowed."
 (defalias 'adventure 'dunnet)
 
 ;; keep this last
-
-;(if window-system
-;    (progn
-;      (if (require 'edit-server)
-;	  (edit-server-start)
-;	(server-start))))
-
 
 (if window-system (server-start))
 

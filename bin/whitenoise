@@ -2,5 +2,10 @@
 
 play -q -n synth brownnoise synth pinknoise
 
-# tpdfnoise brownnoise pinknoise
-# mix synth sine amod 0.3 10
+# play with
+# noises: tpdfnoise brownnoise pinknoise
+# add this to modulate amplitude: mix synth sine amod 0.3 10
+
+# Simpler, also works well but it's a little white/harsh
+# pacat comes from pulseaudio
+# pacat /dev/urandom

@@ -7,7 +7,7 @@
 ;;   (autoload 'extended-insert "extended-insert" "Gives menu to insert various things." t)
 ;;   (global-set-key "\^Xi" 'extended-insert)
 ;;
-;;   Then, you can press ``Ctrl-x i'' followed by one of these: 
+;;   Then, you can press ``Ctrl-x i'' followed by one of these:
 ;;	  b: a buffer
 ;;	  c: result of a shell command
 ;;	  d: date string
@@ -20,19 +20,22 @@
 ;;
 ;; History:
 ;;   ?? ??? ??  created mid eighties sometime
-;;   05 Jan 98	port to xemacs 
+;;   05 Jan 98	port to xemacs
 ;;   12 Mar 98	file header insertion
 ;;   23 Aug 06	dash and equals
 ;;   03 Mar 12  special perl header
+;;   17 Dec 18  use gui-
+;;
+;; TODO: hydra
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defconst ei-headers-dir "~/banners" 
+(defconst ei-headers-dir "~/banners"
   "*Directory were headers come from.  Each is in a file named for its mode.")
 
 (defconst ei-salutation-list
-  '(("Respectfully") ("Sincerely") ("Thanks") ("Chow") ("Best") ("Best Regards") 
-    ("Yours") ("Later"))) 
+  '(("Respectfully") ("Sincerely") ("Thanks") ("Chow") ("Best") ("Best Regards")
+    ("Yours") ("Later")))
 
 (defconst ei-beg-inc
   "\n--------------------------- begin inclusion--------------------------------\n")
@@ -44,11 +47,11 @@
   (interactive "P")
   (let* ((completion-ignore-case t)
 	 (default (car (car ei-salutation-list)))
-	 (reply  (completing-read 
+	 (reply  (completing-read
 		  (format "Salutation (%s): " default)
 		  ei-salutation-list)))
     (save-excursion
-      (insert 
+      (insert
        "\n"
        (if (string= "" reply) default reply)
        ",\n")
@@ -57,10 +60,10 @@
 ; (defun ei-time-stamp ()
 ;   "Returns a stamp str."
 ;   (let ((time (current-time-string)))
-;     (format "%s%02d%02d" 
+;     (format "%s%02d%02d"
 ; 	    (substring time 22 24)
 ; 	    (car (cdr (assoc
-; 		       (substring time 4 7) 
+; 		       (substring time 4 7)
 ; 		       '(("Jan" 1) ("Feb" 2) ("Mar" 3) ("Apr" 4) ("May" 5)
 ; 			 ("Jun" 6) ("Jul" 7) ("Aug" 8) ("Sep" 9) ("Oct" 1)
 ; 			 ("Nov" 11) ("Dec" 12)))))
@@ -69,7 +72,7 @@
 (defun ei-time-stamp ()
   "Returns a stamp str."
   (let ((time (current-time-string)))
-    (format "%s %s %s" 
+    (format "%s %s %s"
 	    (substring time 8 10)
 	    (substring time 4 7)
 	    (substring time 22 24))))
@@ -119,7 +122,7 @@ left at @CURSOR@, if given."
   "Execute shell-command upon CMD, leaving result at point."
   (interactive "P\nsShell command: ")
   (save-excursion
-    (if pfx 
+    (if pfx
 	(progn
 	  (insert ei-end-inc)
 	  (backward-char (length ei-end-inc))
@@ -148,7 +151,7 @@ left at @CURSOR@, if given."
 (defun ei-insert-x-clipboard ()
   "get and insert x clipboard"
   (interactive)
-  (insert (x-get-clipboard)))
+  (insert (gui-get-primary-selection)))
 
 (defun ei-line-of (ch) (insert (make-string 76 ch) "\n"))
 (defun ei-dashes () (interactive) (ei-line-of ?-))
@@ -168,11 +171,11 @@ left at @CURSOR@, if given."
   x: x selection
   -: line of dashes
   =: line of equals"
-  (interactive 
+  (interactive
    "P\ncb:buff c:shell-cmnd d:date f:file h:header n:note s:signature x:x-cut-buffer - =")
-  (call-interactively 
-   (car (cdr (assoc key  
-		    '((?b insert-buffer) 
+  (call-interactively
+   (car (cdr (assoc key
+		    '((?b insert-buffer)
 		      (?c ei-insert-shell-command pfx)
 		      (?d ei-insert-date)
 		      (?e ei-insert-lisp-eval)
