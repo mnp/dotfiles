@@ -21,6 +21,9 @@ path_append PATH $HOME/workbin
 path_append PATH $HOME/homebin
 export PATH
 
+# python executables installed by PIP
+test -d ~/.local/bin && path_append PATH ~/.local/bin
+
 for dir in $HOME/perl $HOME/perl5/lib/perl5 /usr/local/share/perl/* /usr/local/lib/perl/* /usr/local/lib/perl5/site_perl; do
     path_append PERL5LIB $dir
 done
@@ -30,7 +33,6 @@ if [ $OS = darwin ]; then
     PERL_MB_OPT="--install_base \"/Users/Mitchell/perl5\""; export PERL_MB_OPT;
     PERL_MM_OPT="INSTALL_BASE=/Users/Mitchell/perl5"; export PERL_MM_OPT;
 fi
-
 
 # For MediaWiki client
 export MVS_BROWSER=firefox
@@ -328,6 +330,11 @@ lrt() {
 lstoday()
 {
     ls -l $@ | egrep "$(date '+%b %_d')"
+}
+
+logcmd()
+{
+    eval "$@" 2>&1 | tee log
 }
 
 # saves to clipboard
