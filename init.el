@@ -52,7 +52,7 @@
 
 ;; no point in checking if package is available, we use it too much
 (require 'package)
-(setq package-archives '( ("gnu" . "https://elpa.gnu.org/packages/")
+(setq package-archives '( ; timing out ;;; ("gnu" . "https://elpa.gnu.org/packages/")
                          ; ("marmalade" . "https://marmalade-repo.org/packages/")
                          ("melpa" . "https://melpa.org/packages/")
 			 ; ("melpa-stable" . "https://stable.melpa.org/packages/")
@@ -290,7 +290,8 @@
 	    (set-face-attribute 'helm-selection nil
 				:background "LightYellow"
 				:foreground "black"))
-  :bind (("M-x" . helm-M-x)))
+  :bind (("M-x" . helm-M-x)
+	 ("M-." . helm-etags-select)))
 
 ;; (use-package helm-git-grep
 ;;   :ensure helm-git-grep
@@ -313,15 +314,15 @@
 
   ;; (twx) can also turn this extra config by using ".dir-locals.el" in
   ;; platform projects
-  :config (progn
-	    (helm-grepint-add-grep-config
-	      platform
-	      :command "ag"
-	      :arguments "--nocolor --search-zip --nogroup --java"
-	;      :extra-arguements "thingworx-common thingworx-platform-postgres thingworx-platform-common thingworx-integrationTests"
-	      :ignore-case-arg "--ignore-case"
-	      :root-directory-function helm-grepint-git-grep-locate-root)
-	    (add-to-list 'helm-grepint-grep-list 'platform))
+;  :config (progn
+;	    (helm-grepint-add-grep-config
+;	      platform
+;	      :command "ag"
+;	      :arguments "--nocolor --search-zip --nogroup --java"
+;	;      :extra-arguements "thingworx-common thingworx-platform-postgres thingworx-platform-common thingworx-integrationTests"
+;	      :ignore-case-arg "--ignore-case"
+;	      :root-directory-function helm-grepint-git-grep-locate-root)
+;	    (add-to-list 'helm-grepint-grep-list 'platform))
 )
 
 ; local
@@ -341,15 +342,15 @@
   :mode "\\.md\\'")
 
 ; jtags mode has rotted. gnu global has many more features atm
-(use-package ggtags
-  :ensure t
-  :init (progn
-	  ;; this was to pass in a --scope switch, but doing it in
-	  ;; gtags.conf was a better idea.
-	  ;; (load-library "my-ggtags")
-	  (setq ggtags-global-abbreviate-filename 80 ;;;;;; "No"
-		ggtags-global-window-height 15))
-  :bind ("M-." . helm-gtags-dwim))
+;(use-package ggtags
+;  :ensure t
+;  :init (progn
+;	  ;; this was to pass in a --scope switch, but doing it in
+;	  ;; gtags.conf was a better idea.
+;	  ;; (load-library "my-ggtags")
+;	  (setq ggtags-global-abbreviate-filename 80 ;;;;;; "No"
+;		ggtags-global-window-height 15))
+;  :bind ("M-." . helm-gtags-dwim))
 
 ;;;;;;;;;;;;; alternately, ... ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -405,20 +406,17 @@
 ;;
 (add-to-list 'exec-path "/usr/local/opt/go/libexec/bin")
 (add-to-list 'exec-path "~/go/bin")
-
 (setenv "PATH" (concat "/usr/local/bin:/usr/local/opt/go/libexec/bin:" (getenv "PATH")))
 (setenv "GOPATH" (expand-file-name "~/go"))
-; (setenv "GOROOT" "/usr/local/opt/go")
-
 
 (add-to-list 'load-path (expand-file-name "~/prj/dispwatch/"))
 
 (defun my-display-changed-hook (disp)
   (message "rejiggering for %s" disp)
   (cond ((equalp disp "3840x1080")   ; laptop + ext monitor
-	 (setq font-size-pt 10))
+	 (my-set-font-size-absolute 10))
 	((equalp disp "1920x1080")      ; just laptop
-	 (setq font-size-pt 12))))
+	 (my-set-font-size-absolute 12))))
 
 (use-package dispwatch
   :config (progn
@@ -489,10 +487,29 @@
   (message "Loading TODO's")
   (org-todo-list "TODO"))
 
+(defconst my-work-sub-team '("0-me" "Jason" "John" "Justin" "Mike" "Nancy" "Nathan"))
+
+(defun my-make-team-template ()
+  (concat
+   "* %U %i%?\n"
+   (apply 'concat (mapcar (lambda (x) (concat "*** " x "\n\n")) my-work-sub-team))))
+
 (setq org-capture-templates
       '(("t" "Todo [inbox]" entry
          (file+headline "~/org/:gtd-inbox.org" "Tasks")
          "* TODO %i%?")
+	("u" "Work Todo [inbox]" entry
+         (file+headline "~/org/:gtd-inbox.org" "Work Tasks")
+         "* TODO %i%? :work:")
+
+	;; experiment
+	("l" "URL [inbox]" entry
+         (file+headline "~/org/:gtd-inbox.org" "Reference")
+         "*** Some URL\n %x %?")
+
+        ("s" "Standup" entry
+         (file+headline "~/org/:gtd-worklog.org" "Standup")
+	 (function my-make-team-template))
         ("T" "Tickler" entry
          (file+headline "~/org/:gtd-tickler.org" "Tickler")
          "* %i%? \n %U")
@@ -531,25 +548,26 @@ Can you derive the solution differently? Can you use the result or method in som
 	 ;; (global-set-key "\C-cl" 'org-store-link)
 
   :init (progn
-          (org-babel-do-load-languages
-           '((sh . t)
-             (python . t)
-             (perl . t)
-             (js . t)
-             (http . t) ; uses package ob-http
-             (emacs-lisp . nil)))
-          
-          (setq org-babel-confirm-evaluate nil)
+
+          (custom-set-variables
+           '(org-babel-load-languages '((shell . t)
+                                        (python . t)
+                                        (perl . t)
+                                        (js . t)
+                                        (http . t) ; uses package ob-http
+                                        (emacs-lisp . nil)))
+           '(org-confirm-babel-evaluate nil))
 
           ;; examples
           ;;
           ;; #+BEGIN_SRC js
           ;; console.log("hello");
           ;; #+END_SRC
-          ;; 
+          ;;
           ;; #+BEGIN_SRC http :pretty
           ;; GET http://example.com
           ;; #+END_SRC
+
 
           (auto-fill-mode 1)
 	  (setq
@@ -719,6 +737,10 @@ M-<NUM> M-x modi/font-size-adj increases font size by NUM points if NUM is +ve,
     ;; So a 10pt font size is equal to 100 in internal font size value.
     (set-face-attribute 'default nil :height (* font-size-pt 10)))
 
+  (defun my-set-font-size-absolute (pt)
+    (setq font-size-pt pt)
+    (set-face-attribute 'default nil :height (* font-size-pt 10)))
+
   (defun modi/font-size-incr ()  (interactive) (modi/font-size-adj +1))
   (defun modi/font-size-decr ()  (interactive) (modi/font-size-adj -1))
   (defun modi/font-size-reset () (interactive) (modi/font-size-adj 0))
@@ -778,7 +800,7 @@ M-<NUM> M-x modi/font-size-adj increases font size by NUM points if NUM is +ve,
 
 (defun my-prog-mode-hook ()
   (show-paren-mode 1)
-    (ggtags-mode 1)
+   ;; (ggtags-mode 1)
     (setq fill-column 95)
     ;;; (helm-gtags-mode)			;; see also disabled gtags paragraph
 
