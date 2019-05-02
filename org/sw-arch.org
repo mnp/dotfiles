@@ -1,0 +1,150 @@
+* SW arch / cloud / dist systems reading
+** Risk First
+https://github.com/risk-first/website/wiki
+** TODO 3b1b ML
+
+https://www.youtube.com/watch?v=IHZwWFHWa-w&index=3&list=PLZHQObOWTQDNU6R1_67000Dx_ZCJB-3pi
+** TODO Systems Thinking
+https://naomistanford.com/2019/02/07/habits-of-a-systems-thinker/
+** TODO read Microservice contracts
+** TODO bob's crdt vid
+** rewrites
+https://8thlight.com/blog/doug-bradbury/2018/11/27/true-cost-rewrites.html
+** TODO Lean thinking @adhondt
+** microservice 12 factors
+
+1. common codebase
+2. explicit dependencies
+3. stored config
+4. backing services as attached resources
+5. separate build and run
+6. stateless procs
+7. export services via port binding
+8. scale out by concurrency
+9. disposable
+10. keep dev/prod parity
+11. logs as event streams
+12. admin tasks as one-off procs
+
+** microsvc general lament - distributed big ball of mud
+*** people coordination problems -> software coordination problems
+
+BUT if you don't have the people problems then you have NEW software coordination problems
+http://blog.jenkster.com/2018/07/microservices-check-size.html
+
+** construction, Communication, process
+
+- developers most important stakeholders
+- c4 model (simon brown): context, containers, components, classes
+- design stamina hypothesis (Fowler) - good design vs no design. plot of time vs functionality
+
+** role
+- hold off arch erosion
+
+** Risk management
+https://www.pmi.org/learning/library/characterizing-unknown-unknowns-6077
+
+*** Cost of Rebuilding
+https://8thlight.com/blog/doug-bradbury/2018/11/27/true-cost-rewrites.html
+
+** Design
+*** materials vs exotic materials (matthew burnett)
+*** TODO Stacey complexity model - NICE
+https://www.scrum-tips.com/2016/02/17/stacey-complexity-model/
+
+|      | simple                    | complicated | complex | anarchy            |
+|      | -predictable              |             |         | -unpredictable     |
+|      | -understandable approach  |             |         | -no approach       |
+|------+---------------------------+-------------+---------+--------------------|
+| Reqs | close to agreement        | -->         | -->     | far from agreement |
+| Tech | close to certainty        | -->         | -->     | far from certainty |
+
+** Event sourcing
+** Theorems
+*** ACID - atomicity, consistency, isolation, durabiity
+*** BASE - basically available, soft state, eventual consistency
+*** CAP (Brewers) - consistency, availability, partition tolerance
+*** PACELC
+
+in case of P you have to choose between A and C
+(E)lse
+you have to choose between (L)atency and C
+
+** Laws
+*** Conway
+*** Brooks
+*** Amdahl
+** DB Isolation levels
+** event sourcing
+** rest vs soap / soa / esb
+
+- ceremony
+- plasticity/flexibility
+- expense/speed/complexity
+
+** Cassandra
+** Consistency Models
+** Consensus Models
+
+raft, paxos
+
+** Patterns
+
+creational, behavioral, structural
+
+** TODO xpack ML via Faith Westdorp
+
+https://www.elastic.co/training/x-pack-machine-learning 
+
+Of course! It's my job to help you best leverage Elastic. Please let me know if you have any
+questions or concerns. For the Machine Learning on-demand course: use the code "XPack-Seat" at the
+check-out to redeem your complimentary course!
+* Dr Bob Martin - clean architecture
+** SOLID
+*** SRP - single responsibility principle
+misnamed - really: a module should be responsible to one and only one actor
+*** OCP - open closed principle
+artifact should be open for extension but closed for modification
+*** LSP - liskov substitution principle
+subtypes are interchangeable with each other. violation of lsp leads to pollution with extra mechanisms
+*** ISP - interface seggregation principle
+components should depend only on things they actually use. if you use only one piece of an
+aggregate thing, maybe it should be broken out to avoid forced recompilations.
+*** DIP - dependency inversion principle
+don't depend on a VOLATILE concrete class: derive from, include, override etc. instead use an
+abstract class or interface: factory etc
+
+* REFERENCE
+** TODO Clean Coder Blog
+https://blog.cleancoder.com/uncle-bob/2016/10/26/DijkstrasAlg.html
+
+** TODO white book 
+https://share.composieux.fr/white-book-software-architecture.pdf
+* People/Process
+http://agilemanifesto.org/iso/en/principles.html
+* Remote
+https://link.medium.com/urItIlNg1S
+https://martinfowler.com/articles/remote-or-co-located.html
+https://engineering.tes.com/how-we-work/remote/index.html   **** 
+
+* APIs
+** Builders
+ https://www.apibuilder.io/
+via flow.io guy https://www.youtube.com/watch?v=j6ow-UemzBc
+** REST
+https://github.com/vasilakisfil/Introspected-REST
+* stuff
+** search arches and microservice 12 factors
+
+1. common codebase
+2. explicit dependencies
+3. stored config
+4. backing services as attached resources
+5. separate build and run
+6. stateless procs
+7. export services via port binding
+8. scale out by concurrency
+9. disposable
+10. keep dev/prod parity
+11. logs as event streams
+12. admin tasks as one-off procs
