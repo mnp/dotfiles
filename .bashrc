@@ -1,24 +1,20 @@
 
+
 # Noninteractive section
 
 . ~/lib/shlib.bash
-
 
 for d in /usr/man /usr/share/man /usr/local/man $HOME/perl5/man; do
     path_append MANPATH $d
 done
 export MANPATH
 
-case $OSTYPE in
-    linux*)  OS=linux;;
-    darwin*) OS=darwin;;
-esac
-
 PATH=$HOME/bin:$HOME/hosts:/usr/local/bin:/usr/local/bin:/usr/local/sbin:/usr/bin:/bin:/usr/sbin:/sbin
 path_append PATH $HOME/perl5/bin
 path_append PATH $HOME/osbin
 path_append PATH $HOME/workbin
 path_append PATH $HOME/homebin
+
 export PATH
 
 # python executables installed by PIP
@@ -29,17 +25,72 @@ for dir in $HOME/perl $HOME/perl5/lib/perl5 /usr/local/share/perl/* /usr/local/l
 done
 export PERL5LIB
 
-if [ $OS = darwin ]; then
-    PERL_MB_OPT="--install_base \"/Users/Mitchell/perl5\""; export PERL_MB_OPT;
-    PERL_MM_OPT="INSTALL_BASE=/Users/Mitchell/perl5"; export PERL_MM_OPT;
+case $OSTYPE in
+    linux*)
+	OS=linux
+	;;
+    darwin*)
+	OS=darwin
+	export PERL_MB_OPT="--install_base \"/Users/Mitchell/perl5\""
+	export PERL_MM_OPT="INSTALL_BASE=/Users/Mitchell/perl5"
+	;;
+    msys)
+	OS=windows
+	windock='/c/Program Files/Docker/Docker/resources/bin'
+	pyroot=/c/Users/MPerilstein/AppData/Local/Programs/Python/Python37
+	jdkroot='/c/Program Files/java/jdk1.8.0_201'
+	dotnet='/c/Program Files/dotnet'
+	nodebin=~/AppData/Roaming/npm
+		# Python should be before emacs in the path because emacs has its own for some reason.
+	test -d "$pyroot" && PATH=$PATH:"$pyroot":"$pyroot"/Scripts
+	test -d /mingw64/bin && path_append PATH /mingw64/bin
+	test -d /c/emacs/bin && path_append PATH /c/emacs/bin
+	test -d "$jdkroot"/bin && PATH=$PATH:"$jdkroot"/bin
+	test -d "$windock" && PATH=$PATH:"$windock"
+	test -d "$dotnet" && PATH=$PATH:"$dotnet"
+#	test -d /c/Python27 && path_append PATH /c/Python27
+#	test -d /c/Python27/Scripts && path_append PATH /c/Python27/Scripts
+	noderoot='/c/Program Files/nodejs'
+	test -d "$noderoot" && PATH=$PATH:"$noderoot"
+	test -d "$nodebin"  && PATH=$PATH:"$nodebin"
+	unset windock pyroot noderoot jdkroot
+	path_append PATH /c/Users/MPerilstein/src/bas-agent-provisioner/tools
+	export PATH
+	;;
+esac
+
+# SSH agent
+if [ -d ~/.ssh ]; then
+    env=~/.ssh/agent.env
+
+    agent_load_env () { test -f "$env" && . "$env" >| /dev/null ; }
+
+    agent_start () {
+	(umask 077; ssh-agent >| "$env")
+	. "$env" >| /dev/null ; }
+
+    agent_load_env
+
+    # agent_run_state: 0=agent running w/ key; 1=agent w/o key; 2= agent not running
+    agent_run_state=$(ssh-add -l >| /dev/null 2>&1; echo $?)
+
+    if [ ! "$SSH_AUTH_SOCK" ] || [ $agent_run_state = 2 ]; then
+	agent_start
+	ssh-add
+    elif [ "$SSH_AUTH_SOCK" ] && [ $agent_run_state = 1 ]; then
+	ssh-add
+    fi
+
+    unset env
 fi
 
 # For MediaWiki client
 export MVS_BROWSER=firefox
 
 # Go lang
-path_append PATH /usr/local/opt/go/libexec/bin
-
+if [ -f  /usr/local/opt/go/libexec/bin ]; then
+    path_append PATH /usr/local/opt/go/libexec/bin
+fi
 if [ -d $HOME/go ]; then
     GOPATH=$HOME/go
     path_append PATH $GOPATH/bin
@@ -82,7 +133,7 @@ if type pyenv > /dev/null 2>&1; then
     export PYENV_ROOT="$HOME/.pyenv"
     export PATH="$PYENV_ROOT/bin:$PATH"
     eval "$(pyenv init -)"
-else
+elif [ $OS = darwin ]; then
     path_append PATH /usr/local/Cellar/python/2.7.13_1/Frameworks/Python.framework/Versions/2.7/bin
 fi
 
@@ -110,7 +161,7 @@ WHITE="\[\033[01;37m\]"
 MAGEN="\[\033[01;35m\]"
 
 INVERSE="\[\033[7m\]"
-
+UNDERLINE="\e[4m"
 
 # PS1="$TITLEBAR\
 # $LTGRN\u$CLEAR\
@@ -145,13 +196,12 @@ if type git > /dev/null 2>&1; then
 	git grep $1 -- $git_grep_path
     }
 
-    if [ -f ~/.git-prompt.sh ]; then
-	source ~/.git-prompt.sh
-    fi
+    source /mingw64/share/git/completion/git-prompt.sh
+    source /mingw64/share/git/completion/git-completion.bash
 
-    if [ -f ~/.git-completion.bash ]; then
-	source ~/.git-completion.bash
-    fi
+# todo
+#    source $(search_path git-prompt.sh ~/lib /mingw64/share/git/completion)
+#    source $(search_path git-completion.bash ~/lib /mingw64/share/git/completion
 fi
 
 if type terraform > /dev/null 2>&1; then
@@ -161,32 +211,13 @@ fi
 # disable ctrl-s software flow control
 stty -ixon
 
-my_prompt_command() {
-:
-}
-
-# no prompt command for console
-case $TERM in
-    rxvt|xterm*)
- 	PS1BASE="${PS1COLOR}\u@\h${CLEAR}:${WHITE}\w${YELLOW}\$(__git_ps1)${CLEAR}\n\$ "
- 	;;
-
-    screen|vt100)
-	PROMPT_COMMAND='echo -ne "\033]0;${USER}@${HOSTNAME}:${PWD}\007\033k$PWD\033\\"'
-	PS1BASE='$ ';
-	;;
-
-    *)
-	PROMPT_COMMAND=''
-	PS1BASE='\u@\h:\w\n\$ '
-	;;
-esac
+# The secret here is that colors must be evaluated now, using "" in this shell context. The
+# __git_ps1 must be evaluated later, every time PS1 is evaluated, thus the '' for it only.
+PS1="\[\033[01;36m\]\u@\h\[\033[00m\] \[\033[01;35m\]\w\[\033[00m\]${YELLOW}"'$(__git_ps1)'"${CLEAR}$ "
 
 if type git > /dev/null 2>&1; then
     alias tf=terraform
 fi
-
-PS1="$PS1BASE"
 
 #
 # historystuff
@@ -391,6 +422,11 @@ alias f11="awk '{print \$11}'"
 alias f12="awk '{print \$12}'"
 alias f13="awk '{print \$13}'"
 
+function pj ()
+{
+    jq -C . $@
+}
+
 function pc ()
 {
     nc -z $(echo $@ | sed 's/:/ /g')
@@ -479,6 +515,12 @@ clean ()
 mw ()
 {
     _xw_sub $PAGER $1
+}
+
+# edit
+e ()
+{
+    emacsclient --no-wait "$1"
 }
 
 # edit which
@@ -585,7 +627,7 @@ elif [ -x /usr/sbin/update-java-alternatives ]; then
 fi
 
 # set default at work at least
-if [ -d ~/workbin ]; then
+if [ -d ~/workbin/java8 ]; then
     java8
 fi
 

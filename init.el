@@ -6,6 +6,9 @@
       initial-scratch-message nil
       debug-on-error nil)
 
+(if (file-exists-p "c:/")
+    (setenv "HOME" (concat "c:/users/" (getenv "USERNAME"))))
+
 (defconst work-elisp "~/Dropbox/work-elisp"
   "Work-only files - we will load all .el found.")
 
@@ -18,8 +21,17 @@
 (add-to-list 'exec-path (expand-file-name "~/bin"))
 (add-to-list 'exec-path "/usr/local/bin")
 
+;; Windows hacks
+(when (memq system-type '(windows-nt))
+  (progn
+    (add-to-list 'exec-path "c:/emacs/bin")
+    (add-to-list 'exec-path "c:/Program Files (x86)/Google/Chrome/Application")
+    (setq browse-url-browser-function 'browse-url-generic
+	  browse-url-generic-program "chrome")))
+
 ;; OSX Hacks
 (when (memq system-type '(darwin))
+
   ;; open -a /Applications/Emacs.app "$@"
   ;; If you are annoyed by the fact that it opens a new frame (window) for each file -- add
   (setq ns-pop-up-frames nil)
@@ -39,12 +51,6 @@
   ;; Unset all docker env
   (mapcar 'setenv '("DOCKER_HOST" "DOCKER_TLS_VERIFY" "DOCKER_CERT_PATH" "DOCKER_MACHINE_NAME")))
 
-
-(if (not (memq system-type '(darwin)))
-  ;;; not mac
-  (setq browse-url-browser-function 'browse-url-generic
-	browse-url-generic-program "firefox"))
-
 ;; host specific - if a file HOSTNAME.el exists, load that
 (if (condition-case nil (load-library (concat shared-elisp "/" (system-name) ".el"))
       (file-missing t))     ; ignore only this kind of error
@@ -52,7 +58,8 @@
 
 ;; no point in checking if package is available, we use it too much
 (require 'package)
-(setq package-archives '( ; timing out ;;; ("gnu" . "https://elpa.gnu.org/packages/")
+(package-initialize)
+(setq package-archives '( ("gnu" . "https://elpa.gnu.org/packages/")
                          ; ("marmalade" . "https://marmalade-repo.org/packages/")
                          ("melpa" . "https://melpa.org/packages/")
 			 ; ("melpa-stable" . "https://stable.melpa.org/packages/")
@@ -68,13 +75,23 @@
   (package-install 'use-package))
 (require 'use-package)
 
+(use-package epa-file
+  :init 
+   (progn 
+     (custom-set-variables '(epg-gpg-program  "C:/Program Files/Git/usr/bin/gpg"))
+     (epa-file-enable)))
+
+(use-package espy
+  :init (setq espy-password-file "~/org/passwords.org.gpg"))
+
 (use-package diminish
   :init (diminish 'abbrev-mode)
   :ensure t)
 
-(use-package exec-path-from-shell
-  :ensure t
-  :init (exec-path-from-shell-initialize))
+(if (not (memq system-type '(windows-nt)))
+    (use-package exec-path-from-shell
+      :ensure t
+      :init (exec-path-from-shell-initialize)))
 
 (use-package smart-backspace
   :ensure t
@@ -107,8 +124,8 @@
 
 
 ;; elfeed
-(add-to-list 'load-path (expand-file-name "~/prj/elfeed"))
-(load-library "elfeed")
+; (add-to-list 'load-path (expand-file-name "~/prj/elfeed"))
+; (load-library "elfeed")
 (custom-set-variables
  '(elfeed-summary-as-default t))
 
@@ -242,6 +259,10 @@
 	      compile-command "make ")
   :bind ("C-x C-k" . compile))
 
+;;;; csharp, oh no
+(use-package csharp-mode
+  :ensure t)
+
 (use-package google-c-style
   :disabled t)
 
@@ -290,8 +311,7 @@
 	    (set-face-attribute 'helm-selection nil
 				:background "LightYellow"
 				:foreground "black"))
-  :bind (("M-x" . helm-M-x)
-	 ("M-." . helm-etags-select)))
+  :bind (("M-x" . helm-M-x)))
 
 ;; (use-package helm-git-grep
 ;;   :ensure helm-git-grep
@@ -314,15 +334,15 @@
 
   ;; (twx) can also turn this extra config by using ".dir-locals.el" in
   ;; platform projects
-;  :config (progn
-;	    (helm-grepint-add-grep-config
-;	      platform
-;	      :command "ag"
-;	      :arguments "--nocolor --search-zip --nogroup --java"
-;	;      :extra-arguements "thingworx-common thingworx-platform-postgres thingworx-platform-common thingworx-integrationTests"
-;	      :ignore-case-arg "--ignore-case"
-;	      :root-directory-function helm-grepint-git-grep-locate-root)
-;	    (add-to-list 'helm-grepint-grep-list 'platform))
+  :config (progn
+	    (helm-grepint-add-grep-config
+	      platform
+	      :command "ag"
+	      :arguments "--nocolor --search-zip --nogroup --java"
+	;      :extra-arguements "thingworx-common thingworx-platform-postgres thingworx-platform-common thingworx-integrationTests"
+	      :ignore-case-arg "--ignore-case"
+	      :root-directory-function helm-grepint-git-grep-locate-root)
+	    (add-to-list 'helm-grepint-grep-list 'platform))
 )
 
 ; local
@@ -377,20 +397,20 @@
 ;;  :init (my-elcim-setup)
 ;;  :bind ("C-c C-e c" . eclim-java-call-hierarchy))
 
-(defun my-eclim-setup ()
-  (message "starting my eclim setup (slow) ...")
-  (setq
-   ;; another pkg will start it for us if needed
-   ;; eclimd-executable "~/eclipse/eclimd"
-   eclim-eclipse-dirs '("~/eclipse")
-   eclim-executable  (expand-file-name "~/eclipse/eclim"))
-  (global-eclim-mode)
-  (message "... finished my eclim setup"))
-
-;; develop eclim
-(add-to-list 'load-path (expand-file-name "~/prj/emacs-eclim/"))
-(my-eclim-setup)
-(global-set-key (kbd "C-c C-e c") 'eclim-java-call-hierarchy)
+;; (defun my-eclim-setup ()
+;;   (message "starting my eclim setup (slow) ...")
+;;   (setq
+;;    ;; another pkg will start it for us if needed
+;;    ;; eclimd-executable "~/eclipse/eclimd"
+;;    eclim-eclipse-dirs '("~/eclipse")
+;;    eclim-executable  (expand-file-name "~/eclipse/eclim"))
+;;   (global-eclim-mode)
+;;   (message "... finished my eclim setup"))
+;;
+;; ;; develop eclim
+;; (add-to-list 'load-path (expand-file-name "~/prj/emacs-eclim/"))
+;; (my-eclim-setup)
+;; (global-set-key (kbd "C-c C-e c") 'eclim-java-call-hierarchy)
 
 ;; scala
 
@@ -406,17 +426,20 @@
 ;;
 (add-to-list 'exec-path "/usr/local/opt/go/libexec/bin")
 (add-to-list 'exec-path "~/go/bin")
+
 (setenv "PATH" (concat "/usr/local/bin:/usr/local/opt/go/libexec/bin:" (getenv "PATH")))
 (setenv "GOPATH" (expand-file-name "~/go"))
+; (setenv "GOROOT" "/usr/local/opt/go")
+
 
 (add-to-list 'load-path (expand-file-name "~/prj/dispwatch/"))
 
 (defun my-display-changed-hook (disp)
   (message "rejiggering for %s" disp)
   (cond ((equalp disp "3840x1080")   ; laptop + ext monitor
-	 (my-set-font-size-absolute 10))
+	 (setq font-size-pt 10))
 	((equalp disp "1920x1080")      ; just laptop
-	 (my-set-font-size-absolute 12))))
+	 (setq font-size-pt 12))))
 
 (use-package dispwatch
   :config (progn
@@ -477,44 +500,26 @@
 
 (defconst my-org-dir          "~/org")
 (defconst my-org-journal-dir  "~/org/journal")
-(defconst my-inbox-orgfile    "~/org/:gtd-inbox.org")
-(defconst my-projects-orgfile "~/org/:gtd-projects.org")
-(defconst my-someday-orgfile  "~/org/:gtd-someday.org")
-(defconst my-tickler-orgfile  "~/org/:gtd-tickler.org")
+(defconst my-inbox-orgfile    "~/org/inbox.org")
+(defconst my-projects-orgfile "~/org/projects.org")
+(defconst my-someday-orgfile  "~/org/someday.org")
+(defconst my-tickler-orgfile  "~/org/tickler.org")
+(defconst my-archive-orgfile  "~/org/archive.org")
 
 (defun my-org-todo-list ()
   (interactive nil)
   (message "Loading TODO's")
   (org-todo-list "TODO"))
 
-(defconst my-work-sub-team '("0-me" "Jason" "John" "Justin" "Mike" "Nancy" "Nathan"))
-
-(defun my-make-team-template ()
-  (concat
-   "* %U %i%?\n"
-   (apply 'concat (mapcar (lambda (x) (concat "*** " x "\n\n")) my-work-sub-team))))
-
 (setq org-capture-templates
       '(("t" "Todo [inbox]" entry
-         (file+headline "~/org/:gtd-inbox.org" "Tasks")
+         (file+headline "~/org/inbox.org" "Tasks")
          "* TODO %i%?")
-	("u" "Work Todo [inbox]" entry
-         (file+headline "~/org/:gtd-inbox.org" "Work Tasks")
-         "* TODO %i%? :work:")
-
-	;; experiment
-	("l" "URL [inbox]" entry
-         (file+headline "~/org/:gtd-inbox.org" "Reference")
-         "*** Some URL\n %x %?")
-
-        ("s" "Standup" entry
-         (file+headline "~/org/:gtd-worklog.org" "Standup")
-	 (function my-make-team-template))
         ("T" "Tickler" entry
-         (file+headline "~/org/:gtd-tickler.org" "Tickler")
+         (file+headline "~/org/tickler.org" "Tickler")
          "* %i%? \n %U")
         ("w" "Work log" entry
-         (file+headline "~/org/:gtd-worklog.org" "Work Log")
+         (file+headline "~/org/worklog.org" "Work Log")
          "* %U %i\n%?")
 	("p" "Problem with Polya explorations" entry (file+headline "~/org/problems.org" "Problems")
 	 "* %U %i
@@ -548,15 +553,13 @@ Can you derive the solution differently? Can you use the result or method in som
 	 ;; (global-set-key "\C-cl" 'org-store-link)
 
   :init (progn
-
-          (custom-set-variables
-           '(org-babel-load-languages '((shell . t)
-                                        (python . t)
-                                        (perl . t)
-                                        (js . t)
-                                        (http . t) ; uses package ob-http
-                                        (emacs-lisp . nil)))
-           '(org-confirm-babel-evaluate nil))
+          (org-babel-do-load-languages
+           '((sh . t)
+             (python . t)
+             (perl . t)
+             (js . t)
+             (http . t) ; uses package ob-http
+             (emacs-lisp . nil)))
 
           ;; examples
           ;;
@@ -568,9 +571,11 @@ Can you derive the solution differently? Can you use the result or method in som
           ;; GET http://example.com
           ;; #+END_SRC
 
-
           (auto-fill-mode 1)
 	  (setq
+	   org-list-demote-modify-bullet '(("+" . "-") ("-" . "+") ("*" . "+"))
+           org-babel-confirm-evaluate nil
+           org-use-speed-commands t 		; press '?' when at BOL of an org heading
            fill-column 99
            org-todo-keywords '((sequence "TODO(t)" "WAITING(w)" "|" "DONE(d)" "CANCELLED(c)"))
 	   org-startup-indented t
@@ -583,6 +588,7 @@ Can you derive the solution differently? Can you use the result or method in som
 
 	   org-refile-targets (list (cons my-projects-orgfile '(:maxlevel . 3))
 				    (cons my-someday-orgfile  '(:level . 1))
+				    (cons my-archive-orgfile  '(:level . 2))
 				    (cons my-tickler-orgfile  '(:maxlevel . 2)))
 
 	   ;; org-agenda-text-search-extra-files (directory-files my-org-dir t "org$")
@@ -614,8 +620,11 @@ Can you derive the solution differently? Can you use the result or method in som
 (use-package deft
   :ensure t
   :bind (([f9] . my-deft))
-  :init (setq deft-extension "org"
-	      deft-text-mode 'org-mode))
+  :init (progn
+;          (custom-set-variables deft-directory "~/org")
+          (setq deft-extension "org"
+                deft-directory "~/org"
+	        deft-text-mode 'org-mode)))
 
 (use-package frame-cmds
   :ensure t
@@ -737,10 +746,6 @@ M-<NUM> M-x modi/font-size-adj increases font size by NUM points if NUM is +ve,
     ;; So a 10pt font size is equal to 100 in internal font size value.
     (set-face-attribute 'default nil :height (* font-size-pt 10)))
 
-  (defun my-set-font-size-absolute (pt)
-    (setq font-size-pt pt)
-    (set-face-attribute 'default nil :height (* font-size-pt 10)))
-
   (defun modi/font-size-incr ()  (interactive) (modi/font-size-adj +1))
   (defun modi/font-size-decr ()  (interactive) (modi/font-size-adj -1))
   (defun modi/font-size-reset () (interactive) (modi/font-size-adj 0))
@@ -800,7 +805,7 @@ M-<NUM> M-x modi/font-size-adj increases font size by NUM points if NUM is +ve,
 
 (defun my-prog-mode-hook ()
   (show-paren-mode 1)
-   ;; (ggtags-mode 1)
+  ;;    (ggtags-mode 1)
     (setq fill-column 95)
     ;;; (helm-gtags-mode)			;; see also disabled gtags paragraph
 
@@ -1271,6 +1276,11 @@ is already narrowed."
 
 ;; I don't like fighting with customize
 ;; TODO - https://www.emacswiki.org/emacs/CustomizingAndSaving#toc9
+
+(setq safe-local-variable-values '((buffer-file-coding-system . raw-text)))
+
+(custom-set-faces
+ '(org-todo ((t (:background "#dd2c00" :foreground "snow" :weight bold)))))
 
 (setq custom-file "~/.emacs.d/emacs-custom.el")
 (load custom-file)

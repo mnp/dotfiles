@@ -1,3 +1,19 @@
+* OTA
+https://www.zerynth.com/blog/firmware-over-the-air-updates-via-aws-powered-by-zerynth/
+https://mender.io/
+I like guix for atomic upgrades, maybe not for production though - it's Guile all the way down
+
+* linux
+** dns
+https://www.ctrl.blog/entry/resolvconf-tutorial
+
+* async comm channels
+** http up, mqtt down - because api gateway
+
+https://serverless.com/blog/realtime-updates-using-lambda-websockets-iot/
+
+http://gettechtalent.com/blog/tutorial-real-time-frontend-updates-with-react-serverless-and-websockets-on-aws-iot.html
+
 * SW arch / cloud / dist systems reading
 ** Risk First
 https://github.com/risk-first/website/wiki
