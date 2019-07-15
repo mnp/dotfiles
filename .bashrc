@@ -374,6 +374,11 @@ rsatoken()
     stoken | tr -d '\n' | pbcopy
 }
 
+sdiff ()
+{
+    command sdiff --width=$COLUMNS $@
+}
+
 type ack    > /dev/null 2>&1 && alias ack='ack-grep'
 
 alias l='ls $LS_OPTIONS'
