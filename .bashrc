@@ -96,7 +96,6 @@ export LESS=-inXR
 if [ -d $HOME/terminfo ]; then
     export TERMINFO=$HOME/terminfo
     export TERM=xterm-color
-    export GREP_OPTIONS=--color=auto
 fi
 
 YELLOW="\[\033[1;33m\]"
@@ -223,17 +222,13 @@ export EDITOR='fe'
 export VISUAL='fe'
 export LANG=C
 
-# enable color support of ls
+# # enable color support of ls
 if type dircolors > /dev/null 2>&1; then
-    if [ "$TERM" != "dumb" ]; then
-	# http://www.linux-sxs.org/housekeeping/lscolors.html
-	# black is giving trouble in some terminals so remap it
-	export LS_OPTIONS='--color=auto'
-	eval `dircolors -b | sed 's/;35/;33/g'`
-    fi
-else
-    export LS_OPTIONS='-G'
-fi
+     if [[ "$TERM" != "dumb" && -d ~/prj/dircolors-solarized ]]; then
+ 	eval `dircolors ~/prj/dircolors-solarized/dircolors.256dark`
+	export LS_OPTIONS=--color=auto
+     fi
+ fi
 
 if type gzcat > /dev/null 2>&1; then
     ZCAT=gzcat
@@ -365,7 +360,10 @@ alias bye='exit'
 alias y='echo Oops\!'
 alias pf='perldoc -f'
 alias r='fc -s'
-alias g='grep -i'
+alias g='grep -i --color=auto'
+alias grep='grep --color=auto'
+alias egrep='egrep --color=auto'
+alias fgrep='fgrep --color=auto'
 alias jag='ag --java'
 
 alias gd='./gradlew'
