@@ -542,6 +542,8 @@ Can you derive the solution differently? Can you use the result or method in som
 ***
 ")))
 
+(use-package ob-shell)
+
 (use-package org-mode
   :ensure org
   :bind (("C-c c" . org-capture)
