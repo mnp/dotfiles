@@ -40,6 +40,7 @@ case $OSTYPE in
 	pyroot=/c/Users/MPerilstein/AppData/Local/Programs/Python/Python37
 	jdkroot='/c/Program Files/java/jdk1.8.0_201'
 	dotnet='/c/Program Files/dotnet'
+	dotnettools='/c/Users/MPerilstein/.dotnet/tools'
 	nodebin=~/AppData/Roaming/npm
 		# Python should be before emacs in the path because emacs has its own for some reason.
 	test -d "$pyroot" && PATH=$PATH:"$pyroot":"$pyroot"/Scripts
@@ -48,6 +49,7 @@ case $OSTYPE in
 	test -d "$jdkroot"/bin && PATH=$PATH:"$jdkroot"/bin
 	test -d "$windock" && PATH=$PATH:"$windock"
 	test -d "$dotnet" && PATH=$PATH:"$dotnet"
+	test -d "$dotnettools" && PATH=$PATH:"$dotnettools"
 #	test -d /c/Python27 && path_append PATH /c/Python27
 #	test -d /c/Python27/Scripts && path_append PATH /c/Python27/Scripts
 	noderoot='/c/Program Files/nodejs'
@@ -56,6 +58,13 @@ case $OSTYPE in
 	unset windock pyroot noderoot jdkroot
 	path_append PATH /c/Users/MPerilstein/src/bas-agent-provisioner/tools
 	export PATH
+
+	alias route=/c/windows/system32/route.exe
+	alias netstat=/c/windows/system32/netstat.exe
+	alias ping=/c/windows/system32/ping.exe
+	alias nslookup=/c/windows/system32/nslookup.exe
+	alias ipconfig=/c/windows/system32/ipconfig.exe
+	alias tracert=/c/windows/system32/tracert.exe
 	;;
 esac
 
@@ -147,6 +156,7 @@ export LESS=-inXR
 if [ -d $HOME/terminfo ]; then
     export TERMINFO=$HOME/terminfo
     export TERM=xterm-color
+    export GREP_OPTIONS=--color=auto
 fi
 
 YELLOW="\[\033[1;33m\]"
@@ -253,7 +263,7 @@ export EDITOR='fe'
 export VISUAL='fe'
 export LANG=C
 
-# # enable color support of ls
+# enable color support of ls
 if type dircolors > /dev/null 2>&1; then
      if [[ "$TERM" != "dumb" && -d ~/prj/dircolors-solarized ]]; then
  	eval `dircolors ~/prj/dircolors-solarized/dircolors.256dark`
@@ -522,6 +532,12 @@ mw ()
 
 # edit
 e ()
+{
+    emacsclient --no-wait "$1"
+}
+
+# edit called by git, eg
+fe ()
 {
     emacsclient --no-wait "$1"
 }
