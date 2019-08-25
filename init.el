@@ -56,6 +56,8 @@
       (file-missing t))     ; ignore only this kind of error
     (message "Loaded host specific file"))
 
+;(setq gnutls-algorithm-priority "NORMAL:-VERS-TLS1.3")
+
 ;; no point in checking if package is available, we use it too much
 (require 'package)
 (package-initialize)
@@ -76,8 +78,8 @@
 (require 'use-package)
 
 (use-package epa-file
-  :init 
-   (progn 
+  :init
+   (progn
      (custom-set-variables '(epg-gpg-program  "C:/Program Files/Git/usr/bin/gpg"))
      (epa-file-enable)))
 
@@ -88,10 +90,10 @@
   :init (diminish 'abbrev-mode)
   :ensure t)
 
-(if (not (memq system-type '(windows-nt)))
-    (use-package exec-path-from-shell
-      :ensure t
-      :init (exec-path-from-shell-initialize)))
+(use-package exec-path-from-shell
+  :if (not (memq system-type '(windows-nt)))
+  :ensure t
+  :init (exec-path-from-shell-initialize))
 
 (use-package smart-backspace
   :ensure t
@@ -544,6 +546,9 @@ Can you derive the solution differently? Can you use the result or method in som
 
 (use-package ob-shell)
 
+(use-package ob-http
+  :ensure t)
+
 (use-package org-mode
   :ensure org
   :bind (("C-c c" . org-capture)
@@ -556,7 +561,8 @@ Can you derive the solution differently? Can you use the result or method in som
 
   :init (progn
           (org-babel-do-load-languages
-           '((sh . t)
+	   'org-babel-load-languages
+           '((shell . t)
              (python . t)
              (perl . t)
              (js . t)
@@ -627,11 +633,6 @@ Can you derive the solution differently? Can you use the result or method in som
           (setq deft-extension "org"
                 deft-directory "~/org"
 	        deft-text-mode 'org-mode)))
-
-(use-package frame-cmds
-  :ensure t
-  :init
-  (bind-key [f11] 'toggle-max-frame))
 
 (use-package smart-mode-line
   :init (progn
@@ -1258,6 +1259,11 @@ is already narrowed."
     (find-file (concat dir "/" (caadr (sort
 				       files
 				       (lambda (a b) (time-less-p (nth 6 b) (nth 6 a)))))))))
+
+(defun dos2unix ()
+  "Not exactly but it's easier to remember"
+  (interactive)
+  (set-buffer-file-coding-system 'unix 't))
 
 (defun erd ()
   "Edit most Recent Download"
