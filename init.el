@@ -245,11 +245,11 @@
 ;  :ensure t
 ;  :init (setq cider-lein-command "/usr/local/bin/lein"))
 
-(use-package elpy
-  :ensure t
-  :init (progn
-	  (elpy-enable)
-	  (setq python-shell-completion-native-enable nil)))
+;(use-package elpy
+;  :ensure t
+;  :init (progn
+;	  (elpy-enable)
+;	  (setq python-shell-completion-native-enable nil)))
 
 (use-package projectile
   :ensure t
@@ -264,6 +264,12 @@
 ;;;; csharp, oh no
 (use-package csharp-mode
   :ensure t)
+
+(defun prettify-csharp-stack ()
+  (interactive nil)
+  (replace-string "↵" "\n" nil (point-min) (point-max))
+  (replace-string "\\n" "\n" nil (point-min) (point-max))
+  (replace-string "--->" "\n  --->" nil (point-min) (point-max)))
 
 (use-package google-c-style
   :disabled t)
@@ -433,20 +439,19 @@
 (setenv "GOPATH" (expand-file-name "~/go"))
 ; (setenv "GOROOT" "/usr/local/opt/go")
 
-
-(add-to-list 'load-path (expand-file-name "~/prj/dispwatch/"))
-
 (defun my-display-changed-hook (disp)
   (message "rejiggering for %s" disp)
-  (cond ((equalp disp "3840x1080")   ; laptop + ext monitor
+  (cond ((equal disp '(3840 . 1080))   ; laptop + ext monitor
 	 (setq font-size-pt 10))
-	((equalp disp "1920x1080")      ; just laptop
-	 (setq font-size-pt 12))))
+	((equal disp '(1920 . 1080))	; just laptop
+	 (setq font-size-pt 11))
+	(t (message "Unknown display size %sx%s" (car disp) (cdr disp)))))
 
 (use-package dispwatch
+  :ensure t
   :config (progn
 	  (add-hook 'dispwatch-display-change-hooks #'my-display-changed-hook)
-	  (dispwatch-enable)))
+	  (dispwatch-mode 1)))
 
 (use-package go-mode
 ;  :bind (("M-." . godef-jump)
@@ -792,6 +797,10 @@ M-<NUM> M-x modi/font-size-adj increases font size by NUM points if NUM is +ve,
 (load-library "my-org-mods")
 (add-hook 'org-mode-hook 'my-org-mode-hook)
 
+;; For some reason, equalp went away - TODO? Anyway, deft needs it.
+(unless (symbol-function 'equalp)
+  (defun equalp(a b) (cl-equalp a b)))
+
 (defun my-deft ()
   "Show deft buffer, or kill it."
   (interactive)
@@ -811,9 +820,8 @@ M-<NUM> M-x modi/font-size-adj increases font size by NUM points if NUM is +ve,
   ;;    (ggtags-mode 1)
     (setq fill-column 95)
     ;;; (helm-gtags-mode)			;; see also disabled gtags paragraph
-
-    (delete-trailing-whitespace)
-)
+    (setq indent-tabs-mode nil)
+    (delete-trailing-whitespace))
 
 (add-hook 'prog-mode-hook 'my-prog-mode-hook)
 

@@ -41,6 +41,7 @@ case $OSTYPE in
 	jdkroot='/c/Program Files/java/jdk1.8.0_201'
 	dotnet='/c/Program Files/dotnet'
 	dotnettools='/c/Users/MPerilstein/.dotnet/tools'
+	sevenzip='/c/Program Files/7-Zip'
 	nodebin=~/AppData/Roaming/npm
 		# Python should be before emacs in the path because emacs has its own for some reason.
 	test -d "$pyroot" && PATH=$PATH:"$pyroot":"$pyroot"/Scripts
@@ -50,6 +51,7 @@ case $OSTYPE in
 	test -d "$windock" && PATH=$PATH:"$windock"
 	test -d "$dotnet" && PATH=$PATH:"$dotnet"
 	test -d "$dotnettools" && PATH=$PATH:"$dotnettools"
+	test -d "$sevenzip" && PATH=$PATH:"$sevenzip"
 #	test -d /c/Python27 && path_append PATH /c/Python27
 #	test -d /c/Python27/Scripts && path_append PATH /c/Python27/Scripts
 	noderoot='/c/Program Files/nodejs'
