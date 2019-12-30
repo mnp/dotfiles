@@ -85,8 +85,6 @@
 ;  (require 'use-package))
 ; (require 'bind-key)                ;; needed by use-package :bind
 
-(use-package hideshow
-  :ensure t)
 								      ; (require 'workgroups)
 ;;      (use-package ace-window
 ;;	:bind ("C-x o" . ace-window))
@@ -191,13 +189,13 @@
   (elfeed)
   (elfeed-update))
 
-;; see https://github.com/skeeto/elfeed/issues/190
-(add-hook 'elfeed-show-mode-hook
-	  (lambda ()
-	    (set-face-attribute 'variable-pitch (selected-frame)
-				:font (font-spec :family "Century Schoolbook" :size 12))
-	    (setq fill-column 120)
-	    (setq elfeed-show-entry-switch #'my-show-elfeed)))
+;;; see https://github.com/skeeto/elfeed/issues/190
+;(add-hook 'elfeed-show-mode-hook
+;	  (lambda ()
+;	    (set-face-attribute 'variable-pitch (selected-frame)
+;				:font (font-spec :family "Century Schoolbook" :size 12))
+;	    (setq fill-column 120)
+;	    (setq elfeed-show-entry-switch #'my-show-elfeed)))
 
 (defun my-show-elfeed (buffer)
   (with-current-buffer buffer
@@ -212,6 +210,7 @@
 ;; remember it needs # as separators
 ;; see https://github.com/pashky/restclient.el
 (use-package restclient
+  :ensure t
   :init (progn
 	  (add-to-list 'auto-mode-alist '("\\.http$" . restclient-mode))
 	  (add-hook 'restclient-mode-hook
@@ -377,20 +376,20 @@
 ;;  :init (my-elcim-setup)
 ;;  :bind ("C-c C-e c" . eclim-java-call-hierarchy))
 
-(defun my-eclim-setup ()
-  (message "starting my eclim setup (slow) ...")
-  (setq
-   ;; another pkg will start it for us if needed
-   ;; eclimd-executable "~/eclipse/eclimd"
-   eclim-eclipse-dirs '("~/eclipse")
-   eclim-executable  (expand-file-name "~/eclipse/eclim"))
-  (global-eclim-mode)
-  (message "... finished my eclim setup"))
+;(defun my-eclim-setup ()
+;  (message "starting my eclim setup (slow) ...")
+;  (setq
+;   ;; another pkg will start it for us if needed
+;   ;; eclimd-executable "~/eclipse/eclimd"
+;   eclim-eclipse-dirs '("~/eclipse")
+;   eclim-executable  (expand-file-name "~/eclipse/eclim"))
+;  (global-eclim-mode)
+;  (message "... finished my eclim setup"))
 
 ;; develop eclim
-(add-to-list 'load-path (expand-file-name "~/prj/emacs-eclim/"))
-(my-eclim-setup)
-(global-set-key (kbd "C-c C-e c") 'eclim-java-call-hierarchy)
+;(add-to-list 'load-path (expand-file-name "~/prj/emacs-eclim/"))
+;(my-eclim-setup)
+;(global-set-key (kbd "C-c C-e c") 'eclim-java-call-hierarchy)
 
 ;; scala
 
@@ -409,19 +408,18 @@
 (setenv "PATH" (concat "/usr/local/bin:/usr/local/opt/go/libexec/bin:" (getenv "PATH")))
 (setenv "GOPATH" (expand-file-name "~/go"))
 
-(add-to-list 'load-path (expand-file-name "~/prj/dispwatch/"))
-
 (defun my-display-changed-hook (disp)
-  (message "rejiggering for %s" disp)
-  (cond ((equalp disp "3840x1080")   ; laptop + ext monitor
+  (message "Adjusting for display %s" disp)
+  (cond ((equal disp '(3840 . 1080))   ; laptop + ext monitor
 	 (my-set-font-size-absolute 10))
-	((equalp disp "1920x1080")      ; just laptop
+	((equal disp '(1920 . 1080))      ; just laptop
 	 (my-set-font-size-absolute 12))))
 
 (use-package dispwatch
+  :ensure t
   :config (progn
 	  (add-hook 'dispwatch-display-change-hooks #'my-display-changed-hook)
-	  (dispwatch-enable)))
+	  (dispwatch-mode 1)))
 
 (use-package go-mode
 ;  :bind (("M-." . godef-jump)
@@ -539,6 +537,9 @@ Can you derive the solution differently? Can you use the result or method in som
 
 (use-package ob-shell)
 
+(use-package ob-http
+  :ensure t)
+
 (use-package org-mode
   :ensure org
   :bind (("C-c c" . org-capture)
@@ -550,6 +551,8 @@ Can you derive the solution differently? Can you use the result or method in som
 	 ;; (global-set-key "\C-cl" 'org-store-link)
 
   :init (progn
+	  ;; allow "structure templates" eg via "<s tab"
+;	  (require 'org-tempo)
 
           (custom-set-variables
            '(org-babel-load-languages '((shell . t)
@@ -619,10 +622,10 @@ Can you derive the solution differently? Can you use the result or method in som
   :init (setq deft-extension "org"
 	      deft-text-mode 'org-mode))
 
-(use-package frame-cmds
-  :ensure t
-  :init
-  (bind-key [f11] 'toggle-max-frame))
+; (use-package frame-cmds
+;   :ensure t
+;   :init
+;   (bind-key [f11] 'toggle-max-frame))
 
 (use-package smart-mode-line
   :init (progn

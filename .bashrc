@@ -534,61 +534,61 @@ aless(){ perl -e 'BEGIN{$f=shift;%cs=();} open(IN,"<", $f); while(<IN>){$c=0; ma
 # the fly
 #
 
-if [ -x /usr/libexec/java_home ]; then
-    # osx-ish
-    export JAVA_8_HOME=$(/usr/libexec/java_home -v1.8)
-    export JAVA_7_HOME=$(/usr/libexec/java_home -v1.7)
+# if [ -x /usr/libexec/java_home ]; then
+#     # osx-ish
+#     export JAVA_8_HOME=$(/usr/libexec/java_home -v1.8)
+#     export JAVA_7_HOME=$(/usr/libexec/java_home -v1.7)
+# 
+#     rejava()
+#     {
+# 	export JAVA_HOME="$1"
+# 	echo JAVA_HOME is now "$1"
+# 
+# 	# normalize paths and then append
+#  	[[ $PATH    =~ (.*):$JAVA_7_HOME/bin:(.*) ]] &&    PATH=${BASH_REMATCH[1]}:${BASH_REMATCH[2]}
+#  	[[ $MANPATH =~ (.*):$JAVA_7_HOME/man:(.*) ]] && MANPATH=${BASH_REMATCH[1]}:${BASH_REMATCH[2]}
+#  	[[ $PATH    =~ (.*):$JAVA_8_HOME/bin:(.*) ]] &&    PATH=${BASH_REMATCH[1]}:${BASH_REMATCH[2]}
+#  	[[ $MANPATH =~ (.*):$JAVA_8_HOME/man:(.*) ]] && MANPATH=${BASH_REMATCH[1]}:${BASH_REMATCH[2]}
+# 	export PATH=$PATH:$JAVA_HOME/bin
+# 	export MANPATH=$MANPATH:$JAVA_HOME/man
+#     }
+# 
+#     java7()
+#     {
+# 	rejava $JAVA_7_HOME
+# 	PS1=${MAGEN}7${CLEAR}:$PS1BASE
+#     }
+# 
+#     java8()
+#     {
+# 	rejava $JAVA_8_HOME
+# 	PS1=${MAGEN}8${CLEAR}:$PS1BASE
+#     }
+# 
+# elif [ -x /usr/sbin/update-java-alternatives ]; then
+# 
+#     # linux-ish /usr/sbin/update-java-alternatives
+#     java7()
+#     {
+#        sudo update-java-alternatives -s java-7-oracle
+#        PS1=${MAGEN}7${CLEAR}:$PS1BASE
+#     }
+# 
+#     java8()
+#     {
+#        sudo update-java-alternatives -s java-8-oracle
+#        PS1=${MAGEN}8${CLEAR}:$PS1BASE
+#     }
+# 
+# fi
 
-    rejava()
-    {
-	export JAVA_HOME="$1"
-	echo JAVA_HOME is now "$1"
+## set default at work at least
+#if [ -d ~/workbin ]; then
+#    java8
+#fi
 
-	# normalize paths and then append
- 	[[ $PATH    =~ (.*):$JAVA_7_HOME/bin:(.*) ]] &&    PATH=${BASH_REMATCH[1]}:${BASH_REMATCH[2]}
- 	[[ $MANPATH =~ (.*):$JAVA_7_HOME/man:(.*) ]] && MANPATH=${BASH_REMATCH[1]}:${BASH_REMATCH[2]}
- 	[[ $PATH    =~ (.*):$JAVA_8_HOME/bin:(.*) ]] &&    PATH=${BASH_REMATCH[1]}:${BASH_REMATCH[2]}
- 	[[ $MANPATH =~ (.*):$JAVA_8_HOME/man:(.*) ]] && MANPATH=${BASH_REMATCH[1]}:${BASH_REMATCH[2]}
-	export PATH=$PATH:$JAVA_HOME/bin
-	export MANPATH=$MANPATH:$JAVA_HOME/man
-    }
-
-    java7()
-    {
-	rejava $JAVA_7_HOME
-	PS1=${MAGEN}7${CLEAR}:$PS1BASE
-    }
-
-    java8()
-    {
-	rejava $JAVA_8_HOME
-	PS1=${MAGEN}8${CLEAR}:$PS1BASE
-    }
-
-elif [ -x /usr/sbin/update-java-alternatives ]; then
-
-    # linux-ish /usr/sbin/update-java-alternatives
-    java7()
-    {
-       sudo update-java-alternatives -s java-7-oracle
-       PS1=${MAGEN}7${CLEAR}:$PS1BASE
-    }
-
-    java8()
-    {
-       sudo update-java-alternatives -s java-8-oracle
-       PS1=${MAGEN}8${CLEAR}:$PS1BASE
-    }
-
-fi
-
-# set default at work at least
-if [ -d ~/workbin ]; then
-    java8
-fi
-
-# Avoid errors from any UTF8 in code; I guess eclipse can add them.
-export JAVA_TOOL_OPTIONS=-Dfile.encoding=UTF-8
+# # Avoid errors from any UTF8 in code; I guess eclipse can add them.
+# export JAVA_TOOL_OPTIONS=-Dfile.encoding=UTF-8
 
 if [ -d ${HOME}/perl5/lib/perl5/local/lib.pm ]; then
     # added by duckpan installer
@@ -670,3 +670,7 @@ fi
 if [ -d $HOME/homebin ]; then
     . ~/.bashrc-home
 fi
+
+#THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
+export SDKMAN_DIR="/home/mnp/.sdkman"
+[[ -s "/home/mnp/.sdkman/bin/sdkman-init.sh" ]] && source "/home/mnp/.sdkman/bin/sdkman-init.sh"
