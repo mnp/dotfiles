@@ -1,0 +1,20 @@
+#!/bin/bash
+
+# filename=$( echo $1 | tr "[:upper:]" "[:lower:]" )
+
+# FILE can be either just a FILENAME or [+LINE[:COLUMN]] FILENAME.
+filename="$@"
+
+case $filename in
+    *.doc|*.odp|*.ppt|*.ods|*.xls|*.odt) exec libreoffice --nologo "$filename";;
+
+    *)
+	if emacsclient --no-wait "$filename" > /dev/null 2>&1; then
+	    emacsclient --eval '(raise-frame)'
+	    echo Sent to existing emacs
+	else
+	    echo Launching new emacs
+	    exec emacs "$filename" &
+	fi
+	;;
+esac
