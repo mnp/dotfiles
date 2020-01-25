@@ -21,8 +21,10 @@ escape ^\\
 startup_message off
 verbose
 
-#screen    -t shell  0 bash
+screen    -t shell  0 bash
 
+# my default shell
+shell "/bin/bash"
 
 #
 # xterm tweaks

@@ -52,7 +52,9 @@
 
 ;; no point in checking if package is available, we use it too much
 (require 'package)
-(setq package-archives '( ; timing out ;;; ("gnu" . "https://elpa.gnu.org/packages/")
+(package-initialize)
+(setq package-archives '( ; timing out ;;;
+			 ; ("gnu" . "https://elpa.gnu.org/packages/")
                          ; ("marmalade" . "https://marmalade-repo.org/packages/")
                          ("melpa" . "https://melpa.org/packages/")
 			 ; ("melpa-stable" . "https://stable.melpa.org/packages/")
@@ -105,10 +107,10 @@
 
 
 ;; elfeed
-(add-to-list 'load-path (expand-file-name "~/prj/elfeed"))
-(load-library "elfeed")
-(custom-set-variables
- '(elfeed-summary-as-default t))
+;(add-to-list 'load-path (expand-file-name "~/prj/elfeed"))
+;(load-library "elfeed")
+;(custom-set-variables
+; '(elfeed-summary-as-default t))
 
 (setq twitterers '(adrianco jessfraz duckduckgo ChileSpot fermatslibrary))
 
@@ -206,6 +208,9 @@
     (setq buffer-read-only t))
   (switch-to-buffer buffer))
 
+(use-package yaml-mode
+  :init (add-to-list 'auto-mode-alist '("\\.yml.j2" . yaml-mode))
+  :ensure t)
 
 ;; remember it needs # as separators
 ;; see https://github.com/pashky/restclient.el
@@ -230,6 +235,30 @@
   :init (progn
 	  (elpy-enable)
 	  (setq python-shell-completion-native-enable nil)))
+
+;; Kotlin and LSP
+;; -----------------------------------------------------------------------------
+(use-package kotlin-mode
+  :ensure t)
+
+(add-to-list 'exec-path "/Users/mperilstein/.jenv/versions/1.8/bin")
+(add-to-list 'exec-path "/Users/mperilstein/prj/kotlin-language-server/server/build/install/server/bin")
+
+(use-package lsp-mode
+  :hook (kotlin-mode . lsp)
+  :commands lsp
+  :init (custom-set-variables '(lsp-kotlin-language-server-path "~/prj/kotlin-language-server/00----runme")))
+
+;; optionally
+(use-package lsp-ui :commands lsp-ui-mode)
+(use-package company-lsp :commands company-lsp)
+(use-package helm-lsp :commands helm-lsp-workspace-symbol)
+(use-package lsp-treemacs :commands lsp-treemacs-errors-list)
+;; optionally if you want to use debugger
+; (use-package dap-mode)
+;; (use-package dap-LANGUAGE) to load the dap adapter for your language
+
+;; -----------------------------------------------------------------------------
 
 (use-package projectile
   :ensure t
@@ -292,6 +321,17 @@
   :bind (("M-x" . helm-M-x)
 	 ("M-." . helm-etags-select)))
 
+(use-package helm-projectile
+  :ensure t
+  :init (progn
+          (projectile-global-mode)
+          (setq projectile-completion-system 'helm)
+          (helm-projectile-on))
+  ;; http://tuhdo.github.io/helm-projectile.html
+  :bind (("C-c p h" . helm-projectile)
+         ("C-c p p" . helm-projectile-switch-project)
+         ("C-c p f" . helm-projectile-find-file)))
+          
 ;; (use-package helm-git-grep
 ;;   :ensure helm-git-grep
 ;;   :bind ("C-c g" . helm-git-grep)
@@ -620,6 +660,7 @@ Can you derive the solution differently? Can you use the result or method in som
   :ensure t
   :bind (([f9] . my-deft))
   :init (setq deft-extension "org"
+              deft-directory "~/org"
 	      deft-text-mode 'org-mode))
 
 ; (use-package frame-cmds
@@ -628,12 +669,16 @@ Can you derive the solution differently? Can you use the result or method in som
 ;   (bind-key [f11] 'toggle-max-frame))
 
 (use-package smart-mode-line
+  :ensure t
   :init (progn
 	  (setq sml/no-confirm-load-theme t)
 	  (setq sml/theme 'respectful)
 	  (sml/setup)))
 
 (use-package material-theme
+  :ensure t)
+
+(use-package tangotango-theme
   :ensure t)
 
 ; (use-package yasnippet
@@ -792,7 +837,7 @@ M-<NUM> M-x modi/font-size-adj increases font size by NUM points if NUM is +ve,
 (defun my-deft ()
   "Show deft buffer, or kill it."
   (interactive)
-  (if (equalp (buffer-name) "*Deft*")
+  (if (equal (buffer-name) "*Deft*")
       (kill-buffer deft-buffer)
     (deft)))
 
@@ -806,9 +851,9 @@ M-<NUM> M-x modi/font-size-adj increases font size by NUM points if NUM is +ve,
 (defun my-prog-mode-hook ()
   (show-paren-mode 1)
    ;; (ggtags-mode 1)
-    (setq fill-column 95)
+    (setq fill-column 95
+	  indent-tabs-mode nil)
     ;;; (helm-gtags-mode)			;; see also disabled gtags paragraph
-
     (delete-trailing-whitespace)
 )
 
@@ -880,12 +925,11 @@ is already narrowed."
   (outline-minor-mode))
 
 (add-to-list 'auto-mode-alist '("\\.t$" . perl-mode))
-
+(add-to-list 'auto-mode-alist '("\\.ts$" . js-mode))
 (add-to-list 'auto-mode-alist '("Rakefile" . ruby-mode))
 
 (add-to-list 'auto-mode-alist '("\\.xml.j2" . xml-mode))
 (add-to-list 'auto-mode-alist '("\\.ini.j2" . conf-mode))
-(add-to-list 'auto-mode-alist '("\\.yml.j2" . yaml-mode))
 
 ;;;; JSON ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
