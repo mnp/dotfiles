@@ -37,6 +37,10 @@ fi
 # For MediaWiki client
 export MVS_BROWSER=firefox
 
+# Node
+[ -d $HOME/.nvm ] && export NVM_DIR="$HOME/.nvm"
+[ -s "/usr/local/opt/nvm/nvm.sh" ] && . "/usr/local/opt/nvm/nvm.sh"  # This loads nvm
+
 # Go lang
 path_append PATH /usr/local/opt/go/libexec/bin
 
@@ -86,7 +90,7 @@ else
     path_append PATH /usr/local/Cellar/python/2.7.13_1/Frameworks/Python.framework/Versions/2.7/bin
 fi
 
-eval "`pip completion --bash`"
+# eval "`pip completion --bash`"
 
 # make less more friendly for non-text input files, see lesspipe(1)
 #[ -x /usr/bin/lesspipe ] && eval "$(lesspipe)"
@@ -130,7 +134,8 @@ if type git > /dev/null 2>&1; then
     alias gdp=' git diff        HEAD~1 --'
     alias gdps='git diff --stat HEAD~1 --'
     alias glgp='git log --graph --decorate --pretty=oneline --abbrev-commit'
-    alias gls='git ls-files -t'
+    alias gls='git log --stat'
+    alias glf='git ls-files -t'
 #    alias gg='git grep'
 
     function gg() {
@@ -144,7 +149,13 @@ if type git > /dev/null 2>&1; then
 	git grep $1 -- $git_grep_path
     }
 
-    if [ -f ~/.git-prompt.sh ]; then
+    if [ -f "/usr/local/opt/bash-git-prompt/share/gitprompt.sh" ]; then
+	__GIT_PROMPT_DIR=/usr/local/opt/bash-git-prompt/share
+	source $__GIT_PROMPT_DIR/gitprompt.sh
+    elif [ -f /usr/local/Cellar/bash-git-prompt/2.7.1/share/gitprompt.sh ]; then
+        __GIT_PROMPT_DIR=/usr/local/Cellar/bash-git-prompt/2.7.1/share
+        source $__GIT_PROMPT_DIR/gitprompt.sh
+    elif [ -f ~/.git-prompt.sh ]; then
 	source ~/.git-prompt.sh
     fi
 
@@ -164,15 +175,26 @@ my_prompt_command() {
 :
 }
 
+# This works in iterm and xterm
+function nametab() {
+    echo -ne "\033]0;"$@"\007"
+}
+
 # no prompt command for console
 case $TERM in
-    rxvt|xterm*)
+    xterm*)
+        function nametab() {
+            echo -ne "\033]0;"$@"\007"
+        }
  	PS1BASE="${PS1COLOR}\u@\h${CLEAR}:${WHITE}\w${YELLOW}\$(__git_ps1)${CLEAR}\n\$ "
  	;;
 
     screen|vt100)
-	PROMPT_COMMAND='echo -ne "\033]0;${USER}@${HOSTNAME}:${PWD}\007\033k$PWD\033\\"'
-	PS1BASE='$ ';
+        function nametab() {
+            echo -ne "\033k"$@"\033\\"
+        }
+        # Git sets PROMPT_COMMAND above. Add to it.
+	PS1BASE="${PS1COLOR}\u@\h${CLEAR}:${WHITE}\w${YELLOW}\$(__git_ps1)${CLEAR}\n\$ "
 	;;
 
     *)
@@ -346,6 +368,8 @@ alias ll='ls $LS_OPTIONS -l'
 alias la='ls $LS_OPTIONS -lA'
 alias lh='ls -lhS'
 
+alias jc='jq -C . $@ | less -r'
+
 alias mlp='m `ls -rt /tmp/*pdf|tail -1`'
 alias rm='rm -i'
 alias Rm='command rm -f'
@@ -415,11 +439,6 @@ work() {
     else
 	echo you have to set work
     fi
-}
-
-# This works in iterm and xterm
-function nametab() {
-    echo -ne "\033]0;"$@"\007"
 }
 
 #
@@ -538,12 +557,12 @@ aless(){ perl -e 'BEGIN{$f=shift;%cs=();} open(IN,"<", $f); while(<IN>){$c=0; ma
 #     # osx-ish
 #     export JAVA_8_HOME=$(/usr/libexec/java_home -v1.8)
 #     export JAVA_7_HOME=$(/usr/libexec/java_home -v1.7)
-# 
+#
 #     rejava()
 #     {
 # 	export JAVA_HOME="$1"
 # 	echo JAVA_HOME is now "$1"
-# 
+#
 # 	# normalize paths and then append
 #  	[[ $PATH    =~ (.*):$JAVA_7_HOME/bin:(.*) ]] &&    PATH=${BASH_REMATCH[1]}:${BASH_REMATCH[2]}
 #  	[[ $MANPATH =~ (.*):$JAVA_7_HOME/man:(.*) ]] && MANPATH=${BASH_REMATCH[1]}:${BASH_REMATCH[2]}
@@ -552,34 +571,34 @@ aless(){ perl -e 'BEGIN{$f=shift;%cs=();} open(IN,"<", $f); while(<IN>){$c=0; ma
 # 	export PATH=$PATH:$JAVA_HOME/bin
 # 	export MANPATH=$MANPATH:$JAVA_HOME/man
 #     }
-# 
+#
 #     java7()
 #     {
 # 	rejava $JAVA_7_HOME
 # 	PS1=${MAGEN}7${CLEAR}:$PS1BASE
 #     }
-# 
+#
 #     java8()
 #     {
 # 	rejava $JAVA_8_HOME
 # 	PS1=${MAGEN}8${CLEAR}:$PS1BASE
 #     }
-# 
+#
 # elif [ -x /usr/sbin/update-java-alternatives ]; then
-# 
+#
 #     # linux-ish /usr/sbin/update-java-alternatives
 #     java7()
 #     {
 #        sudo update-java-alternatives -s java-7-oracle
 #        PS1=${MAGEN}7${CLEAR}:$PS1BASE
 #     }
-# 
+#
 #     java8()
 #     {
 #        sudo update-java-alternatives -s java-8-oracle
 #        PS1=${MAGEN}8${CLEAR}:$PS1BASE
 #     }
-# 
+#
 # fi
 
 ## set default at work at least
