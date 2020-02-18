@@ -29,11 +29,6 @@ for dir in $HOME/perl $HOME/perl5/lib/perl5 /usr/local/share/perl/* /usr/local/l
 done
 export PERL5LIB
 
-if [ $OS = darwin ]; then
-    PERL_MB_OPT="--install_base \"/Users/Mitchell/perl5\""; export PERL_MB_OPT;
-    PERL_MM_OPT="INSTALL_BASE=/Users/Mitchell/perl5"; export PERL_MM_OPT;
-fi
-
 # For MediaWiki client
 export MVS_BROWSER=firefox
 

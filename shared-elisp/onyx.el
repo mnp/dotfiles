@@ -1,4 +1,7 @@
+; -*- Lisp-Interactdion -*-
+;
 ; home
+;
 
 (setq twitterers '(adrianco jessfraz duckduckgo ChileSpot fermatslibrary))
 

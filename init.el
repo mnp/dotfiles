@@ -180,6 +180,8 @@
 (use-package lsp-mode
   :hook (kotlin-mode . lsp)
   :commands lsp
+  :bind (("M-," . lsp-find-references)
+	 ("M-." . lsp-find-definition))
   :init (custom-set-variables '(lsp-kotlin-language-server-path "~/prj/kotlin-language-server/00----runme")))
 
 ;; optionally
@@ -264,7 +266,7 @@
   :bind (("C-c p h" . helm-projectile)
          ("C-c p p" . helm-projectile-switch-project)
          ("C-c p f" . helm-projectile-find-file)))
-          
+
 ;; (use-package helm-git-grep
 ;;   :ensure helm-git-grep
 ;;   :bind ("C-c g" . helm-git-grep)
@@ -416,6 +418,12 @@
 (use-package magit
   :ensure t
   :config (global-set-key "\C-xg" 'magit-status))
+
+;;(use-package magithub
+;;  :after magit
+;;  :config
+;;  (magithub-feature-autoinject t)
+;;  (setq magithub-clone-default-directory "~/github"))
 
 (use-package groovy-mode
   :ensure t
@@ -1119,6 +1127,12 @@ is already narrowed."
       ;; disable novice mode
       disabled-command-function nil
 )
+
+(defun eshell/.. (&rest args)
+  (eshell/cd (string-join
+              (make-list
+               (if (wholenump (car args)) (car args) 1) "..")
+              "/")))
 
 (setq eshell-prompt-function
       (lambda ()
