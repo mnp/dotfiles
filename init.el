@@ -52,11 +52,12 @@
 
 ;; no point in checking if package is available, we use it too much
 (require 'package)
+
 (package-initialize)
 (setq package-archives '( ; timing out ;;;
-			 ; ("gnu" . "https://elpa.gnu.org/packages/")
+			  ("gnu" . "https://elpa.gnu.org/packages/")
                          ; ("marmalade" . "https://marmalade-repo.org/packages/")
-                         ("melpa" . "https://melpa.org/packages/")
+                          ("melpa" . "https://melpa.org/packages/")
 			 ; ("melpa-stable" . "https://stable.melpa.org/packages/")
       ))
 
@@ -230,19 +231,18 @@
 ;  :ensure t
 ;  :init (setq cider-lein-command "/usr/local/bin/lein"))
 
-(use-package elpy
-  :ensure t
-  :init (progn
-	  (elpy-enable)
-	  (setq python-shell-completion-native-enable nil)))
+; (use-package elpy
+;   :ensure t
+;   :init (progn
+; 	  (elpy-enable)
+; 	  (setq python-shell-completion-native-enable nil)))
 
 ;; Kotlin and LSP
 ;; -----------------------------------------------------------------------------
 (use-package kotlin-mode
   :ensure t)
 
-(add-to-list 'exec-path "/Users/mperilstein/.jenv/versions/1.8/bin")
-(add-to-list 'exec-path "/Users/mperilstein/prj/kotlin-language-server/server/build/install/server/bin")
+(add-to-list 'exec-path "~/prj/kotlin-language-server/server/build/install/server/bin")
 
 (use-package lsp-mode
   :hook (kotlin-mode . lsp)
@@ -250,13 +250,15 @@
   :init (custom-set-variables '(lsp-kotlin-language-server-path "~/prj/kotlin-language-server/00----runme")))
 
 ;; optionally
-(use-package lsp-ui :commands lsp-ui-mode)
-(use-package company-lsp :commands company-lsp)
-(use-package helm-lsp :commands helm-lsp-workspace-symbol)
-(use-package lsp-treemacs :commands lsp-treemacs-errors-list)
+(use-package lsp-ui :ensure t :commands lsp-ui-mode)
+(use-package company-lsp :ensure t :commands company-lsp)
+(use-package helm-lsp :ensure t :commands helm-lsp-workspace-symbol)
+(use-package lsp-treemacs :ensure t :commands lsp-treemacs-errors-list)
+
 ;; optionally if you want to use debugger
 ; (use-package dap-mode)
 ;; (use-package dap-LANGUAGE) to load the dap adapter for your language
+
 
 ;; -----------------------------------------------------------------------------
 
@@ -331,7 +333,7 @@
   :bind (("C-c p h" . helm-projectile)
          ("C-c p p" . helm-projectile-switch-project)
          ("C-c p f" . helm-projectile-find-file)))
-          
+
 ;; (use-package helm-git-grep
 ;;   :ensure helm-git-grep
 ;;   :bind ("C-c g" . helm-git-grep)
@@ -681,11 +683,13 @@ Can you derive the solution differently? Can you use the result or method in som
 (use-package tangotango-theme
   :ensure t)
 
-; (use-package yasnippet
-;   :defer t
-;   :ensure t
-;   :load-path "~/.emacs.d/snippets"
-;   :init (yas-global-mode 1))
+(use-package yasnippet
+  :defer t
+  :ensure t
+  :load-path "~/.emacs.d/snippets"
+  :init (yas-global-mode 1))
+
+
 
 ; Elisp
 (use-package browse-kill-ring
