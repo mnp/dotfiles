@@ -1,0 +1,5 @@
+alias m view-file $1
+alias e find-file $1
+alias lrt ls -lrt
+alias ll ls -l
+alias dk docker-compose $*
