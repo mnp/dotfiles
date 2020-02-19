@@ -483,8 +483,8 @@
 
 	;; experiment
 	("l" "URL [inbox]" entry
-         (file+headline "~/org/:gtd-inbox.org" "Reference")
-         "*** Some URL\n %x %?")
+         (file+headline "~/prj/dotfiles/shared-org/shared-inbox.org" "Incoming Links")
+         "** %u %c\n - %?")  ; x=clipboard
 
         ("s" "Standup" entry
          (file+headline "~/org/:gtd-worklog.org" "Standup")
@@ -1140,7 +1140,7 @@ is already narrowed."
 	 (propertize "┌─[" 'face `(:foreground "green"))
 	 (propertize (user-login-name) 'face `(:foreground "red"))
 	 (propertize "@" 'face `(:foreground "green"))
-	 (propertize (system-name) 'face `(:foreground "blue"))
+	 (propertize (system-name) 'face `(:foreground "light blue"))
 	 (propertize "]──[" 'face `(:foreground "green"))
 	 (propertize (format-time-string "%H:%M" (current-time)) 'face `(:foreground "yellow"))
 	 (propertize "]──[" 'face `(:foreground "green"))

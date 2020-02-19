@@ -1,3 +1,17 @@
+* Shared Incoming 
+* Incoming Links
+** [2020-02-19 Wed] experiment
+ - 
+* To Read
+https://www.youtube.com/watch?v=iN6mhI5hFt4
+https://developer.squareup.com/blog/books-an-immutable-double-entry-accounting-database-service/
+https://docs.docker.com/compose/compose-file/#network-configuration-reference
+https://arrow-kt.io/docs/patterns/glossary/
+http://tuhdo.github.io/helm-projectile.html
+https://www.youtube.com/watch?v=IYE3IlRSQIQ
+https://www.youtube.com/watch?v=Xq9vBZs0j-8&feature=youtu.be&t=1416
+https://www.nerdwallet.com/reviews/investing/advisors/wealthfront
+https://github.com/jethrokuan/braindump/tree/master/org
 * SW arch / cloud / dist systems reading
 ** Risk First
 https://github.com/risk-first/website/wiki

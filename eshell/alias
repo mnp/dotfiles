@@ -1,5 +1,6 @@
-alias m view-file $1
-alias e find-file $1
-alias lrt ls -lrt
-alias ll ls -l
+alias gsm git status --untracked-files=no --ignore-submodules
 alias dk docker-compose $*
+alias ll ls -l
+alias lrt ls -lrt
+alias e find-file $1
+alias m view-file $1
