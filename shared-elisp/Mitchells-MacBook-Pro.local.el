@@ -3,6 +3,12 @@
 ; work
 ;
 
+(use-package graphql-mode
+  :ensure t)
+
+(use-package ob-graphql
+  :ensure t)
+
 (setq elfeed-feeds '("https://stackoverflow.com/feeds/tag/amazon-qldb"
                      "https://forums.aws.amazon.com/rss/rssmessages.jspa?forumID=353"
                      "https://github.com/fwcd/kotlin-language-server/commits/master.atom"
