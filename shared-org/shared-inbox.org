@@ -1,8 +1,8 @@
 * Shared Incoming 
 * Incoming Links
 ** [2020-02-19 Wed] experiment
- - 
 * To Read
+https://naomistanford.com/2019/02/07/habits-of-a-systems-thinker/
 https://www.youtube.com/watch?v=iN6mhI5hFt4
 https://developer.squareup.com/blog/books-an-immutable-double-entry-accounting-database-service/
 https://docs.docker.com/compose/compose-file/#network-configuration-reference
