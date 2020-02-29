@@ -15,6 +15,7 @@
 (setq elfeed-feeds '("https://stackoverflow.com/feeds/tag/amazon-qldb"
                      "https://forums.aws.amazon.com/rss/rssmessages.jspa?forumID=353"
                      "https://github.com/fwcd/kotlin-language-server/commits/master.atom"
+                     "https://github.com/jethrokuan/org-roam/commits/master.atom"
                      "https://github.com/amzn/ion-java/commits/master.atom"
                      "https://github.com/partiql/partiql-lang-kotlin/commits/master.atom"))
 

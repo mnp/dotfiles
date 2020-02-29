@@ -1,7 +1,11 @@
 * Shared Incoming 
 * Incoming Links
-** [2020-02-19 Wed] experiment
- - 
+** [2020-02-20 Thu] https://assets.amazon.science/96/c6/302e527240a3b1f86c86c3e8fc3d/firecracker-lightweight-virtualization-for-serverless-applications.pdf
+ - Firecracker: Lightweight Virtualization for Serverless Applications
+** [2020-02-25 Tue] 
+https://www.nytimes.com/2012/07/15/books/review/free-will-by-sam-harris.html
+https://www.youtube.com/watch?v=pCofmZlC72g
+Sam harris - podcast TODO
 * To Read
 https://www.youtube.com/watch?v=iN6mhI5hFt4
 https://developer.squareup.com/blog/books-an-immutable-double-entry-accounting-database-service/
