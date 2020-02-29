@@ -15,7 +15,8 @@
 ; todo: source a refactored bash environment file
 ;(add-to-list 'load-path (expand-file-name "~/Elisp"))
 (add-to-list 'load-path shared-elisp)
-(add-to-list 'exec-path (expand-file-name "~/bin"))
+(add-to-list 'exec-path "~/bin")
+(add-to-list 'exec-path "~/workbin")
 (add-to-list 'exec-path "/usr/local/bin")
 
 ;; OSX Hacks
@@ -184,6 +185,10 @@
 	 ("M-." . lsp-find-definition))
   :init (custom-set-variables '(lsp-kotlin-language-server-path "~/prj/kotlin-language-server/00----runme")))
 
+;; general perf suggested for lsp-mode
+(setq gc-cons-threshold 100000000)
+(setq read-process-output-max (* 1024 1024)) ;; 1mb
+
 ;; optionally
 (use-package lsp-ui :ensure t :commands lsp-ui-mode)
 (use-package company-lsp :ensure t :commands company-lsp)
@@ -250,11 +255,11 @@
 	      (define-key emacs-lisp-mode-map       [remap completion-at-point] 'helm-lisp-completion-at-point))
 	    (define-key global-map [remap occur] 'helm-occur)
 	    (define-key global-map [remap list-buffers] 'helm-buffers-list)
-	    (define-key global-map (kbd "M-C-/") 'helm-dabbrev)
+	    (define-key global-map (kbd "M-C-/") 'helm-dabbrev))
 	    ;; without this, the gray+white selection bar matches other elements
-	    (set-face-attribute 'helm-selection nil
-				:background "LightYellow"
-				:foreground "black"))
+  :init (set-face-attribute 'helm-selection nil
+                            :background "LightYellow"
+                            :foreground "black")
   :bind (("M-x" . helm-M-x)
 	 ("M-." . helm-etags-select)))
 
@@ -486,7 +491,7 @@
 	;; experiment
 	("l" "URL [inbox]" entry
          (file+headline "~/prj/dotfiles/shared-org/shared-inbox.org" "Incoming Links")
-         "** %u %c\n - %?")  ; x=clipboard
+         "** %u \n%c\n%?")  ; x=clipboard
 
         ("s" "Standup" entry
          (file+headline "~/org/:gtd-worklog.org" "Standup")
@@ -519,6 +524,13 @@ Can you derive the solution differently? Can you use the result or method in som
 ")))
 
 (use-package ob-shell)
+
+;; ???
+;(setq explicit-shell-file-name "/usr/local/bin/bash")
+;(setq shell-file-name "/usr/local/bin/bash")
+
+(setenv "PATH" (concat (expand-file-name "~/workbin:") (getenv "PATH")))
+
 
 (use-package ob-http
   :ensure t)
@@ -960,6 +972,41 @@ is already narrowed."
       (locate-dominating-file (file-name-as-directory
 			       (expand-file-name (file-truename default-directory)))
 			      ".git"))))
+
+;;
+;; Override to skip dotted dirs
+;; See https://github.com/emacs-helm/helm/issues/1668
+;;
+(defun helm-ff-directory-files (directory)
+  "List contents of DIRECTORY.
+Argument FULL mean absolute path.
+It is same as `directory-files' but always returns the
+dotted filename '.' and '..' even on root directories in Windows
+systems."
+  (setq directory (file-name-as-directory
+                   (expand-file-name directory)))
+  (let* (file-error
+         (ls   (condition-case err
+                   (helm-list-directory directory)
+                 ;; Handle file-error from here for Windows
+                 ;; because predicates like `file-readable-p' and friends
+                 ;; seem broken on emacs for Windows systems (always returns t).
+                 ;; This should never be called on GNU/Linux/Unix
+                 ;; as the error is properly intercepted in
+                 ;; `helm-find-files-get-candidates' by `file-readable-p'.
+                 (file-error
+                  (prog1
+                      (list (format "%s:%s"
+                                    (car err)
+                                    (mapconcat 'identity (cdr err) " ")))
+                    (setq file-error t)))))
+         (dot  (concat directory "."))
+         (dot2 (concat directory "..")))
+    (puthash directory (+ (length ls) 2) helm-ff--directory-files-hash)
+    ;; (append (and (not file-error) (list dot dot2)) ls)
+    ;; return the files only, excluding the "." and ".."
+    ls
+    ))
 
 ;(defun get-restricted-git-command ()
 ;  (concat "--no-pager grep --line-number --no-color -- "
