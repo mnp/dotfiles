@@ -7,7 +7,11 @@
 https://www.nytimes.com/2012/07/15/books/review/free-will-by-sam-harris.html
 https://www.youtube.com/watch?v=pCofmZlC72g
 Sam harris - podcast TODO
-
+** [2020-03-04 Wed] 
+https://www.usenix.org/conference/nsdi20/presentation/brooker
+** [2020-03-13 Fri] 
+https://www.youtube.com/watch?v=v7Mt0GYHU9A
+APL design patterns
 * To Read
 https://naomistanford.com/2019/02/07/habits-of-a-systems-thinker/
 https://www.youtube.com/watch?v=iN6mhI5hFt4

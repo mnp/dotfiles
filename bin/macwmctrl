@@ -1,0 +1,47 @@
+#!//usr/bin/env python
+
+# This is a dumb wrapper experiment around AppleScript to look a little bit like the X11 wmctrl for the Emacs ewmctrl wrapper.
+
+# need to support these calls from ewmctrl:
+```
+(defvar ewmctrl-wmctrl-switches "-lpG"
+(call-process-shell-command (concat ewmctrl-wmctrl-path " -i -r '" id "' -e '0,-1,-1," width "," height "'"))
+(call-process-shell-command (concat ewmctrl-wmctrl-path " -i -c '" id "'"))
+(call-process-shell-command (concat ewmctrl-wmctrl-path " -i -r '" id "' -e '0,-1,-1," width "," height "'"))
+(call-process-shell-command (concat ewmctrl-wmctrl-path " " ewmctrl-wmctrl-switches) nil bfr)
+(call-process-shell-command (concat ewmctrl-wmctrl-path " -i -r '" id "' -I '" name "'"))
+(call-process-shell-command (concat ewmctrl-wmctrl-path " -i -r '" id "' -N '" name "'"))
+(call-process-shell-command (concat ewmctrl-wmctrl-path " -i -r '" id "' -t '" desktop "'"))
+(call-process-shell-command (concat ewmctrl-wmctrl-path " -i -R '" id "'"))
+(call-process-shell-command (concat ewmctrl-wmctrl-path " -i -a '" id "'"))
+```
+
+
+# List running apps not backgrounded
+# 08:47 $ osascript -e'tell application "System Events" to get the name of every process whose background only is false'
+# Google Chrome, Slack, iTerm2, Emacs-x86_64-10_14, Spotify, Finder, idea
+
+
+# 08:53 $ osascript -e'tell application "Slack" to get id'
+
+
+
+# gather all windows
+```
+use application "System Events"
+
+get the name of every application process whose class of windows contains window
+
+repeat with P in the result
+
+	get (every window of process (contents of P) whose value of attribute "AXMinimized" is false)
+
+	repeat with W in the result
+
+		set position of W to {200, 100}
+		set size of W to {1000, 800}
+
+	end repeat
+
+end repeat
+```

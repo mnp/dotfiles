@@ -261,7 +261,8 @@
                             :background "LightYellow"
                             :foreground "black")
   :bind (("M-x" . helm-M-x)
-	 ("M-." . helm-etags-select)))
+    ;;	 ("M-." . helm-etags-select))
+         ))
 
 (use-package helm-projectile
   :ensure t
@@ -530,7 +531,7 @@ Can you derive the solution differently? Can you use the result or method in som
 ;(setq shell-file-name "/usr/local/bin/bash")
 
 (setenv "PATH" (concat (expand-file-name "~/workbin:") (getenv "PATH")))
-
+(setenv "PATH" (concat (expand-file-name "~/bin:") (getenv "PATH")))
 
 (use-package ob-http
   :ensure t)

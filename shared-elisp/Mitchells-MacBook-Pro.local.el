@@ -13,6 +13,7 @@
 
 
 (setq elfeed-feeds '("https://stackoverflow.com/feeds/tag/amazon-qldb"
+                     "http://brooker.co.za/blog/rss.xml"
                      "https://forums.aws.amazon.com/rss/rssmessages.jspa?forumID=353"
                      "https://github.com/fwcd/kotlin-language-server/commits/master.atom"
                      "https://github.com/jethrokuan/org-roam/commits/master.atom"
