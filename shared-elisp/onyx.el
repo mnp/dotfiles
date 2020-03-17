@@ -6,6 +6,12 @@
   :ensure t
   :init (global-disable-mouse-mode 1))
 
+(use-package emacs-sqlite3
+  :ensure t)
+
+(use-package emacsql                            ; for roam
+  :ensure t)
+
 (use-package org-roam
   :after org
   :load-path "org-roam"
@@ -14,13 +20,14 @@
    (after-init . org-roam--build-cache-async) ;; optional!
    )
    :custom
-  (org-roam-directory "~/Dropbox/org-roam")
+  (org-roam-directory "~/prj/jethrokuan-braindump")
   :bind
   ("C-c n l" . org-roam)
   ("C-c n t" . org-roam-today)
   ("C-c n f" . org-roam-find-file)
   ("C-c n i" . org-roam-insert)
   ("C-c n g" . org-roam-show-graph))
+
 
 (setq twitterers '(adrianco jessfraz duckduckgo ChileSpot fermatslibrary))
 
@@ -93,4 +100,3 @@
 	      (mapcar
 	       (lambda (x) (concat "https://www.twitrss.me/twitter_user_to_rss/?user=" (symbol-name x)))
 	       twitterers)))
-
