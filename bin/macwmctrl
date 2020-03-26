@@ -5,6 +5,7 @@
 # need to support these calls from ewmctrl:
 ```
 (defvar ewmctrl-wmctrl-switches "-lpG")
+(call-process-shell-command (concat ewmctrl-wmctrl-path " " ewmctrl-wmctrl-switches) nil bfr)
 
     $ wmctrl -lpG
     0x0280000a  0 3660   0    54   1920 1053 onyx Terminal
@@ -14,12 +15,11 @@
     0x05000007  0 17220  709  465  645  122  onyx Software Updater
     0x07000143  0 18903  48   147  656  612  onyx emacs@onyx
     -----------------------------------------------------------
-    win id     ?? pid    x    y    wid  ht   hst? command
+    winid      ?? pid    x    y    wid  ht   hst? command
 
 (call-process-shell-command (concat ewmctrl-wmctrl-path " -i -r '" id "' -e '0,-1,-1," width "," height "'"))
 (call-process-shell-command (concat ewmctrl-wmctrl-path " -i -c '" id "'"))
 (call-process-shell-command (concat ewmctrl-wmctrl-path " -i -r '" id "' -e '0,-1,-1," width "," height "'"))
-(call-process-shell-command (concat ewmctrl-wmctrl-path " " ewmctrl-wmctrl-switches) nil bfr)
 (call-process-shell-command (concat ewmctrl-wmctrl-path " -i -r '" id "' -I '" name "'"))
 (call-process-shell-command (concat ewmctrl-wmctrl-path " -i -r '" id "' -N '" name "'"))
 (call-process-shell-command (concat ewmctrl-wmctrl-path " -i -r '" id "' -t '" desktop "'"))
@@ -56,3 +56,9 @@ repeat with P in the result
 
 end repeat
 ```
+
+#+BEGIN_SRC shell
+osascript -e 'tell application "System Events" to get (name, id) of every process whose background only is false'
+#+END_SRC
+
+#+RESULTS:

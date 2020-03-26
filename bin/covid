@@ -1,0 +1,43 @@
+#!/usr/bin/env perl
+
+use LWP::UserAgent ();
+use strict;
+use warnings;
+
+my $state = shift or die;
+
+my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime(time);
+$mday = sprintf("%02d", $mday -1);
+$mon = sprintf("%02d", $mon + 1);
+$year += 1900;
+
+my $url = "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_daily_reports/${mon}-${mday}-${year}.csv";
+my $ua = LWP::UserAgent->new(timeout => 10);
+$ua->ssl_opts(verify_hostname => 0);
+
+my $response = $ua->get($url);
+
+$response->is_success or
+    die $response->status_line . " $url";
+
+# FIPS,Admin2,Province_State,Country_Region,Last_Update,Lat,Long_,Confirmed,Deaths,Recovered,Active,Combined_Key
+# 45001,Abbeville,South Carolina,US,2020-03-23 23:19:34,34.22333378,-82.46170658,1,0,0,0,"Abbeville, South Carolina, US"
+my @lines = split(/\n/, $response->decoded_content);
+
+my $fmt = "%-15s %10s %10s %10s %10s\n";
+my ($co, $de, $re, $ac) = 0;
+printf($fmt, qw(Admin2 Confirmed Deaths Recovered Active));
+
+for my $line (@lines) {
+   next if $line =~ /0,0,0,0/;
+   my @words = split(/,/, $line);
+   if ($words[2] eq $state) {
+     printf($fmt, $words[1], @words[7..10]);
+     $co += $words[7];
+     $de += $words[8];
+     $re += $words[9];
+     $ac += $words[10];
+   }
+}
+
+printf($fmt, "TOTALS", $co, $de, $re, $ac);
