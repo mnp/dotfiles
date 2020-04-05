@@ -1,5 +1,4 @@
 * Shared Incoming 
-* Incoming Links
 
 ** [2020-02-20 Thu] https://assets.amazon.science/96/c6/302e527240a3b1f86c86c3e8fc3d/firecracker-lightweight-virtualization-for-serverless-applications.pdf
  - Firecracker: Lightweight Virtualization for Serverless Applications
@@ -173,3 +172,7 @@ https://github.com/vasilakisfil/Introspected-REST
 10. keep dev/prod parity
 11. logs as event streams
 12. admin tasks as one-off procs
+* Incoming Links
+** [2020-04-03 Fri] 
+https://www.pluralsight.com/offer/2020/free-april-month
+

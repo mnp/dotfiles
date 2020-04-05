@@ -21,6 +21,10 @@ path_append PATH $HOME/workbin
 path_append PATH $HOME/homebin
 export PATH
 
+# emacsclient and etags on osx
+macemacs=/Applications/Emacs.app/Contents/MacOS/bin-x86_64-10_14/
+test -d $macemacs && path_append PATH $macemacs
+
 # python executables installed by PIP
 test -d ~/.local/bin && path_append PATH ~/.local/bin
 

@@ -352,9 +352,6 @@
 	    (set (make-local-variable 'compile-command)
 		 "cd /Users/Mitchell/src/tw-server/thingworx-platform-postgres; gradle build -x test")))
 
-(use-package lua-mode
-  :ensure t)
-
 ;;(use-package eclim
 ;;  :init (my-elcim-setup)
 ;;  :bind ("C-c C-e c" . eclim-java-call-hierarchy))
@@ -592,6 +589,17 @@ Can you derive the solution differently? Can you use the result or method in som
 	   org-directory my-org-dir
 	   org-default-notes-file my-inbox-orgfile)))
 
+(use-package org-roam
+      :hook
+      (after-init . org-roam-mode)
+      :custom
+      (org-roam-directory "~/prj/dotfiles/shared-org")
+      :bind (:map org-roam-mode-map
+              (("C-c n l" . org-roam)
+               ("C-c n f" . org-roam-find-file)
+               ("C-c n g" . org-roam-show-graph))
+              :map org-mode-map
+              (("C-c n i" . org-roam-insert))))
 
 ;; (defun my-journal-find-file ()
 ;;   (find-file (format "~/org/00-journal/%s.org" (format-time-string "%Y-%02m-%02d")))
@@ -812,7 +820,9 @@ M-<NUM> M-x modi/font-size-adj increases font size by NUM points if NUM is +ve,
     (setq fill-column 95
 	  indent-tabs-mode nil)
     ;;; (helm-gtags-mode)			;; see also disabled gtags paragraph
-    (delete-trailing-whitespace)
+
+    ;; I don't want this every file load, maybe in save hook though
+    ;; (delete-trailing-whitespace)
 )
 
 (add-hook 'prog-mode-hook 'my-prog-mode-hook)
