@@ -6,6 +6,8 @@ use warnings;
 
 my $state = shift or die;
 
+my @header = ("", qw(Confirmed Deaths Recovered Active));
+
 my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime(time);
 $mday = sprintf("%02d", $mday -1);
 $mon = sprintf("%02d", $mon + 1);
@@ -26,7 +28,7 @@ my @lines = split(/\n/, $response->decoded_content);
 
 my $fmt = "%-15s %10s %10s %10s %10s\n";
 my ($co, $de, $re, $ac) = 0;
-printf($fmt, qw(Admin2 Confirmed Deaths Recovered Active));
+printf($fmt, @header);
 
 for my $line (@lines) {
    next if $line =~ /0,0,0,0/;
@@ -40,4 +42,6 @@ for my $line (@lines) {
    }
 }
 
+print($/);
+printf($fmt, @header);
 printf($fmt, "TOTALS", $co, $de, $re, $ac);

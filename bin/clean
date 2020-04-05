@@ -1,0 +1,18 @@
+#!/bin/bash
+
+if [ $# -lt 1 ]; then
+    echo ,* *~ .*~ \#*\#  *.pyc __pycache__
+    /bin/rm -rf ,* *~ .*~ \#*\# *.pyc  __pycache__
+else
+    for i in $@; do
+	if [ -d "$i" ]; then
+	    echo ---- Cleaning $i ----
+	    ( builtin cd $i
+	      echo ,* *~ .*~ \#*\#  *.pyc __pycache__
+	      /bin/rm -rf ,* *~ .*~ \#*\#  *.pyc __pycache__ )
+	else
+	    echo Huh?
+	fi
+    done
+fi
+

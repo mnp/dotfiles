@@ -456,25 +456,6 @@ function .. ()
 # function cd_dot_dot
 # alias ..=cd_dot_dot
 
-clean ()
-{
-    if [ $# -lt 1 ]; then
-	echo ,* *~ .*~ \#*\#  *.pyc __pycache__
-	/bin/rm -rf ,* *~ .*~ \#*\# *.pyc  __pycache__
-    else
-	for i in $@; do
-	    if [ -d "$i" ]; then
-		echo ---- Cleaning $i ----
-		( builtin cd $i
-		  echo ,* *~ .*~ \#*\#  *.pyc __pycache__
-		  /bin/rm -rf ,* *~ .*~ \#*\#  *.pyc __pycache__ )
-	    else
-		echo Huh?
-	    fi
-	done
-    fi
-}
-
 # moved to ~/bin/p
 # # ps grep
 # p ()

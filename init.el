@@ -489,7 +489,7 @@
 	;; experiment
 	("l" "URL [inbox]" entry
          (file+headline "~/prj/dotfiles/shared-org/shared-inbox.org" "Incoming Links")
-         "** %u \n%c\n%?")  ; x=clipboard
+         "** %u %?\n%c")  ; x=clipboard
 
         ("s" "Standup" entry
          (file+headline "~/org/:gtd-worklog.org" "Standup")
