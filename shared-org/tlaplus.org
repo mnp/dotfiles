@@ -1,0 +1,23 @@
+#+TITLE: TLA+
+#+ROAM_KEY: http://lamport.azurewebsites.net/video/video1-script.pdf
+- tags formal lamport
+
+Simplifying by removing details is called abstraction
+
+We use TLA+ to ensure the systems we build “work right”.
+Working right means satisfying certain properties.
+
+definitions
+- execution of a system is a sequence of discrete steps
+- step is a change from one state to another
+- state is an assignment of values to a set of variables
+- a sequence of states is a behavior
+
+we want to SPECIFY all possible BEHAVIORs of a system
+
+to specify a state machine need: 
+ - The variables, including a PC,
+ - their initial values,
+ - and the relation between their values in the current state and their possible values in the next state.
+
+state machines eliminate low level program details

@@ -486,6 +486,13 @@
          (file+headline "~/org/:gtd-inbox.org" "Work Tasks")
          "* TODO %i%? :work:")
 
+        ;; see org-roam template docs
+        ("d" "default" plain (function org-roam--capture-get-point)
+         "%?"
+         :file-name "~/prj/dotfiles/shared-org/%<%Y%m%d%H%M%S>-${slug}.org"
+         :head "#+TITLE: ${title}\n"
+         :unnarrowed t)
+
 	;; experiment
 	("l" "URL [inbox]" entry
          (file+headline "~/prj/dotfiles/shared-org/shared-inbox.org" "Incoming Links")

@@ -182,3 +182,7 @@ https://www.nytimes.com/2020/04/03/dining/pantry-poundcake-coronavirus.html
 https://www.nytimes.com/2020/04/03/dining/pantry-poundcake-coronavirus.html
 ** [2020-04-05 Sun] pantry poundcake
 https://www.nytimes.com/2020/04/03/dining/pantry-poundcake-coronavirus.html
+** [2020-04-06 Mon] Unision Talk at strangeloop
+https://www.youtube.com/watch?v=gCWtkvDQ2ZI
+** [2020-04-08 Wed] LISP via lobsters
+https://joshbradley.me/understanding-the-power-of-lisp/

@@ -1,0 +1,25 @@
+#+TITLE: Distributed Streaming
+#+ROAM_KEY: https://dzone.com/articles/evaluating-message-brokers-kafka-vs-kinesis-vs-sqs
+- tags streams brokers kafka sqs sns kinesis
+
+* Why
+- queueing smooths out spikes in ingest rate
+
+* SQS
+- destroys message once consumed
+- out of order delivery
+- consumer can filter what it wants https://aws.amazon.com/getting-started/hands-on/filter-messages-published-to-topics/
+
+* Kafka
+- distributed message log that provides a publish-subscribe messaging model
+- multiple producers, multiple consumers; ie, messages can be consumed multiple times
+- ordering guarantee
+- most complex but most possibilies
+- 
+
+* conclusions?
+- Kinesis better for Eventing
+- Kafka better for downstream data ingestion and processing
+
+* questions
+how is [[file:tlaplus.org][TLA+]] be useful to verify?
