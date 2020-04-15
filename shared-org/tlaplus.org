@@ -2,6 +2,11 @@
 #+ROAM_KEY: http://lamport.azurewebsites.net/video/video1-script.pdf
 - tags formal lamport
 
+also see https://learntla.com/pluscal/toolbox
+
+cheat sheet https://lamport.azurewebsites.net/tla/summary-standalone.pdf
+
+* chapter 1
 Simplifying by removing details is called abstraction
 
 We use TLA+ to ensure the systems we build “work right”.
@@ -21,3 +26,125 @@ to specify a state machine need:
  - and the relation between their values in the current state and their possible values in the next state.
 
 state machines eliminate low level program details
+
+* chapter 2
+
+Formulas, not commands:
+- /\ and \/ are associative so bulleted lists of them in formulae can be reordered
+- also, they're not commands, they're still true, so again order doesn't matter
+
+Init and Next are just conventions
+
+* Chapter 3 
+
+Deadlock - execution stopped when it wasn't supposed to
+Termination - execution stopped when it was supposed to
+
+* chapter 4 - die hard problem
+3 and 5 gallon jugs: want to make 4 gallons
+
+#+begin_src 
+EXTENDS Integers
+VARIABLES small, big
+
+TypeOK == /\ small \in 0 .. 3
+          /\ big   \in 0 .. 5
+
+Init == /\ (big = 0)
+        /\ (small = 0)
+
+FillSmall == /\ small' = 3
+             /\ big' = big
+
+FillBig == /\ small' = small
+           /\ big' = 5
+
+EmptySmall == /\ small' = 0
+              /\ big' = big
+
+EmptyBig == /\ small' = small
+            /\ big' = 0
+
+SmallToBig == IF big + small <= 5
+              THEN /\ big' = big + small
+                   /\ small' = 0
+              ELSE /\ big' = 5
+                   /\ small' = small - (5 - big)
+
+BigToSmall == IF big + small <= 3
+              THEN /\ big' = 0
+                   /\ small' = big + small
+              ELSE /\ big' = big - (3 - small)
+                   /\ small' = 3
+
+Next == \/ FillSmall
+        \/ FillBig
+        \/ EmptySmall
+        \/ EmptyBig
+        \/ SmallToBig
+        \/ BigToSmall
+#+end_src
+
+note = is also commutative, so small'=0 is the same as 0=small'.  remember: forumula, not
+assignment command. TLC won't allow the latter but TLAPS will.
+
+rule for what's allowed, where ... cannot contain primes'
+#+begin_src 
+ v' = ... 
+v' \in ...
+#+end_src
+
+no tabs
+
+names must be defined before used
+
+there are no type decls - check them yourself with formula (convention = TypeOK), also helps
+understand the spec.  It's not part of the spec though, it doesn't change anything. eg:
+
+* chapter 5 - commitment
+
+wedding analogy: anne and henry, minister
+end state: both believe the same thing: wedding is committed or aborted
+minister implements the wedding: how it works, not what it does
+generalize to N participants
+
+participant states:
+#+begin_src
+unsure -> prepared
+unsure -> aborted                 
+prepared -> committed
+prepared -> aborted
+#+end_src
+
+wedding participant ~ DB Resource Manager 
+unsure state ~ working state for RM
+
+function instead of array
+domain instead of index set. domain can be any type of set.
+f[x] - function application
+
+shorthand:
+#+begin_src 
+[s \e RM |-> IF s=r THEN "prepared" 
+                    ELSE rmState[s]]
+
+...same as...
+
+[rmState EXCEPT ![r] = "prepared"]     -- meaningless syntax, everyone hates it, but you'll get used to it
+#+end_src
+
+For all \A and there exists \E extend as far as possible: bounded by () or by end of list item.
+List item adds implict () around itself.
+
+* chapter 6 - two phase commit
+records are functions with domain of the keys. Record [ prof |-> "Fred", num |-> 42 ] has domain
+{"prof", "num"}.  Application like f["prof"] = "Fred" or abbreviated like f.prof.
+
+Another shorthand:
+
+#+begin_src 
+[f EXCEPT !["prof"] = "Red"]
+... same as
+[f EXCEPT !.prof = "Red"]
+#+end_src
+Read this as: "This record is the same as f except its prof field is the string Red"

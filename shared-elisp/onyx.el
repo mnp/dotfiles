@@ -2,32 +2,13 @@
 
 ;; home lap specific
 
-(use-package disable-mouse
-  :ensure t
-  :init (global-disable-mouse-mode 1))
+;; I think I wanted this bound to a key to avoid trackpad oopses.
+; (use-package disable-mouse
+;   :ensure t
+;   :init (global-disable-mouse-mode 1))
 
-(use-package emacs-sqlite3
-  :ensure t)
-
-(use-package emacsql                            ; for roam
-  :ensure t)
-
-(use-package org-roam
-  :after org
-  :load-path "org-roam"
-  :hook
-  ((org-mode . org-roam-mode)
-   (after-init . org-roam--build-cache-async) ;; optional!
-   )
-   :custom
-  (org-roam-directory "~/prj/jethrokuan-braindump")
-  :bind
-  ("C-c n l" . org-roam)
-  ("C-c n t" . org-roam-today)
-  ("C-c n f" . org-roam-find-file)
-  ("C-c n i" . org-roam-insert)
-  ("C-c n g" . org-roam-show-graph))
-
+;(use-package emacs-sqlite3
+;  :ensure t)
 
 (setq twitterers '(adrianco jessfraz duckduckgo ChileSpot fermatslibrary))
 

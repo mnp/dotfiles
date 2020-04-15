@@ -2,9 +2,16 @@
 
 ;; Minimal emacs preferences
 
+(if init-file-debug
+      (setq use-package-verbose t
+            use-package-expand-minimally nil
+            use-package-compute-statistics t
+            debug-on-error t)
+    (setq use-package-verbose nil
+          use-package-expand-minimally t))
+
 (setq inhibit-startup-message t
-      initial-scratch-message nil
-      debug-on-error nil)
+      initial-scratch-message nil)
 
 (defconst work-elisp "~/Dropbox/work-elisp"
   "Work-only files - we will load all .el found.")
@@ -41,6 +48,13 @@
   (mapcar 'setenv '("DOCKER_HOST" "DOCKER_TLS_VERIFY" "DOCKER_CERT_PATH" "DOCKER_MACHINE_NAME")))
 
 
+;; This is only needed once, near the top of the file
+;(eval-when-compile
+;  ;; Following line is not needed if use-package.el is in ~/.emacs.d
+;  (add-to-list 'load-path "~/.emacs.d/elpa/bind-key-20191110.416")
+;  (add-to-list 'load-path "~/.emacs.d/elpa/use-package-20200322.2110")
+;  (require 'use-package))
+
 (if (not (memq system-type '(darwin)))
   ;;; not mac
   (setq browse-url-browser-function 'browse-url-generic
@@ -51,10 +65,6 @@
       (file-missing t))     ; ignore only this kind of error
     (message "Loaded host specific file"))
 
-;; no point in checking if package is available, we use it too much
-(require 'package)
-
-(package-initialize)
 (setq package-archives '( ; timing out ;;;
 			  ("gnu" . "https://elpa.gnu.org/packages/")
                          ; ("marmalade" . "https://marmalade-repo.org/packages/")
@@ -62,15 +72,14 @@
 			 ; ("melpa-stable" . "https://stable.melpa.org/packages/")
       ))
 
+(package-initialize)
+(unless (package-installed-p 'use-package)
+  (package-refresh-contents)
+  (package-install 'use-package))
+
 (when (< emacs-major-version 24)
   ;; For important compatibility libraries like cl-lib
   (add-to-list 'package-archives '("gnu" . "http://elpa.gnu.org/packages/")))
-
-;(package-initialize)
-(when (not package-archive-contents)
-  (package-refresh-contents)
-  (package-install 'use-package))
-(require 'use-package)
 
 (use-package diminish
   :init (diminish 'abbrev-mode)
@@ -257,12 +266,13 @@
 	    (define-key global-map [remap list-buffers] 'helm-buffers-list)
 	    (define-key global-map (kbd "M-C-/") 'helm-dabbrev))
 	    ;; without this, the gray+white selection bar matches other elements
-  :init (set-face-attribute 'helm-selection nil
-                            :background "LightYellow"
-                            :foreground "black")
+;  :init (set-face-attribute 'helm-selection nil
+;                            :background "LightYellow"
+;                            :foreground "black")
   :bind (("M-x" . helm-M-x)
     ;;	 ("M-." . helm-etags-select))
          ))
+
 
 (use-package helm-projectile
   :ensure t
@@ -487,11 +497,18 @@
          "* TODO %i%? :work:")
 
         ;; see org-roam template docs
-        ("d" "default" plain (function org-roam--capture-get-point)
+        ("r" "default" plain (function org-roam--capture-get-point)
          "%?"
          :file-name "~/prj/dotfiles/shared-org/%<%Y%m%d%H%M%S>-${slug}.org"
          :head "#+TITLE: ${title}\n"
          :unnarrowed t)
+
+;        ;; decision journal https://blog.trello.com/decision-journal
+;        ("d" "Decision Journal" entry
+;         The decision I made was:
+;         I believe this decision will lead to:
+;         Why I believe this decision will pan out this way:
+;         How I feel about the decision I've made:
 
 	;; experiment
 	("l" "URL [inbox]" entry
@@ -552,7 +569,7 @@ Can you derive the solution differently? Can you use the result or method in som
 
   :init (progn
 	  ;; allow "structure templates" eg via "<s tab"
-;	  (require 'org-tempo)
+	  (require 'org-tempo)
 
           (custom-set-variables
            '(org-babel-load-languages '((shell . t)
@@ -597,14 +614,14 @@ Can you derive the solution differently? Can you use the result or method in som
 	   org-default-notes-file my-inbox-orgfile)))
 
 (use-package org-roam
-      :hook
-      (after-init . org-roam-mode)
-      :custom
-      (org-roam-directory "~/prj/dotfiles/shared-org")
-      :bind (:map org-roam-mode-map
+  :ensure t
+  :hook   (after-init . org-roam-mode)
+  :custom (org-roam-directory "~/prj/dotfiles/shared-org")
+  :bind (:map org-roam-mode-map
               (("C-c n l" . org-roam)
                ("C-c n f" . org-roam-find-file)
-               ("C-c n g" . org-roam-show-graph))
+               ("C-c n b" . org-roam-switch-to-buffer)
+               ("C-c n g" . org-roam-graph-show))
               :map org-mode-map
               (("C-c n i" . org-roam-insert))))
 
@@ -658,11 +675,10 @@ Can you derive the solution differently? Can you use the result or method in som
   :load-path "~/.emacs.d/snippets"
   :init (yas-global-mode 1))
 
-
-
-; Elisp
 (use-package browse-kill-ring
-  :bind ("C-x 4 y" . browse-kill-ring))
+  :ensure t
+  :init (browse-kill-ring-default-keybindings)
+  :bind ("C-x 4 y" . browse-kill-ring))   ; extra for finger memory
 
 ;;  removes all whitespace entries from kill-ring.
 ;;
