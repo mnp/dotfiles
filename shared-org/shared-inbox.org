@@ -186,3 +186,7 @@ https://www.nytimes.com/2020/04/03/dining/pantry-poundcake-coronavirus.html
 https://www.youtube.com/watch?v=gCWtkvDQ2ZI
 ** [2020-04-08 Wed] LISP via lobsters
 https://joshbradley.me/understanding-the-power-of-lisp/
+** [2020-04-13 Mon] another learn tla series
+https://pron.github.io/tlaplus
+** [2020-04-13 Mon] Recent Amazon application of TLA+
+https://assets.amazon.science/c4/11/de2606884b63bf4d95190a3c2390/millions-of-tiny-databases.pdf

@@ -440,6 +440,9 @@
 ;;  (magithub-feature-autoinject t)
 ;;  (setq magithub-clone-default-directory "~/github"))
 
+(use-package eshell
+  :bind (("M-." . my-eshell-insert-last-argument)))
+
 (use-package groovy-mode
   :ensure t
   :init (add-to-list 'auto-mode-alist '("\\.gradle$" . groovy-mode)))
@@ -1212,6 +1215,10 @@ systems."
       ;; disable novice mode
       disabled-command-function nil
 )
+
+(defun my-eshell-insert-last-argument ()
+  (interactive)
+  (insert (car (last eshell-last-arguments))))
 
 (defun eshell/.. (&rest args)
   (eshell/cd (string-join
