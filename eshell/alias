@@ -1,0 +1,7 @@
+alias gd ./gradlew $*
+alias m view-file $1
+alias e find-file $1
+alias lrt ls -lrt
+alias dk docker-compose $*
+alias gsm git status --untracked-files=no --ignore-submodules
+alias ll ls -l $*

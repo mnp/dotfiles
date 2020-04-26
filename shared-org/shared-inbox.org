@@ -190,3 +190,8 @@ https://joshbradley.me/understanding-the-power-of-lisp/
 https://pron.github.io/tlaplus
 ** [2020-04-13 Mon] Recent Amazon application of TLA+
 https://assets.amazon.science/c4/11/de2606884b63bf4d95190a3c2390/millions-of-tiny-databases.pdf
+** [2020-04-14 Tue] richard feldman on FP
+https://www.youtube.com/watch?v=QyJZzq0v7Z4
+** [2020-04-15 Wed] chandler, mitch kapor, "dreaming in code"
+** [2020-04-21 Tue] tonnato
+https://www.nytimes.com/2020/04/20/dining/salmon-tonnato-coronavirus.html
