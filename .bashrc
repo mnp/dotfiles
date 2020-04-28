@@ -9,11 +9,6 @@ for d in /usr/man /usr/share/man /usr/local/man $HOME/perl5/man; do
 done
 export MANPATH
 
-case $OSTYPE in
-    linux*)  OS=linux;;
-    darwin*) OS=darwin;;
-esac
-
 PATH=$HOME/bin:$HOME/hosts:/usr/local/bin:/usr/local/bin:/usr/local/sbin:/usr/bin:/bin:/usr/sbin:/sbin
 path_append PATH $HOME/perl5/bin
 path_append PATH $HOME/osbin
@@ -375,10 +370,14 @@ alias Rm='command rm -f'
 alias cp='cp -i'
 alias mv='mv -i'
 alias t=tail
-alias acs='apt-cache search'
-alias acss='apt-cache show'
-alias agu='sudo apt-get update'
-alias agi='sudo apt-get install'
+
+if [ $OSTYPE == linux ]; then
+  alias acs='apt-cache search'
+  alias acss='apt-cache show'
+  alias agu='sudo apt-get update'
+  alias agi='sudo apt-get install'
+fi
+
 alias bye='exit'
 alias y='echo Oops\!'
 alias pf='perldoc -f'
@@ -390,11 +389,6 @@ alias fgrep='fgrep --color=auto'
 alias jag='ag --java'
 
 alias gd='./gradlew'
-
-alias ct='cleartool'
-alias lsck='cleartool lscheckout -me -all -cview'
-alias co='cleartool checkout -nc'
-alias ci='cleartool checkin -nc'
 
 # Quick column selectors.
 # ps -fe | grep bash | f1 | sort -u
