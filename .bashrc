@@ -128,8 +128,10 @@ if type git > /dev/null 2>&1; then
     alias gdp=' git diff        HEAD~1 --'
     alias gdps='git diff --stat HEAD~1 --'
     alias glgp='git log --graph --decorate --pretty=oneline --abbrev-commit'
-    alias gls='git log --stat'
-    alias glf='git ls-files -t'
+    alias gls=' git log --stat'
+    alias glf=' git ls-files -t'
+    alias grpo='git remote prune origin'
+
 #    alias gg='git grep'
 
     function gg() {
