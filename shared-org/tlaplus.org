@@ -148,3 +148,6 @@ Another shorthand:
 [f EXCEPT !.prof = "Red"]
 #+end_src
 Read this as: "This record is the same as f except its prof field is the string Red"
+
+An action formula is one which has primes. Put enabling conditions (which have no primes) first in
+action formulae to help TLC.

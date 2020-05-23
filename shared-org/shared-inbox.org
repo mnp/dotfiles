@@ -195,3 +195,5 @@ https://www.youtube.com/watch?v=QyJZzq0v7Z4
 ** [2020-04-15 Wed] chandler, mitch kapor, "dreaming in code"
 ** [2020-04-21 Tue] tonnato
 https://www.nytimes.com/2020/04/20/dining/salmon-tonnato-coronavirus.html
+** [2020-04-30 Thu] management
+https://github.com/ksindi/managers-playbook
