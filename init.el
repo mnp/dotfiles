@@ -190,8 +190,8 @@
 (use-package lsp-mode
   :hook (kotlin-mode . lsp)
   :commands lsp
-  :bind (("M-," . lsp-find-references)
-	 ("M-." . lsp-find-definition))
+  :bind-keymap (("M-," . lsp-find-references)
+	        ("M-." . lsp-find-definition))
   :init (custom-set-variables '(lsp-kotlin-language-server-path "~/prj/kotlin-language-server/00----runme")))
 
 ;; general perf suggested for lsp-mode
@@ -270,7 +270,6 @@
 ;                            :background "LightYellow"
 ;                            :foreground "black")
   :bind (("M-x" . helm-M-x)
-    ;;	 ("M-." . helm-etags-select))
          ))
 
 
@@ -441,7 +440,8 @@
 ;;  (setq magithub-clone-default-directory "~/github"))
 
 (use-package eshell
-  :bind (("M-." . my-eshell-insert-last-argument)))
+  :bind (:map eshell-command-map
+              (("M-." . my-eshell-insert-last-argument))))
 
 (use-package groovy-mode
   :ensure t
@@ -1283,6 +1283,9 @@ systems."
 (global-set-key [f12]  		'my-toggle-selective-display)
 (global-set-key [home] 		'beginning-of-buffer)
 (global-set-key [end] 		'end-of-buffer)
+
+;; sort of IntelliJ finger compat
+(global-set-key (kbd "<C-tab>")	(lambda () (interactive) (switch-to-buffer nil)))
 
 (global-set-key "\M-g" 		'goto-line)
 (global-set-key [?\C-_] 	'help-command)

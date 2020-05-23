@@ -195,5 +195,13 @@ https://www.youtube.com/watch?v=QyJZzq0v7Z4
 ** [2020-04-15 Wed] chandler, mitch kapor, "dreaming in code"
 ** [2020-04-21 Tue] tonnato
 https://www.nytimes.com/2020/04/20/dining/salmon-tonnato-coronavirus.html
+
 ** [2020-04-30 Thu] management
 https://github.com/ksindi/managers-playbook
+
+** [2020-04-27 Mon] dynarig on the maltese falcon
+https://web.archive.org/web/20161009151935/http://www.hiswasymposium.com/assets/files/pdf/2004/Dijkstra@hiswasymposium-2004.pdf
+** [2020-05-19 Tue] sqs vs sns patterns
+
+https://medium.com/awesome-cloud/aws-difference-between-sqs-and-sns-61a397bf76c5
+
