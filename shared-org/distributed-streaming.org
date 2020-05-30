@@ -15,7 +15,10 @@
 - multiple producers, multiple consumers; ie, messages can be consumed multiple times
 - ordering guarantee
 - most complex but most possibilies
-- 
+
+* Kinesis
+Someone doesn't like it as a cost concern, saying sns+sqs instead. They were debated on HN.
+https://medium.com/teamzerolabs/5-aws-services-you-should-avoid-f45111cc10cd
 
 * conclusions?
 - Kinesis better for Eventing
