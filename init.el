@@ -580,7 +580,7 @@ Can you derive the solution differently? Can you use the result or method in som
                                         (perl . t)
                                         (js . t)
                                         (http . t) ; uses package ob-http
-                                        (emacs-lisp . nil)))
+                                        (emacs-lisp . t)))
            '(org-confirm-babel-evaluate nil))
 
           ;; examples
