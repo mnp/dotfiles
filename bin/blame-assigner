@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+set -euo pipefail
+export PAGER=cat
+
+git grep -l TODO | egrep '\.kt$' | while read f; do
+    git blame -l -f -- $f | awk '/TODO/ {print substr($0, 42, 199)}'
+done

@@ -1,0 +1,14 @@
+#!/bin/bash
+
+newestAwsLogStream() {
+    local loggroup="$1"
+    aws logs describe-log-streams --log-group-name "${loggroup}" | jq -r '.logStreams | sort_by(.lastIngestionTime) | reverse[0].logStreamName'
+}
+
+newestAwsLogMessages() {
+    local loggroup="$1"
+    aws logs get-log-events --log-group-name "${loggroup}" --log-stream-name `newestAwsLogStream "${loggroup}"` | jq '.events | sort_by(.timestamp) | .[].message'
+}
+
+# newestAwsLogMessages "/aws/lambda/myfun"
+
