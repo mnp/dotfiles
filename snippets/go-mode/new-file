@@ -1,0 +1,13 @@
+# -*- mode: snippet -*-
+# name: new-file
+# key: new-file
+# --
+package main
+
+import (
+        "fmt"
+)
+
+func main() {
+    $0
+}

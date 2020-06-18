@@ -1,0 +1,14 @@
+# -*- mode: snippet -*-
+# name: new-file
+# key: new-file
+# --
+#!/bin/bash
+
+set -euxo pipefail
+
+# ${1:`(file-name-nondirectory (buffer-file-name))`} - $2
+
+$0
+
+exit 0
+

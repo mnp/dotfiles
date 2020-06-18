@@ -684,11 +684,20 @@ Can you derive the solution differently? Can you use the result or method in som
 (use-package tangotango-theme
   :ensure t)
 
+(defun my-new-file-hook()
+  "If finding an empty file, looks for a mode snippet and inserts it."
+  (if (zerop (buffer-size))
+      (let ((s (yas-lookup-snippet 'new-file major-mode t)))
+        (if s (yas-expand-snippet s)))))
+
 (use-package yasnippet
   :defer t
   :ensure t
   :load-path "~/.emacs.d/snippets"
-  :init (yas-global-mode 1))
+  :init
+      (yas-global-mode 1)
+      (add-hook 'find-file-hooks #'my-new-file-hook))
+
 
 (use-package browse-kill-ring
   :ensure t

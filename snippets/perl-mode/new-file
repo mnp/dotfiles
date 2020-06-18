@@ -1,6 +1,6 @@
 # -*- mode: snippet -*-
-# name: bang
-# key: foo
+# name: new-file
+# key: new-file
 # --
 #!/usr/bin/perl
 
