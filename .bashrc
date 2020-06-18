@@ -373,7 +373,7 @@ alias cp='cp -i'
 alias mv='mv -i'
 alias t=tail
 
-if [ $OSTYPE == linux ]; then
+if [ $OSTYPE == linux-gnu ]; then
   alias acs='apt-cache search'
   alias acss='apt-cache show'
   alias agu='sudo apt-get update'

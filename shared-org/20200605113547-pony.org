@@ -1,0 +1,72 @@
+#+TITLE: pony
+
+used by [[file:~/org/wallaroo_labs.org][wallaroo labs]]
+
+* workshop
+https://github.com/aturley/pony-workshop
+
+** actor
+type OutStream is itself an actor.
+tcp connection is an actor
+you can send yourself a message but it's queued AFTER all the other traffic coming to you
+
+** salespitch
+gc tail latencies
+per-actor heaps
+memory safe
+data race free 
+
+c abi but that destroys all guarantees
+
+erlang really good at predictable latencies
+akka is not
+
+** reference capabilities
+data safety rules enforced by type system/compiler
+like rust borrow checker
+
+every variable has annotation: 
+
+- val: immutable. happy share.
+- ref: mutable, aliases, handwavy, can't share it
+- iso: mutable, but compiler will enforce only one ref to it at a time. need this if you want to go fast
+- tag: identity comparison
+
+reference capabilities + ASYNC messaging is easier to think about than rust's borrow checker
+rust borrow checker + SYNC processing is easier still
+
+** nondeterminism
+if: 2 or more threads, at least one writer, and unrestricted access
+then: data race is possible
+
+*** john's laws:
+- read law: while anyone is reading, no one else can write
+- write law: while anyone is writing, no one else can read or write
+
+** errors
+try/else is not what you think. `error` is a partial function.
+
+** tooling
+need a language server
+
+** bugs
+https://patterns.ponylang.io/async/access.html StdStream -> OutStream
+some broken .md links in patterns/*.html
+
+* types
+** subtyping ~ substitutability
+https://tutorial.ponylang.io/appendices/keywords.html
+^ ephemeral
+! aliased
+be - behavior executed asynchronously
+
+a.add(b)
+ \     \
+  \     argument
+   receiver
+
+* ideas
+** popup docs for emacs
+https://stdlib.ponylang.io/
+https://github.com/ponylang/ponyc/blob/master/.ci-scripts/build-and-push-stdlib-documentation.bash
+

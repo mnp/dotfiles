@@ -6,7 +6,7 @@
       (setq use-package-verbose t
             use-package-expand-minimally nil
             use-package-compute-statistics t
-            debug-on-error t)
+            debug-on-error nil)
     (setq use-package-verbose nil
           use-package-expand-minimally t))
 
@@ -58,7 +58,7 @@
 (if (not (memq system-type '(darwin)))
   ;;; not mac
   (setq browse-url-browser-function 'browse-url-generic
-	browse-url-generic-program "firefox"))
+        browse-url-generic-program "firefox"))
 
 ;; host specific - if a file HOSTNAME.el exists, load that
 (if (condition-case nil (load-library (concat shared-elisp "/" (system-name) ".el"))
@@ -66,10 +66,10 @@
     (message "Loaded host specific file"))
 
 (setq package-archives '( ; timing out ;;;
-			  ("gnu" . "https://elpa.gnu.org/packages/")
+                          ("gnu" . "https://elpa.gnu.org/packages/")
                          ; ("marmalade" . "https://marmalade-repo.org/packages/")
                           ("melpa" . "https://melpa.org/packages/")
-			 ; ("melpa-stable" . "https://stable.melpa.org/packages/")
+                         ; ("melpa-stable" . "https://stable.melpa.org/packages/")
       ))
 
 (package-initialize)
@@ -98,7 +98,7 @@
 ;  (require 'use-package))
 ; (require 'bind-key)                ;; needed by use-package :bind
 
-								      ; (require 'workgroups)
+                                                                      ; (require 'workgroups)
 ;;      (use-package ace-window
 ;;	:bind ("C-x o" . ace-window))
 
@@ -110,11 +110,11 @@
   :ensure t
   :bind ("C-c s" . my-search-web-dwim)
   :init (progn
-	  (autoload #'search-web-dwim "search-web")
-	  (defun my-search-web-dwim ()
-	    "Seach words you select as region or at point."
-	    (interactive nil)
-	    (search-web-dwim "duck"))))
+          (autoload #'search-web-dwim "search-web")
+          (defun my-search-web-dwim ()
+            "Seach words you select as region or at point."
+            (interactive nil)
+            (search-web-dwim "duck"))))
 
 
 ;; elfeed
@@ -158,11 +158,11 @@
 (use-package restclient
   :ensure t
   :init (progn
-	  (add-to-list 'auto-mode-alist '("\\.http$" . restclient-mode))
-	  (add-hook 'restclient-mode-hook
-		    (lambda ()
-		      (local-set-key (kbd "<C-enter>") 'restclient-http-send-current-stay-in-window)
-		      (local-set-key (kbd "<C-return>") 'restclient-http-send-current-stay-in-window)))))
+          (add-to-list 'auto-mode-alist '("\\.http$" . restclient-mode))
+          (add-hook 'restclient-mode-hook
+                    (lambda ()
+                      (local-set-key (kbd "<C-enter>") 'restclient-http-send-current-stay-in-window)
+                      (local-set-key (kbd "<C-return>") 'restclient-http-send-current-stay-in-window)))))
 
 (use-package dockerfile-mode
   :ensure t)
@@ -174,8 +174,18 @@
 ; (use-package elpy
 ;   :ensure t
 ;   :init (progn
-; 	  (elpy-enable)
-; 	  (setq python-shell-completion-native-enable nil)))
+;         (elpy-enable)
+;         (setq python-shell-completion-native-enable nil)))
+
+;; Pony
+
+(use-package ponylang-mode
+  :ensure t
+  :init (setenv "CC" "gcc")
+  :bind (:map ponylang-mode-map
+              (("<f6>" . (lambda () (interactive) (switch-to-buffer nil)))
+               ("<f8>" . ponylang-menu))))
+
 
 ;; Kotlin and LSP
 ;; -----------------------------------------------------------------------------
@@ -191,7 +201,7 @@
   :hook (kotlin-mode . lsp)
   :commands lsp
   :bind-keymap (("M-," . lsp-find-references)
-	        ("M-." . lsp-find-definition))
+                ("M-." . lsp-find-definition))
   :init (custom-set-variables '(lsp-kotlin-language-server-path "~/prj/kotlin-language-server/00----runme")))
 
 ;; general perf suggested for lsp-mode
@@ -218,7 +228,7 @@
 (use-package compile
   :ensure t
   :init (setq compilation-scroll-output 1
-	      compile-command "make ")
+              compile-command "make ")
   :bind ("C-x C-k" . compile))
 
 (use-package google-c-style
@@ -247,25 +257,25 @@
 ;; A .dir-locals.el file helps a bunch here:
 ;;
 ;; ((nil . ((git-grep-path . "PLATFORM thingworx-platform-postgres")
-;; 	 (compile-command . "cd ~/src/tw-server; ./gradlew build"))))
+;;       (compile-command . "cd ~/src/tw-server; ./gradlew build"))))
 ;;
 
 (use-package helm
   :ensure t
   :diminish
   :config (progn
-	    (helm-mode 1)
-	    (helm-adaptive-mode 1)
-	;    (helm-push-mark-mode 1)
-	    (add-to-list 'helm-completing-read-handlers-alist
-			 '(find-file . helm-completing-read-symbols))
-	    (unless (boundp 'completion-in-region-function)
-	      (define-key lisp-interaction-mode-map [remap completion-at-point] 'helm-lisp-completion-at-point)
-	      (define-key emacs-lisp-mode-map       [remap completion-at-point] 'helm-lisp-completion-at-point))
-	    (define-key global-map [remap occur] 'helm-occur)
-	    (define-key global-map [remap list-buffers] 'helm-buffers-list)
-	    (define-key global-map (kbd "M-C-/") 'helm-dabbrev))
-	    ;; without this, the gray+white selection bar matches other elements
+            (helm-mode 1)
+            (helm-adaptive-mode 1)
+        ;    (helm-push-mark-mode 1)
+            (add-to-list 'helm-completing-read-handlers-alist
+                         '(find-file . helm-completing-read-symbols))
+            (unless (boundp 'completion-in-region-function)
+              (define-key lisp-interaction-mode-map [remap completion-at-point] 'helm-lisp-completion-at-point)
+              (define-key emacs-lisp-mode-map       [remap completion-at-point] 'helm-lisp-completion-at-point))
+            (define-key global-map [remap occur] 'helm-occur)
+            (define-key global-map [remap list-buffers] 'helm-buffers-list)
+            (define-key global-map (kbd "M-C-/") 'helm-dabbrev))
+            ;; without this, the gray+white selection bar matches other elements
 ;  :init (set-face-attribute 'helm-selection nil
 ;                            :background "LightYellow"
 ;                            :foreground "black")
@@ -287,15 +297,15 @@
 ;; (use-package helm-git-grep
 ;;   :ensure helm-git-grep
 ;;   :bind ("C-c g" . helm-git-grep)
-;;   	;; helm-git-grep-with-exclude-file-pattern
-;;   	;; (defun helm-git-grep-get-top-dir nil "/users/Mitchell/src/tw-server/PLATFORM")
+;;      ;; helm-git-grep-with-exclude-file-pattern
+;;      ;; (defun helm-git-grep-get-top-dir nil "/users/Mitchell/src/tw-server/PLATFORM")
 ;;   :init (progn
-;; 	  ;; Invoke `helm-git-grep' from isearch.
-;; 	  (define-key isearch-mode-map (kbd "C-c g") 'helm-git-grep-from-isearch)
+;;        ;; Invoke `helm-git-grep' from isearch.
+;;        (define-key isearch-mode-map (kbd "C-c g") 'helm-git-grep-from-isearch)
 ;;
-;; 	  ;; Invoke `helm-git-grep' from other helm.
-;; 	  (eval-after-load 'helm
-;; 	    '(define-key helm-map (kbd "C-c g") 'helm-git-grep-from-helm))))
+;;        ;; Invoke `helm-git-grep' from other helm.
+;;        (eval-after-load 'helm
+;;          '(define-key helm-map (kbd "C-c g") 'helm-git-grep-from-helm))))
 
 ;; https://github.com/kopoli/helm-grepint
 (use-package helm-grepint
@@ -319,7 +329,7 @@
 ; local
 (use-package duplicate-line
   :bind (("M-p" . duplicate-previous-line)
-	 ("M-n" . duplicate-following-line)))
+         ("M-n" . duplicate-following-line)))
 
 ;; This binds c-.
 ;; we've stolen c-. (from org-time-stamp, so we need to rebind that)
@@ -355,11 +365,11 @@
 ;; todo need a work init and a home one BUT see host specific section, better
 ;; todo  (locate-dominating-file (buffer-file-name) "build.gradle")
 (add-hook 'java-mode-hook
-	  (lambda ()
-	    (setq indent-tabs-mode nil ; force indent with spaces, never TABs
+          (lambda ()
+            (setq indent-tabs-mode nil ; force indent with spaces, never TABs
                   c-basic-offset 4)
-	    (set (make-local-variable 'compile-command)
-		 "cd /Users/Mitchell/src/tw-server/thingworx-platform-postgres; gradle build -x test")))
+            (set (make-local-variable 'compile-command)
+                 "cd /Users/Mitchell/src/tw-server/thingworx-platform-postgres; gradle build -x test")))
 
 ;;(use-package eclim
 ;;  :init (my-elcim-setup)
@@ -400,15 +410,15 @@
 (defun my-display-changed-hook (disp)
   (message "Adjusting for display %s" disp)
   (cond ((equal disp '(3840 . 1080))   ; laptop + ext monitor
-	 (my-set-font-size-absolute 10))
-	((equal disp '(1920 . 1080))      ; just laptop
-	 (my-set-font-size-absolute 12))))
+         (my-set-font-size-absolute 10))
+        ((equal disp '(1920 . 1080))      ; just laptop
+         (my-set-font-size-absolute 12))))
 
 (use-package dispwatch
   :ensure t
   :config (progn
-	  (add-hook 'dispwatch-display-change-hooks #'my-display-changed-hook)
-	  (dispwatch-mode 1)))
+          (add-hook 'dispwatch-display-change-hooks #'my-display-changed-hook)
+          (dispwatch-mode 1)))
 
 (use-package go-mode
 ;  :bind (("M-." . godef-jump)
@@ -423,7 +433,7 @@
 (use-package go-direx
   ;; reminder: might mess with popwin.el here
   :bind (:map go-mode-map
-	      ("C-c ;" . go-direx-pop-to-buffer)))
+              ("C-c ;" . go-direx-pop-to-buffer)))
 
 ;(use-package hideshow
 ;  :bind ((kbd "f12") . hs-toggle-hiding))
@@ -495,7 +505,7 @@
       '(("t" "Todo [inbox]" entry
          (file+headline "~/org/:gtd-inbox.org" "Tasks")
          "* TODO %i%?")
-	("u" "Work Todo [inbox]" entry
+        ("u" "Work Todo [inbox]" entry
          (file+headline "~/org/:gtd-inbox.org" "Work Tasks")
          "* TODO %i%? :work:")
 
@@ -513,22 +523,22 @@
 ;         Why I believe this decision will pan out this way:
 ;         How I feel about the decision I've made:
 
-	;; experiment
-	("l" "URL [inbox]" entry
+        ;; experiment
+        ("l" "URL [inbox]" entry
          (file+headline "~/prj/dotfiles/shared-org/shared-inbox.org" "Incoming Links")
          "** %u %?\n%c")  ; x=clipboard
 
         ("s" "Standup" entry
          (file+headline "~/org/:gtd-worklog.org" "Standup")
-	 (function my-make-team-template))
+         (function my-make-team-template))
         ("T" "Tickler" entry
          (file+headline "~/org/:gtd-tickler.org" "Tickler")
          "* %i%? \n %U")
         ("w" "Work log" entry
          (file+headline "~/org/:gtd-worklog.org" "Work Log")
          "* %U %i\n%?")
-	("p" "Problem with Polya explorations" entry (file+headline "~/org/problems.org" "Problems")
-	 "* %U %i
+        ("p" "Problem with Polya explorations" entry (file+headline "~/org/problems.org" "Problems")
+         "* %U %i
 ** (I)dentify the problem
 What is the unknown? What are the data? What is the condition?
 Draw a figure. Introduce suitable notation.
@@ -563,16 +573,16 @@ Can you derive the solution differently? Can you use the result or method in som
 (use-package org-mode
   :ensure org
   :bind (("C-c c" . org-capture)
-	 ("C-c a" . org-agenda)
-	 ("C-c t" . org-time-stamp))	; or maybe C-c .
+         ("C-c a" . org-agenda)
+         ("C-c t" . org-time-stamp))	; or maybe C-c .
          ;; todo: bind  org-return-indent?
-	 ;; and maybe
-	 ;; (global-set-key "\C-cb" 'org-switchb)
-	 ;; (global-set-key "\C-cl" 'org-store-link)
+         ;; and maybe
+         ;; (global-set-key "\C-cb" 'org-switchb)
+         ;; (global-set-key "\C-cl" 'org-store-link)
 
   :init (progn
-	  ;; allow "structure templates" eg via "<s tab"
-	  (require 'org-tempo)
+          ;; allow "structure templates" eg via "<s tab"
+          (require 'org-tempo)
 
           (custom-set-variables
            '(org-babel-load-languages '((shell . t)
@@ -595,26 +605,26 @@ Can you derive the solution differently? Can you use the result or method in som
 
 
           (auto-fill-mode 1)
-	  (setq
+          (setq
            fill-column 99
            org-todo-keywords '((sequence "TODO(t)" "WAITING(w)" "|" "DONE(d)" "CANCELLED(c)"))
-	   org-startup-indented t
-	   org-startup-folded "showall"
-	   org-hide-leading-stars t
-	   org-agenda-files (list my-inbox-orgfile
-				  my-projects-orgfile
-				  my-someday-orgfile
-				  my-tickler-orgfile)
+           org-startup-indented t
+           org-startup-folded "showall"
+           org-hide-leading-stars t
+           org-agenda-files (list my-inbox-orgfile
+                                  my-projects-orgfile
+                                  my-someday-orgfile
+                                  my-tickler-orgfile)
 
-	   org-refile-targets (list (cons my-projects-orgfile '(:maxlevel . 3))
-				    (cons my-someday-orgfile  '(:level . 1))
-				    (cons my-tickler-orgfile  '(:maxlevel . 2)))
+           org-refile-targets (list (cons my-projects-orgfile '(:maxlevel . 3))
+                                    (cons my-someday-orgfile  '(:level . 1))
+                                    (cons my-tickler-orgfile  '(:maxlevel . 2)))
 
-	   ;; org-agenda-text-search-extra-files (directory-files my-org-dir t "org$")
-	   org-export-with-toc nil    ;; do not generate a TOC on export please
-	   org-export-with-sub-superscripts nil
-	   org-directory my-org-dir
-	   org-default-notes-file my-inbox-orgfile)))
+           ;; org-agenda-text-search-extra-files (directory-files my-org-dir t "org$")
+           org-export-with-toc nil    ;; do not generate a TOC on export please
+           org-export-with-sub-superscripts nil
+           org-directory my-org-dir
+           org-default-notes-file my-inbox-orgfile)))
 
 (use-package org-roam
   :ensure t
@@ -625,7 +635,7 @@ Can you derive the solution differently? Can you use the result or method in som
                ("C-c n f" . org-roam-find-file)
                ("C-c n b" . org-roam-switch-to-buffer)
                ("C-c n g" . org-roam-graph-show))
-              :map org-mode-map
+;              :map org-mode-map
               (("C-c n i" . org-roam-insert))))
 
 ;; (defun my-journal-find-file ()
@@ -649,10 +659,12 @@ Can you derive the solution differently? Can you use the result or method in som
 
 (use-package deft
   :ensure t
-  :bind (([f9] . my-deft))
+  :bind (([f9] . my-deft)
+         :map deft-mode-map
+         ("<backspace>" . 'deft-filter-decrement))
   :init (setq deft-extension "org"
               deft-directory "~/org"
-	      deft-text-mode 'org-mode))
+              deft-text-mode 'org-mode))
 
 ; (use-package frame-cmds
 ;   :ensure t
@@ -662,9 +674,9 @@ Can you derive the solution differently? Can you use the result or method in som
 (use-package smart-mode-line
   :ensure t
   :init (progn
-	  (setq sml/no-confirm-load-theme t)
-	  (setq sml/theme 'respectful)
-	  (sml/setup)))
+          (setq sml/no-confirm-load-theme t)
+          (setq sml/theme 'respectful)
+          (sml/setup)))
 
 (use-package material-theme
   :ensure t)
@@ -697,8 +709,8 @@ Can you derive the solution differently? Can you use the result or method in som
 (use-package easy-kill
   :ensure t
   :init (progn
-	  (global-set-key [remap kill-ring-save] 'easy-kill)
-	  (global-set-key [remap mark-sexp] 'easy-mark)))
+          (global-set-key [remap kill-ring-save] 'easy-kill)
+          (global-set-key [remap mark-sexp] 'easy-mark)))
 
 (use-package flycheck
   :ensure t)
@@ -725,8 +737,8 @@ Can you derive the solution differently? Can you use the result or method in som
 ;; (use-package smooth-scroll
 ;;   :ensure smooth-scroll
 ;;   :init (progn
-;; 	  (smooth-scroll-mode t)
-;; 	  (setq smooth-scroll/vscroll-step-size 25)))
+;;        (smooth-scroll-mode t)
+;;        (setq smooth-scroll/vscroll-step-size 25)))
 
 (use-package iedit
   :ensure t)
@@ -760,7 +772,7 @@ Can you derive the solution differently? Can you use the result or method in som
 (when window-system
   (setq default-font-size-pt 12
 
-	;; assuming many buffers persisting
+        ;; assuming many buffers persisting
         confirm-kill-emacs #'yes-or-no-p)
 
   (defun modi/font-size-adj (&optional arg)
@@ -773,7 +785,7 @@ M-<NUM> M-x modi/font-size-adj increases font size by NUM points if NUM is +ve,
                                resets    font size if NUM is 0."
     (interactive "p")
     (if (= arg 0)
-	(setq font-size-pt default-font-size-pt)
+        (setq font-size-pt default-font-size-pt)
       (setq font-size-pt (+ font-size-pt arg)))
     ;; The internal font size value is 10x the font size in points unit.
     ;; So a 10pt font size is equal to 100 in internal font size value.
@@ -799,8 +811,8 @@ M-<NUM> M-x modi/font-size-adj increases font size by NUM points if NUM is +ve,
 ;; ------------------------------------------------------
 
 (set-face-attribute 'show-paren-match nil
-		    :background "DarkOrange4"
-		    :foreground "white")
+                    :background "DarkOrange4"
+                    :foreground "white")
 
 (setq
  show-paren-style 'expression
@@ -844,7 +856,7 @@ M-<NUM> M-x modi/font-size-adj increases font size by NUM points if NUM is +ve,
   (show-paren-mode 1)
    ;; (ggtags-mode 1)
     (setq fill-column 95
-	  indent-tabs-mode nil)
+          indent-tabs-mode nil)
     ;;; (helm-gtags-mode)			;; see also disabled gtags paragraph
 
     ;; I don't want this every file load, maybe in save hook though
@@ -937,9 +949,9 @@ is already narrowed."
   "Format region as json and pop up new buffer to view it"
   (interactive "r")
   (let ((buf (get-buffer-create "*view-json*"))
-	(inhibit-read-only t))
+        (inhibit-read-only t))
     (with-current-buffer buf
-	(erase-buffer))
+        (erase-buffer))
     (shell-command-on-region beg end "jq ." buf)
     (json-mode)
     (view-mode)
@@ -967,14 +979,14 @@ is already narrowed."
 
 (defun my-gdb-hook ()
   (setq gdb-many-windows nil
-	gdb-show-main t))
+        gdb-show-main t))
 
 (mapcar (lambda (h) (add-hook h 'my-generic-mode-hook))
-	'(emacs-lisp-mode-hook html-mode-hook php-mode-user-hook
-    	  sh-mode-hook sql-mode-hook c-mode-hook c++-mode-hook
-	  java-mode-hook makefile-mode-hook))
+        '(emacs-lisp-mode-hook html-mode-hook php-mode-user-hook
+          sh-mode-hook sql-mode-hook c-mode-hook c++-mode-hook
+          java-mode-hook makefile-mode-hook))
 
-(add-hook 'perl-mode-hook 	'my-perl-mode-hook)
+(add-hook 'perl-mode-hook       'my-perl-mode-hook)
 (add-hook 'xml-mode-hook        'my-xml-mode-hook)
 (add-hook 'c-mode-hook		'my-c-mode-common-hook)
 (add-hook 'c++-mode-hook	'my-c-mode-common-hook)
@@ -988,8 +1000,8 @@ is already narrowed."
   "Use bash to source FILE in a temporary subshell and report the value of env VAR."
   (let ((F (expand-file-name FILE)))
     (if (file-readable-p F)
-	(shell-command-to-string
-	 (format "bash -c '. %s; echo -n ${%s}' 2>/dev/null" F VAR))
+        (shell-command-to-string
+         (format "bash -c '. %s; echo -n ${%s}' 2>/dev/null" F VAR))
       nil)))
 
 ;; whooops see also .dir-locals.el - already invented
@@ -1004,11 +1016,11 @@ is already narrowed."
 (defun my-helm-grepint-git-grep-locate-root ()
   (expand-file-name
   (or (locate-dominating-file (file-name-as-directory
-			       (expand-file-name (file-truename default-directory)))
-			      ".mnp-project")
+                               (expand-file-name (file-truename default-directory)))
+                              ".mnp-project")
       (locate-dominating-file (file-name-as-directory
-			       (expand-file-name (file-truename default-directory)))
-			      ".git"))))
+                               (expand-file-name (file-truename default-directory)))
+                              ".git"))))
 
 ;;
 ;; Override to skip dotted dirs
@@ -1125,20 +1137,20 @@ systems."
 (defun ew (prog)
   (interactive "sProgram: ")
   (find-file (or (executable-find prog)
-		 (error (concat prog " not found in exec-path")))))
+                 (error (concat prog " not found in exec-path")))))
 
 ;; more-which
 (defun mw (prog)
   (interactive "sProgram: ")
   (view-file (or (executable-find prog)
-		 (error (concat prog " not found in exec-path")))))
+                 (error (concat prog " not found in exec-path")))))
 
 ;; TODO: this should go to most recent buffer if already in *gud*
 
 (defun word-at-point ()
   (save-excursion
     (let* ((end (progn (skip-syntax-forward "w_") (point)))
-	   (begin (progn (skip-syntax-backward "w_") (point))))
+           (begin (progn (skip-syntax-backward "w_") (point))))
       (buffer-substring begin end))))
 
 (defun my-code-search (str)
@@ -1151,13 +1163,13 @@ systems."
   "Make, or switch to, a perldb or gud buffer. Switch back if we're already there."
   (interactive)
   (cond ((and (boundp 'gud-comint-buffer) (buffer-live-p gud-comint-buffer))
-	 (if (eq (current-buffer) gud-comint-buffer)
-	     (switch-to-buffer nil) 		 ; there already - switch back to previous
-	   (switch-to-buffer gud-comint-buffer)) ; not there, so go there
-	 ;; gdb specific
-	 (if (equal gud-minor-mode 'gdbmi)
-	     (gdb-restore-windows)))
-	(t (call-interactively 'perldb))))  ; not running, start it and go there
+         (if (eq (current-buffer) gud-comint-buffer)
+             (switch-to-buffer nil)              ; there already - switch back to previous
+           (switch-to-buffer gud-comint-buffer)) ; not there, so go there
+         ;; gdb specific
+         (if (equal gud-minor-mode 'gdbmi)
+             (gdb-restore-windows)))
+        (t (call-interactively 'perldb))))  ; not running, start it and go there
 
 (defun my-just-one-white (&optional n)
   "Delete all spaces and tabs around point, leaving one space (or N spaces)."
@@ -1167,8 +1179,8 @@ systems."
     (constrain-to-field nil orig-pos)
     (dotimes (i (or n 1))
       (if (= (following-char) 32)
-	  (forward-char 1)
-	(insert 32)))
+          (forward-char 1)
+        (insert 32)))
     (delete-region
      (point)
      (progn
@@ -1228,19 +1240,19 @@ systems."
 
 (setq eshell-prompt-function
       (lambda ()
-	(concat
-	 (propertize "┌─[" 'face `(:foreground "green"))
-	 (propertize (user-login-name) 'face `(:foreground "red"))
-	 (propertize "@" 'face `(:foreground "green"))
-	 (propertize (system-name) 'face `(:foreground "light blue"))
-	 (propertize "]──[" 'face `(:foreground "green"))
-	 (propertize (format-time-string "%H:%M" (current-time)) 'face `(:foreground "yellow"))
-	 (propertize "]──[" 'face `(:foreground "green"))
-	 (propertize (concat (eshell/pwd)) 'face `(:foreground "white"))
-	 (propertize "]\n" 'face `(:foreground "green"))
-	 (propertize "└─>" 'face `(:foreground "green"))
-	 (propertize (if (= (user-uid) 0) " # " " $ ") 'face `(:foreground "green"))
-	 )))
+        (concat
+         (propertize "┌─[" 'face `(:foreground "green"))
+         (propertize (user-login-name) 'face `(:foreground "red"))
+         (propertize "@" 'face `(:foreground "green"))
+         (propertize (system-name) 'face `(:foreground "light blue"))
+         (propertize "]──[" 'face `(:foreground "green"))
+         (propertize (format-time-string "%H:%M" (current-time)) 'face `(:foreground "yellow"))
+         (propertize "]──[" 'face `(:foreground "green"))
+         (propertize (concat (eshell/pwd)) 'face `(:foreground "white"))
+         (propertize "]\n" 'face `(:foreground "green"))
+         (propertize "└─>" 'face `(:foreground "green"))
+         (propertize (if (= (user-uid) 0) " # " " $ ") 'face `(:foreground "green"))
+         )))
 
 ;; save minibuffer history across sessions
 (savehist-mode 1)
@@ -1273,26 +1285,26 @@ systems."
 (when (fboundp 'windmove-default-keybindings)
   (windmove-default-keybindings))
 
-(global-set-key [f1] 		'switch-to-most-recent-org-buffer)
-(global-set-key [f2] 		'narrow-or-widen-dwim)
+(global-set-key [f1]            'switch-to-most-recent-org-buffer)
+(global-set-key [f2]            'narrow-or-widen-dwim)
 (global-set-key [f3]            'pop-to-scratch)
 (global-set-key [f4]            'my-code-search)
-(global-set-key [f5]   		(lambda () (interactive) (revert-buffer t nil)))
-(global-set-key [f6]   		(lambda () (interactive) (switch-to-buffer nil)))
-(global-set-key [f7]   		'my-toggle-hideshow-all)
-(global-set-key [f12]  		'my-toggle-selective-display)
-(global-set-key [home] 		'beginning-of-buffer)
-(global-set-key [end] 		'end-of-buffer)
+(global-set-key [f5]            (lambda () (interactive) (revert-buffer t nil)))
+(global-set-key [f6]            (lambda () (interactive) (switch-to-buffer nil)))
+(global-set-key [f7]            'my-toggle-hideshow-all)
+(global-set-key [f12]           'my-toggle-selective-display)
+(global-set-key [home]          'beginning-of-buffer)
+(global-set-key [end]           'end-of-buffer)
 
 ;; sort of IntelliJ finger compat
 (global-set-key (kbd "<C-tab>")	(lambda () (interactive) (switch-to-buffer nil)))
 
-(global-set-key "\M-g" 		'goto-line)
-(global-set-key [?\C-_] 	'help-command)
-(global-set-key "\C-h"	 	'backward-delete-char)
+(global-set-key "\M-g"          'goto-line)
+(global-set-key [?\C-_]         'help-command)
+(global-set-key "\C-h"	        'backward-delete-char)
 
 (global-set-key (kbd "M-SPC")	'my-just-one-white)
-(global-set-key "\C-cr" 	'align-regexp)
+(global-set-key "\C-cr"         'align-regexp)
 
 ;; see bs mode above, disabled
 (global-set-key "\C-x\C-b" 'electric-buffer-list)
@@ -1340,8 +1352,8 @@ systems."
   "Open most recently created file in DIR."
   (let ((files (directory-files-and-attributes dir nil nil t)))
     (find-file (concat dir "/" (caadr (sort
-				       files
-				       (lambda (a b) (time-less-p (nth 6 b) (nth 6 a)))))))))
+                                       files
+                                       (lambda (a b) (time-less-p (nth 6 b) (nth 6 a)))))))))
 
 (defun erd ()
   "Edit most Recent Download"

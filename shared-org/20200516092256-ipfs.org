@@ -1,0 +1,62 @@
+#+TITLE: ipfs - benet + pooja shah: opportunities
+
+benet + pooja shah: opportunities
+https://www.youtube.com/watch?time_continue=123&v=Tnn3QJN4dec&feature=emb_logo
+
+
+developer assets:
+- package managers
+- static assets, containers, vms
+- pinning bots integrated with gh, gl, slack
+- cicd pipelines
+- *** WINKINS ***
+
+archival
+- juan: bounties for importing public datasets into pinning services
+
+managed nodes
+- metrics, deployent
+- region
+- ha
+
+private network
+- easily deploy
+- network isolation
+- bootstrappers ???
+- gateways, relays
+
+traffic relay as a service
+- for aggressive nats
+- charge for traffic
+
+content/network introspection service
+- visualize
+- stats
+- peering, connectivity
+- dht + routing visibility
+
+testground hosting/provider
+- one click deploy of - https://github.com/testground/testground
+
+IPLD Dag import
+- data processing pipeline, run expensive comp once and store -> https://dagshub.com
+- operation to pin a whole graph
+
+distribution acls
+- restrict access to a pinning service
+- only pin if auth
+- encrypt on add/pin
+- encrypting gateways
+- manage sharing and acls
+
+filecoin
+- wave 4 dev grants https://filecoin.io/grants
+- rfps for visualizers etc
+
+IPLD - interplanetaryuu linked data
+- Eric Myhre - https://invidio.us/watch?v=totVQXYS1N8
+- could have a JQ for an IPLD graph
+- use Advanced Layouts to do encryption, in band, in IPLD
+
+assets for virtual worlds
+-  mincraft etc

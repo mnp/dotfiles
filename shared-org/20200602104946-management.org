@@ -1,0 +1,9 @@
+#+TITLE: Management
+
+* links
+https://github.com/ksindi/managers-playbook
+https://staysaasy.com/engineering/2020/06/09/Don%27t-Joke.html
+
+[[https://ntrs.nasa.gov/archive/nasa/casi.ntrs.nasa.gov/19720005243.pdf][what made apollo a success]]
+
+[[https://www.nasa.gov/pdf/293253main_62682main_jerry_madden_forum7.pdf][A Project Manager's Lessons Learned - NASA]]

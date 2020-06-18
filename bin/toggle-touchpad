@@ -1,0 +1,17 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+
+open S, 'synclient -l |' or die;
+while (<S>) {
+  if (/TouchpadOff.*= (\d)/) {
+    system(sprintf "synclient TouchpadOff=%d\n", !$1);
+    exit 0;
+  } 
+  
+}
+
+`logger toggle-touchpad cannot understand synclient`;
+exit 1;
+

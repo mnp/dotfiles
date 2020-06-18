@@ -1,0 +1,20 @@
+# Use this to determine window class:
+# xprop WM_CLASS | grep -o '"[^"]*"' | head -n 1
+
+# Can also add modifiers, see man imwheel or archlinux page
+
+"^slack$"
+None,       Up,     Button4,  3
+None,       Down,   Button5,  3
+
+"^Navigator$"
+None,       Up,     Up,     3
+None,       Down,   Down,   3
+
+"^gnome-terminal-server$"
+None, Up, Button4, 3
+None, Down, Button5, 3
+
+"^emacs$"
+None,       Up,     Button4,  3
+None,       Down,   Button5,  3

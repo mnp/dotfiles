@@ -1,0 +1,20 @@
+
+#+TITLE: ipfs-links
+
+** dweb:// prefix
+https://docs.ipfs.io/how-to/address-ipfs-on-web/
+https://github.com/arewedistributedyet/arewedistributedyet/issues/28
+
+** docs
+nice diagram
+https://github.com/ipfs/go-ipfs/blob/master/docs/cli-http-api-core-diagram.png
+
+https://cid.ipfs.io/  cid decoder, also see `ipfs cid`
+
+https://dag.ipfs.io/  dag builder
+
+https://ipfs.github.io/public-gateway-checker/
+
+** structured programming
+
+https://www.youtube.com/watch?time_continue=287&v=PBo1lEZ_Iik&feature=emb_logo

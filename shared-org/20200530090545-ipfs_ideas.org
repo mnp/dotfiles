@@ -1,0 +1,11 @@
+#+TITLE: ipfs-ideas
+
+** types and the unix programming model 
+https://research.protocol.ai/areas/type-theory/
+see david dalyrimple's TALK 
+
+** org roam
+bidirectoinal link structure? tree groves shared with others
+
+** QLDB on IPFS
+ledger database like blockchain. what would be different vs regular blockchain?
