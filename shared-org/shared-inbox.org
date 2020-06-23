@@ -23,6 +23,8 @@ https://www.youtube.com/watch?v=Xq9vBZs0j-8&feature=youtu.be&t=1416
 https://www.nerdwallet.com/reviews/investing/advisors/wealthfront
 https://github.com/jethrokuan/braindump/tree/master/org
 * SW arch / cloud / dist systems reading
+** consistency 
+https://jepsen.io/consistency
 ** Risk First
 https://github.com/risk-first/website/wiki
 ** TODO 3b1b ML
