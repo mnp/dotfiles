@@ -2,6 +2,17 @@
 
 used by [[file:~/org/wallaroo_labs.org][wallaroo labs]]
 
+* Scott Fritchie on BEAM vs Pony
+https://www.youtube.com/watch?v=_0m0_qtfzLs
+
+actors are refcounted st parent actor knows when its children have all exited so it can exit (gc)
+Another way to say it is when nobody has its name, nobody can send an actor a message so it's time
+to gc it.   [[https://www.ponylang.io/media/papers/orca_gc_and_type_system_co-design_for_actor_languages.pdf][Orca protocol]]
+
+Did not mention BEAM has distributed nodes.
+
+
+
 * workshop
 https://github.com/aturley/pony-workshop
 

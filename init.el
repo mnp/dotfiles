@@ -77,10 +77,6 @@
   (package-refresh-contents)
   (package-install 'use-package))
 
-(when (< emacs-major-version 24)
-  ;; For important compatibility libraries like cl-lib
-  (add-to-list 'package-archives '("gnu" . "http://elpa.gnu.org/packages/")))
-
 (use-package diminish
   :init (diminish 'abbrev-mode)
   :ensure t)
@@ -187,8 +183,59 @@
                ("<f8>" . ponylang-menu))))
 
 
-;; Kotlin and LSP
-;; -----------------------------------------------------------------------------
+;; ---- Rust -----------------------------------------------------------------------------
+
+(use-package toml-mode
+  :ensure t)
+
+(use-package rustic
+  :ensure t
+  :init (setq rustic-format-trigger 'on-compile
+              rustic-lsp-server 'rust-analyzer              
+              compilation-scroll-output 'first-error)
+  :config
+  (use-package cargo
+    :ensure t
+    :hook (rust-mode . cargo-minor-mode))
+  :bind
+  (:map rustic-mode-map
+        ("C-c C-k" . #'rustic-cargo-build)
+        ("C-c C-t" . #'rustic-cargo-test-run)
+        ("C-c C-c" . #'rustic-cargo-run)))
+
+;;(use-package rustic
+;;  :config
+;;  (setq rustic-lsp-server 'rust-analyzer)
+;;  (use-package flycheck
+;;    :hook (prog-mode . flycheck-mode))
+;;  (use-package company
+;;    :hook (prog-mode . company-mode)
+;;    :config (setq company-tooltip-align-annotations t)
+;;    (setq company-minimum-prefix-length 1))
+;;  (use-package lsp-mode
+;;    :commands lsp
+;;    :config (require 'lsp-clients))
+;;  (use-package lsp-ui)
+;;  (use-package toml-mode)
+;;  (use-package rust-mode
+;;    :hook (rust-mode . lsp))
+;;  (use-package cargo
+;;    :hook (rust-mode . cargo-minor-mode))
+;;  (use-package flycheck-rust
+;;    :config (add-hook 'flycheck-mode-hook #'flycheck-rust-setup))
+;;
+;;  (define-key rustic-mode-map (kbd "TAB") #'company-indent-or-complete-common)
+;;  (rassq-delete-all 'rustic-mode auto-mode-alist)
+;;  (add-to-list 'auto-mode-alist '("\\.rs\\'" . rust-mode))
+;;;  (setq counsel-etags-update-tags-backend
+;;;        (lambda (src-dir) (shell-command "rusty-tags -s .. emacs")))
+;;;  (setq counsel-etags-tags-file-name "rusty-tags.emacs")
+;;  )
+
+
+
+;; ---- Kotlin and LSP --------------------------------------------------------------------
+
 (use-package kotlin-mode
   :ensure t)
 
@@ -197,11 +244,13 @@
 (use-package ob-kotlin
   :ensure t)
 
+(setq lsp-keymap-prefix "C-c l")          ; default is s-l
 (use-package lsp-mode
   :hook (kotlin-mode . lsp)
   :commands lsp
-  :bind-keymap (("M-," . lsp-find-references)
-                ("M-." . lsp-find-definition))
+  :bind (:map lsp-mode
+              ("M-," . lsp-find-references)
+              ("M-." . lsp-find-definition))
   :init (custom-set-variables '(lsp-kotlin-language-server-path "~/prj/kotlin-language-server/00----runme")))
 
 ;; general perf suggested for lsp-mode
@@ -265,22 +314,23 @@
   :diminish
   :config (progn
             (helm-mode 1)
-            (helm-adaptive-mode 1)
-        ;    (helm-push-mark-mode 1)
-            (add-to-list 'helm-completing-read-handlers-alist
-                         '(find-file . helm-completing-read-symbols))
-            (unless (boundp 'completion-in-region-function)
-              (define-key lisp-interaction-mode-map [remap completion-at-point] 'helm-lisp-completion-at-point)
-              (define-key emacs-lisp-mode-map       [remap completion-at-point] 'helm-lisp-completion-at-point))
-            (define-key global-map [remap occur] 'helm-occur)
-            (define-key global-map [remap list-buffers] 'helm-buffers-list)
-            (define-key global-map (kbd "M-C-/") 'helm-dabbrev))
+;;            (helm-adaptive-mode 1)
+;;        ;    (helm-push-mark-mode 1)
+;;            (add-to-list 'helm-completing-read-handlers-alist
+;;                         '(find-file . helm-completing-read-symbols))
+;;            (unless (boundp 'completion-in-region-function)
+;;              (define-key lisp-interaction-mode-map [remap completion-at-point] 'helm-lisp-completion-at-point)
+;;              (define-key emacs-lisp-mode-map       [remap completion-at-point] 'helm-lisp-completion-at-point))
+;;            (define-key global-map [remap occur] 'helm-occur)
+;;            (define-key global-map [remap list-buffers] 'helm-buffers-list)
+;;            (define-key global-map (kbd "M-C-/") 'helm-dabbrev))
             ;; without this, the gray+white selection bar matches other elements
 ;  :init (set-face-attribute 'helm-selection nil
 ;                            :background "LightYellow"
 ;                            :foreground "black")
-  :bind (("M-x" . helm-M-x)
-         ))
+;;  :bind (("M-x" . helm-M-x)
+;;         ))
+))
 
 
 (use-package helm-projectile
@@ -451,7 +501,7 @@
 
 (use-package eshell
   :bind (:map eshell-command-map
-              (("M-." . my-eshell-insert-last-argument))))
+              ("M-." . my-eshell-insert-last-argument)))
 
 (use-package groovy-mode
   :ensure t
@@ -494,13 +544,6 @@
   (message "Loading TODO's")
   (org-todo-list "TODO"))
 
-(defconst my-work-sub-team '("0-me" "Jason" "John" "Justin" "Mike" "Nancy" "Nathan"))
-
-(defun my-make-team-template ()
-  (concat
-   "* %U %i%?\n"
-   (apply 'concat (mapcar (lambda (x) (concat "*** " x "\n\n")) my-work-sub-team))))
-
 (setq org-capture-templates
       '(("t" "Todo [inbox]" entry
          (file+headline "~/org/:gtd-inbox.org" "Tasks")
@@ -528,9 +571,6 @@
          (file+headline "~/prj/dotfiles/shared-org/shared-inbox.org" "Incoming Links")
          "** %u %?\n%c")  ; x=clipboard
 
-        ("s" "Standup" entry
-         (file+headline "~/org/:gtd-worklog.org" "Standup")
-         (function my-make-team-template))
         ("T" "Tickler" entry
          (file+headline "~/org/:gtd-tickler.org" "Tickler")
          "* %i%? \n %U")
@@ -558,8 +598,6 @@ Can you derive the solution differently? Can you use the result or method in som
 ***
 ")))
 
-(use-package ob-shell)
-
 ;; ???
 ;(setq explicit-shell-file-name "/usr/local/bin/bash")
 ;(setq shell-file-name "/usr/local/bin/bash")
@@ -567,11 +605,8 @@ Can you derive the solution differently? Can you use the result or method in som
 (setenv "PATH" (concat (expand-file-name "~/workbin:") (getenv "PATH")))
 (setenv "PATH" (concat (expand-file-name "~/bin:") (getenv "PATH")))
 
-(use-package ob-http
-  :ensure t)
-
-(use-package org-mode
-  :ensure org
+(use-package org
+  :ensure t
   :bind (("C-c c" . org-capture)
          ("C-c a" . org-agenda)
          ("C-c t" . org-time-stamp))	; or maybe C-c .
@@ -580,51 +615,39 @@ Can you derive the solution differently? Can you use the result or method in som
          ;; (global-set-key "\C-cb" 'org-switchb)
          ;; (global-set-key "\C-cl" 'org-store-link)
 
-  :init (progn
-          ;; allow "structure templates" eg via "<s tab"
-          (require 'org-tempo)
+  :init
+  (org-babel-do-load-languages
+   'org-babel-load-languages 
+   '((shell . t)
+     (python . t)
+     (perl . t)
+     (rust . t)
+     (js . t)
+     (http . t) ; uses package ob-http
+     (emacs-lisp . t)))
+  
+  (auto-fill-mode 1)
+  (setq
+   fill-column 99
+   org-todo-keywords '((sequence "TODO(t)" "WAITING(w)" "|" "DONE(d)" "CANCELLED(c)"))
+   org-startup-indented t
+   org-startup-folded "showall"
+   org-hide-leading-stars t
+   org-confirm-babel-evaluate nil
+   org-agenda-files (list my-inbox-orgfile
+			  my-projects-orgfile
+			  my-someday-orgfile
+			  my-tickler-orgfile)
 
-          (custom-set-variables
-           '(org-babel-load-languages '((shell . t)
-                                        (python . t)
-                                        (perl . t)
-                                        (js . t)
-                                        (http . t) ; uses package ob-http
-                                        (emacs-lisp . t)))
-           '(org-confirm-babel-evaluate nil))
+   org-refile-targets (list (cons my-projects-orgfile '(:maxlevel . 3))
+			    (cons my-someday-orgfile  '(:level . 1))
+			    (cons my-tickler-orgfile  '(:maxlevel . 2)))
 
-          ;; examples
-          ;;
-          ;; #+BEGIN_SRC js
-          ;; console.log("hello");
-          ;; #+END_SRC
-          ;;
-          ;; #+BEGIN_SRC http :pretty
-          ;; GET http://example.com
-          ;; #+END_SRC
-
-
-          (auto-fill-mode 1)
-          (setq
-           fill-column 99
-           org-todo-keywords '((sequence "TODO(t)" "WAITING(w)" "|" "DONE(d)" "CANCELLED(c)"))
-           org-startup-indented t
-           org-startup-folded "showall"
-           org-hide-leading-stars t
-           org-agenda-files (list my-inbox-orgfile
-                                  my-projects-orgfile
-                                  my-someday-orgfile
-                                  my-tickler-orgfile)
-
-           org-refile-targets (list (cons my-projects-orgfile '(:maxlevel . 3))
-                                    (cons my-someday-orgfile  '(:level . 1))
-                                    (cons my-tickler-orgfile  '(:maxlevel . 2)))
-
-           ;; org-agenda-text-search-extra-files (directory-files my-org-dir t "org$")
-           org-export-with-toc nil    ;; do not generate a TOC on export please
-           org-export-with-sub-superscripts nil
-           org-directory my-org-dir
-           org-default-notes-file my-inbox-orgfile)))
+   ;; org-agenda-text-search-extra-files (directory-files my-org-dir t "org$")
+   org-export-with-toc nil    ;; do not generate a TOC on export please
+   org-export-with-sub-superscripts nil
+   org-directory my-org-dir
+   org-default-notes-file my-inbox-orgfile))
 
 (use-package org-roam
   :ensure t
@@ -844,8 +867,8 @@ M-<NUM> M-x modi/font-size-adj increases font size by NUM points if NUM is +ve,
 ;;
 ;; (global-set-key (kbd "C-c e") 'my-erc-start-or-switch)
 
-(load-library "my-org-mods")
-(add-hook 'org-mode-hook 'my-org-mode-hook)
+;(load-library "my-org-mods")
+;(add-hook 'org-mode-hook 'my-org-mode-hook)
 
 (defun my-deft ()
   "Show deft buffer, or kill it."
@@ -1035,36 +1058,36 @@ is already narrowed."
 ;; Override to skip dotted dirs
 ;; See https://github.com/emacs-helm/helm/issues/1668
 ;;
-(defun helm-ff-directory-files (directory)
-  "List contents of DIRECTORY.
-Argument FULL mean absolute path.
-It is same as `directory-files' but always returns the
-dotted filename '.' and '..' even on root directories in Windows
-systems."
-  (setq directory (file-name-as-directory
-                   (expand-file-name directory)))
-  (let* (file-error
-         (ls   (condition-case err
-                   (helm-list-directory directory)
-                 ;; Handle file-error from here for Windows
-                 ;; because predicates like `file-readable-p' and friends
-                 ;; seem broken on emacs for Windows systems (always returns t).
-                 ;; This should never be called on GNU/Linux/Unix
-                 ;; as the error is properly intercepted in
-                 ;; `helm-find-files-get-candidates' by `file-readable-p'.
-                 (file-error
-                  (prog1
-                      (list (format "%s:%s"
-                                    (car err)
-                                    (mapconcat 'identity (cdr err) " ")))
-                    (setq file-error t)))))
-         (dot  (concat directory "."))
-         (dot2 (concat directory "..")))
-    (puthash directory (+ (length ls) 2) helm-ff--directory-files-hash)
-    ;; (append (and (not file-error) (list dot dot2)) ls)
-    ;; return the files only, excluding the "." and ".."
-    ls
-    ))
+; (defun helm-ff-directory-files (directory)
+;   "List contents of DIRECTORY.
+; Argument FULL mean absolute path.
+; It is same as `directory-files' but always returns the
+; dotted filename '.' and '..' even on root directories in Windows
+; systems."
+;   (setq directory (file-name-as-directory
+;                    (expand-file-name directory)))
+;   (let* (file-error
+;          (ls   (condition-case err
+;                    (helm-list-directory directory)
+;                  ;; Handle file-error from here for Windows
+;                  ;; because predicates like `file-readable-p' and friends
+;                  ;; seem broken on emacs for Windows systems (always returns t).
+;                  ;; This should never be called on GNU/Linux/Unix
+;                  ;; as the error is properly intercepted in
+;                  ;; `helm-find-files-get-candidates' by `file-readable-p'.
+;                  (file-error
+;                   (prog1
+;                       (list (format "%s:%s"
+;                                     (car err)
+;                                     (mapconcat 'identity (cdr err) " ")))
+;                     (setq file-error t)))))
+;          (dot  (concat directory "."))
+;          (dot2 (concat directory "..")))
+;     (puthash directory (+ (length ls) 2) helm-ff--directory-files-hash)
+;     ;; (append (and (not file-error) (list dot dot2)) ls)
+;     ;; return the files only, excluding the "." and ".."
+;     ls
+;     ))
 
 ;(defun get-restricted-git-command ()
 ;  (concat "--no-pager grep --line-number --no-color -- "

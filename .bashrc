@@ -20,8 +20,21 @@ export PATH
 macemacs=/Applications/Emacs.app/Contents/MacOS/bin-x86_64-10_14/
 test -d $macemacs && path_append PATH $macemacs
 
+# pony
+if [ -d ~/.local/share/ponyup/bin ]; then
+    export CC=gcc
+    path_append PATH ~/.local/share/ponyup/bin
+fi
+test -d $HOME/.cask/bin && path_append PATH $HOME/.cask/bin
+
 # python executables installed by PIP
 test -d ~/.local/bin && path_append PATH ~/.local/bin
+
+# node
+test -d ~/node_modules/.bin && path_append PATH ~/node_modules/.bin
+
+# rust, cargo, etc
+test -r $HOME/.cargo/env && . $HOME/.cargo/env
 
 for dir in $HOME/perl $HOME/perl5/lib/perl5 /usr/local/share/perl/* /usr/local/lib/perl/* /usr/local/lib/perl5/site_perl; do
     path_append PERL5LIB $dir
@@ -388,6 +401,7 @@ alias g='grep -i --color=auto'
 alias grep='grep --color=auto'
 alias egrep='egrep --color=auto'
 alias fgrep='fgrep --color=auto'
+alias pg='pgrep -aif'
 alias jag='ag --java'
 
 alias gd='./gradlew'
@@ -520,6 +534,11 @@ _xw_sub ()
     esac
 }
 
+# See http://wttr.in/:help especially :bash_function
+wttr ()
+{
+    curl 'wttr.in?1'
+}
 
 # <@keck> less for tab-delimited files
 aless(){ perl -e 'BEGIN{$f=shift;%cs=();} open(IN,"<", $f); while(<IN>){$c=0; map{ $s=length;$cs{$c}=($s>$cs{$c})?$s:$cs{$c}; $c++;}split /\t/;}END{$cs{0}++;$x=join

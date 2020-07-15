@@ -6,6 +6,13 @@ also see https://learntla.com/pluscal/toolbox
 
 cheat sheet https://lamport.azurewebsites.net/tla/summary-standalone.pdf
 
+* Hillel Wayne
+TLA+ specifications must be stutter-invariant. A stutter is a temporal step where we reassign all
+of the variables to the same values. To an outside observer, this looks like nothing has
+happened. Stutter-invariance is what makes composing specs in TLA+ a miserable experience, as
+opposed to other specification languages, where composing specs is a punishment for sinners in
+hell.
+
 * chapter 1
 Simplifying by removing details is called abstraction
 
