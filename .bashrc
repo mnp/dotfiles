@@ -16,6 +16,9 @@ path_append PATH $HOME/workbin
 path_append PATH $HOME/homebin
 export PATH
 
+# osx
+test -d /opt/local/bin && path_append PATH /opt/local/bin 
+
 # emacsclient and etags on osx
 macemacs=/Applications/Emacs.app/Contents/MacOS/bin-x86_64-10_14/
 test -d $macemacs && path_append PATH $macemacs
@@ -25,6 +28,7 @@ if [ -d ~/.local/share/ponyup/bin ]; then
     export CC=gcc
     path_append PATH ~/.local/share/ponyup/bin
 fi
+
 test -d $HOME/.cask/bin && path_append PATH $HOME/.cask/bin
 
 # python executables installed by PIP

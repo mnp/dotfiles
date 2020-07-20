@@ -188,6 +188,9 @@
 (use-package toml-mode
   :ensure t)
 
+(use-package ob-rust
+  :ensure t)
+
 (use-package rustic
   :ensure t
   :init (setq rustic-format-trigger 'on-compile
@@ -648,6 +651,9 @@ Can you derive the solution differently? Can you use the result or method in som
    org-export-with-sub-superscripts nil
    org-directory my-org-dir
    org-default-notes-file my-inbox-orgfile))
+
+(use-package ob-http
+  :ensure t)
 
 (use-package org-roam
   :ensure t
