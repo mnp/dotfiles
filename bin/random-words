@@ -1,0 +1,28 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+
+my $shown = 10;
+
+# Limit to non-proper, non-punctuated words more than 4 char long
+my $wordre = qr/^[a-z]{5,}$/o;
+
+my @words;
+
+open(WORDS, "</usr/share/dict/words") or die "$!";
+while (<WORDS>) {
+  if (/$wordre/) {
+    chomp;
+    push @words, $_;
+  }
+}
+close WORDS;
+
+while ($shown--) {
+  my $col = 5;
+  while ($col--) {
+    printf("%20s", $words[rand scalar @words]);
+  }
+  print $/;
+}

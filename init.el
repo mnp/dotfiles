@@ -177,11 +177,12 @@
 
 (use-package ponylang-mode
   :ensure t
-  :init (setenv "CC" "gcc")
+  :init
+  (setenv "CC" "gcc")
+  (add-hook 'ponylang-mode-hook '(lambda () (whitespace-mode -1)))
   :bind (:map ponylang-mode-map
               (("<f6>" . (lambda () (interactive) (switch-to-buffer nil)))
                ("<f8>" . ponylang-menu))))
-
 
 ;; ---- Rust -----------------------------------------------------------------------------
 
@@ -465,7 +466,7 @@
   (cond ((equal disp '(3840 . 1080))   ; laptop + ext monitor
          (my-set-font-size-absolute 10))
         ((equal disp '(1920 . 1080))      ; just laptop
-         (my-set-font-size-absolute 12))))
+         (my-set-font-size-absolute 14))))
 
 (use-package dispwatch
   :ensure t

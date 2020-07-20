@@ -14,6 +14,7 @@
 
 (setq elfeed-feeds
       (append '("http://aperiodical.com/feed/"
+                "https://deniseyu.io/feed.xml"
                 "https://blog.acolyer.org/feed/"
 		     "http://chalkdustmagazine.com/feed/"
 		     "http://bit-player.org/feed"

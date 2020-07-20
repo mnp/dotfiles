@@ -1,0 +1,65 @@
+#!/usr/bin/env python3
+
+'''
+Dump a process state. Single shot, so best used as a child of watch to observe changes run-to-run.
+
+Future ideas
+  - continuous mode including pandas to keep trending and stats
+  - sparklines to display trending
+  - a TUI like top but for one process
+'''
+
+from psutil import Process
+from sys import argv, exit
+from datetime import datetime
+
+if len(argv) > 1:
+    pid = argv[1]
+else:
+    exit("Usage: procwatch PID")
+
+try:
+    p = Process(int(pid))
+    pdict = p.as_dict()
+except Exception as e:
+    print(e)
+    exit(1)
+
+def format_proclist(sep, procs):
+    return sep.join(map(lambda x: "%s(%d)" % (x.name(), x.pid), procs))
+
+def gather_tcp(tcp):
+    stats = {}
+    for c in tcp:
+        if c.status in stats:
+            stats[c.status] += 1
+        else:
+            stats[c.status] = 1
+    return stats
+
+keys = ('name', 'ppid', 'uids', 'status', 'cwd', 'io_counters', 'cmdline', 'cpu_affinity', 'pid', 'num_threads', 'num_ctx_switches', 'memory_percent', 'cpu_percent', 'cpu_times', 'exe',  'cpu_num', 'nice', 'terminal', 'num_fds', 'gids', 'memory_full_info', 'username', 'ionice')
+
+
+for k in keys:
+    print("%s : %s" % (k, pdict[k]))
+
+# memory_info - memory_full_info has more
+#'threads', 
+#'memory_maps', 
+# environ
+#open_files
+
+print("create_time: " + datetime.fromtimestamp(p.create_time()).strftime("%Y-%m-%d %H:%M:%S"))
+print("open_files: " + str(len(pdict['open_files'])))
+print("memory_maps: " + str(len(pdict['memory_maps'])))
+
+print("parents: " + format_proclist(" > ", p.parents()))
+print("children: " + format_proclist(", ", p.children()))
+print("tcp_connections: %s" % (gather_tcp(p.connections("tcp"))))
+print("udp_connections: %d" % (len(p.connections("udp"))))
+print("unix_connections: %d" % (len(p.connections("unix"))))
+
+#for k in list(d.keys()):
+#    print("%s: %s" % (k, d[k]))
+
+
