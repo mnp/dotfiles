@@ -178,6 +178,8 @@
 (use-package ponylang-mode
   :ensure t
   :init
+  :init 
+  (setq compilation-scroll-output 'first-error)
   (setenv "CC" "gcc")
   (add-hook 'ponylang-mode-hook '(lambda () (whitespace-mode -1)))
   :bind (:map ponylang-mode-map
@@ -281,7 +283,8 @@
 (use-package compile
   :ensure t
   :init (setq compilation-scroll-output 1
-              compile-command "make ")
+              compile-command "make "
+              compilation-scroll-output 'first-error)
   :bind ("C-x C-k" . compile))
 
 (use-package google-c-style
@@ -332,10 +335,10 @@
 ;  :init (set-face-attribute 'helm-selection nil
 ;                            :background "LightYellow"
 ;                            :foreground "black")
-;;  :bind (("M-x" . helm-M-x)
-;;         ))
-))
+            )
+  :bind (("M-x" . helm-M-x)))
 
+(global-set-key (kbd "C-x C-f") #'helm-find-files)
 
 (use-package helm-projectile
   :ensure t
@@ -503,9 +506,10 @@
 ;;  (magithub-feature-autoinject t)
 ;;  (setq magithub-clone-default-directory "~/github"))
 
-(use-package eshell
-  :bind (:map eshell-command-map
-              ("M-." . my-eshell-insert-last-argument)))
+;FIXME
+;(use-package eshell
+;  :bind (:map eshell-command-map
+;              ("M-." . my-eshell-insert-last-argument)))
 
 (use-package groovy-mode
   :ensure t
@@ -602,10 +606,6 @@ Can you derive the solution differently? Can you use the result or method in som
 ***
 ")))
 
-;; ???
-;(setq explicit-shell-file-name "/usr/local/bin/bash")
-;(setq shell-file-name "/usr/local/bin/bash")
-
 (setenv "PATH" (concat (expand-file-name "~/workbin:") (getenv "PATH")))
 (setenv "PATH" (concat (expand-file-name "~/bin:") (getenv "PATH")))
 
@@ -631,6 +631,7 @@ Can you derive the solution differently? Can you use the result or method in som
      (emacs-lisp . t)))
   
   (auto-fill-mode 1)
+  (add-hook 'org-mode-hook 'turn-on-auto-fill)
   (setq
    fill-column 99
    org-todo-keywords '((sequence "TODO(t)" "WAITING(w)" "|" "DONE(d)" "CANCELLED(c)"))
@@ -667,6 +668,12 @@ Can you derive the solution differently? Can you use the result or method in som
                ("C-c n g" . org-roam-graph-show))
 ;              :map org-mode-map
               (("C-c n i" . org-roam-insert))))
+
+(set-face-attribute 'org-todo nil
+                    :box '(:style released-button)
+                    :background "#455A64"
+                    :foreground "Red")
+
 
 ;; (defun my-journal-find-file ()
 ;;   (find-file (format "~/org/00-journal/%s.org" (format-time-string "%Y-%02m-%02d")))
@@ -1020,6 +1027,9 @@ is already narrowed."
   (setq gdb-many-windows nil
         gdb-show-main t))
 
+(defun makefile-mode-hook()
+  (setq indent-tabs-mode t))
+
 (mapcar (lambda (h) (add-hook h 'my-generic-mode-hook))
         '(emacs-lisp-mode-hook html-mode-hook php-mode-user-hook
           sh-mode-hook sql-mode-hook c-mode-hook c++-mode-hook
@@ -1266,6 +1276,8 @@ is already narrowed."
       ;; disable novice mode
       disabled-command-function nil
 )
+
+(custom-set-variables '(fill-column 99))
 
 (defun my-eshell-insert-last-argument ()
   (interactive)
