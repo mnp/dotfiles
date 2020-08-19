@@ -3,25 +3,27 @@
 
 . ~/lib/shlib.bash
 
-
 for d in /usr/man /usr/share/man /usr/local/man $HOME/perl5/man; do
     path_append MANPATH $d
 done
 export MANPATH
+export PATH
 
-PATH=$HOME/bin:$HOME/hosts:/usr/local/bin:/usr/local/bin:/usr/local/sbin:/usr/bin:/bin:/usr/sbin:/sbin
+PATH=$HOME/bin:$HOME/hosts
 path_append PATH $HOME/perl5/bin
 path_append PATH $HOME/osbin
 path_append PATH $HOME/workbin
 path_append PATH $HOME/homebin
-export PATH
+
+# emacsclient and etags on osx, needs to be before /usr/local
+macemacs=/Applications/Emacs.app/Contents/MacOS/bin-x86_64-10_14/
+test -d $macemacs && path_append PATH $macemacs
+
+PATH=$PATH:/usr/local/bin:/usr/local/bin:/usr/local/sbin:/usr/bin:/bin:/usr/sbin:/sbin
 
 # osx
 test -d /opt/local/bin && path_append PATH /opt/local/bin 
-
-# emacsclient and etags on osx
-macemacs=/Applications/Emacs.app/Contents/MacOS/bin-x86_64-10_14/
-test -d $macemacs && path_append PATH $macemacs
+test -d /Library/Frameworks/Mono.framework/Home/bin && path_append PATH /Library/Frameworks/Mono.framework/Home/bin
 
 # pony
 if [ -d ~/.local/share/ponyup/bin ]; then
@@ -681,11 +683,11 @@ function dbash () {
 }
 
 
-if [ -d $HOME/workbin ]; then
+if [ -r ~/.bashrc-work ]; then
     . ~/.bashrc-work
 fi
 
-if [ -d $HOME/homebin ]; then
+if [ -r ~/.bashrc-home ]; then
     . ~/.bashrc-home
 fi
 
