@@ -13,6 +13,10 @@
 (setq inhibit-startup-message t
       initial-scratch-message nil)
 
+; sometimes window system starts us dumb
+(if (equal default-directory "/")
+    (cd "~"))
+
 (defconst work-elisp "~/Dropbox/work-elisp"
   "Work-only files - we will load all .el found.")
 
@@ -146,7 +150,7 @@
   (switch-to-buffer buffer))
 
 (use-package yaml-mode
-  :init (add-to-list 'auto-mode-alist '("\\.yml.j2" . yaml-mode))
+  :mode "\\.yml"
   :ensure t)
 
 ;; remember it needs # as separators
@@ -560,12 +564,12 @@
          (file+headline "~/org/:gtd-inbox.org" "Work Tasks")
          "* TODO %i%? :work:")
 
-        ;; see org-roam template docs
-        ("r" "default" plain (function org-roam--capture-get-point)
-         "%?"
-         :file-name "~/prj/dotfiles/shared-org/%<%Y%m%d%H%M%S>-${slug}.org"
-         :head "#+TITLE: ${title}\n"
-         :unnarrowed t)
+;        ;; see org-roam template docs
+;        ("r" "default" plain (function org-roam--capture-get-point)
+;         "%?"
+;         :file-name "~/prj/dotfiles/shared-org/%<%Y%m%d%H%M%S>-${slug}.org"
+;         :head "#+TITLE: ${title}\n"
+;         :unnarrowed t)
 
 ;        ;; decision journal https://blog.trello.com/decision-journal
 ;        ("d" "Decision Journal" entry
@@ -624,6 +628,7 @@ Can you derive the solution differently? Can you use the result or method in som
    'org-babel-load-languages 
    '((shell . t)
      (python . t)
+     (dot . t)
      (perl . t)
      (rust . t)
      (js . t)
@@ -654,38 +659,29 @@ Can you derive the solution differently? Can you use the result or method in som
    org-directory my-org-dir
    org-default-notes-file my-inbox-orgfile))
 
+;; This supports "<s TAB" template expansion
+(use-package org-tempo
+  :enure t)
+
 (use-package ob-http
   :ensure t)
 
-(use-package org-roam
-  :ensure t
-  :hook   (after-init . org-roam-mode)
-  :custom (org-roam-directory "~/prj/dotfiles/shared-org")
-  :bind (:map org-roam-mode-map
-              (("C-c n l" . org-roam)
-               ("C-c n f" . org-roam-find-file)
-               ("C-c n b" . org-roam-switch-to-buffer)
-               ("C-c n g" . org-roam-graph-show))
-;              :map org-mode-map
-              (("C-c n i" . org-roam-insert))))
+; (use-package org-roam
+;   :ensure t
+;   :hook   (after-init . org-roam-mode)
+;   :custom (org-roam-directory "~/prj/dotfiles/shared-org")
+;   :bind (:map org-roam-mode-map
+;               (("C-c n l" . org-roam)
+;                ("C-c n f" . org-roam-find-file)
+;                ("C-c n b" . org-roam-switch-to-buffer)
+;                ("C-c n g" . org-roam-graph-show))
+; ;              :map org-mode-map
+;               (("C-c n i" . org-roam-insert))))
 
 (set-face-attribute 'org-todo nil
                     :box '(:style released-button)
                     :background "#455A64"
                     :foreground "Red")
-
-
-;; (defun my-journal-find-file ()
-;;   (find-file (format "~/org/00-journal/%s.org" (format-time-string "%Y-%02m-%02d")))
-;;   (goto-char (point-max)))
-;;					;
-;; ("j" "Journal" entry (function my-journal-find-file)
-;;	 "* %?\nEntered on %U\n  %i\n  %a")
-
-(defun my-save-and-bury-buffer ()
-  (interactive)
-  (save-buffer)
-  (bury-buffer))
 
 ;; C-c C-j  - capture
 ;;
@@ -696,12 +692,50 @@ Can you derive the solution differently? Can you use the result or method in som
 
 (use-package deft
   :ensure t
+  :custom
+  (deft-extensions '("org" "md" "txt"))
+  (deft-directory "~/org")
+  (deft-use-filename-as-title t)
+      ;;        deft-text-mode 'org-mode
   :bind (([f9] . my-deft)
          :map deft-mode-map
-         ("<backspace>" . 'deft-filter-decrement))
-  :init (setq deft-extension "org"
-              deft-directory "~/org"
-              deft-text-mode 'org-mode))
+         ("<backspace>" . 'deft-filter-decrement)))
+
+(use-package zetteldeft
+  :ensure t
+  :after deft
+  :config (zetteldeft-set-classic-keybindings))
+
+;; (defun my-journal-find-file ()
+;;   (find-file (format "~/org/00-journal/%s.org" (format-time-string "%Y-%02m-%02d")))
+;;   (goto-char (point-max)))
+;;					;
+;; ("j" "Journal" entry (function my-journal-find-file)
+;;	 "* %?\nEntered on %U\n  %i\n  %a")
+
+(defun buffer-mode (buffer-or-string)
+  "Returns the major mode associated with a buffer."
+  (save-excursion
+     (set-buffer buffer-or-string)
+     major-mode))
+
+(defun most-recent-mode-buffer (mode buffs)
+  "search list of buffers and return most recently accessed mode buffer"
+  (cond ((null buffs) nil)
+	((equal mode (buffer-mode (car buffs))) (car buffs))
+	(t (most-recent-mode-buffer mode (cdr buffs)))))
+
+(defun switch-to-most-recent-org-buffer ()
+  "if in org mode, jump to most recent other buffer, otherwise jump to most recently accessed org-mode buffer"
+  (interactive)
+  (if (equal major-mode 'org-mode)
+      (switch-to-buffer nil)
+    (switch-to-buffer (most-recent-mode-buffer 'org-mode (buffer-list)))))
+
+(defun my-save-and-bury-buffer ()
+  (interactive)
+  (save-buffer)
+  (bury-buffer))
 
 ; (use-package frame-cmds
 ;   :ensure t

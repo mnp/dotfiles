@@ -27,6 +27,7 @@
 ;;   17 Dec 18  use gui-
 ;;
 ;; TODO: hydra
+;; TODO: clean up and use the Org template instead
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -157,6 +158,14 @@ left at @CURSOR@, if given."
 (defun ei-dashes () (interactive) (ei-line-of ?-))
 (defun ei-equals () (interactive) (ei-line-of ?=))
 
+(defun ei-box-comment()
+  (interactive)
+  (let ((line (make-string 78 ?-)))
+    (insert
+     (format "%s %s\n%s \n%s %s\n" comment-start line comment-start comment-start line)))
+  (previous-line 2)
+  (move-end-of-line nil))
+
 (defun extended-insert (pfx key)
   "Prompts for a one char arg, then calls fn, inserting at point:
   b: a buffer
@@ -169,6 +178,7 @@ left at @CURSOR@, if given."
   p: perl program header and chmods
   s: selected saluation and mail signature
   x: x selection
+  :: (colon) - a box comment
   -: line of dashes
   =: line of equals"
   (interactive
@@ -184,6 +194,7 @@ left at @CURSOR@, if given."
 		      (?n ei-note-signature)
 		      (?p ei-perl-header)
 		      (?s ei-saluted-signature pfx)
+                      (?: ei-box-comment)
 		      (?- ei-dashes)
 		      (?= ei-equals)
 		      (?x ei-insert-x-clipboard)))))))

@@ -3,12 +3,6 @@
 ; work
 ;
 
-(use-package graphql-mode
-  :ensure t)
-
-(use-package ob-graphql
-  :ensure t)
-
 (add-to-list 'exec-path "/Users/mperilstein/.jenv/versions/1.8/bin")
 
 
