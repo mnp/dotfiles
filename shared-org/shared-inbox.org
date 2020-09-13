@@ -23,6 +23,9 @@ https://www.youtube.com/watch?v=Xq9vBZs0j-8&feature=youtu.be&t=1416
 https://www.nerdwallet.com/reviews/investing/advisors/wealthfront
 https://github.com/jethrokuan/braindump/tree/master/org
 * SW arch / cloud / dist systems reading
+** Teams
+https://svpg.com/product-vs-feature-teams
+https://svpg.com/team-objectives-overview
 ** consistency 
 https://jepsen.io/consistency
 ** Risk First

@@ -2,6 +2,8 @@
 #+ROAM_KEY: https://dzone.com/articles/evaluating-message-brokers-kafka-vs-kinesis-vs-sqs
 - tags streams brokers kafka sqs sns kinesis
 
+Evaluating Message Brokers: Kafka vs. Kinesis vs. SQS 
+
 * Why
 - queueing smooths out spikes in ingest rate
 
