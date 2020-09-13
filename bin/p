@@ -8,7 +8,7 @@ my $arg = shift;
 defined $arg
   or exec "ps -elf | \$PAGER";
 
-my $pids = `pgrep -i -d, $arg`;
+my $pids = `pgrep -if -d, $arg`;
 
 $pids or die "None found\n";
 

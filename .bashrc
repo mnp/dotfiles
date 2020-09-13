@@ -393,10 +393,10 @@ alias mv='mv -i'
 alias t=tail
 
 if [ $OSTYPE == linux-gnu ]; then
-  alias acs='apt-cache search'
-  alias acss='apt-cache show'
-  alias agu='sudo apt-get update'
-  alias agi='sudo apt-get install'
+  alias acs='apt search'
+  alias acss='apt show'
+  alias agu='sudo apt update'
+  alias agi='sudo apt install'
 fi
 
 alias bye='exit'

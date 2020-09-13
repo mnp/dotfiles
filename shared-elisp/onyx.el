@@ -16,6 +16,7 @@
       (append '("http://aperiodical.com/feed/"
                 "https://deniseyu.io/feed.xml"
                 "https://blog.acolyer.org/feed/"
+                "https://www.bogodyne.com/feed/"
 		     "http://chalkdustmagazine.com/feed/"
 		     "http://bit-player.org/feed"
 		     "http://feeds.feedburner.com/Betterexplained"
