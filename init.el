@@ -340,9 +340,10 @@
 ;                            :background "LightYellow"
 ;                            :foreground "black")
             )
-  :bind (("M-x" . helm-M-x)))
+;  :bind (("M-x" . helm-M-x))
+)
 
-(global-set-key (kbd "C-x C-f") #'helm-find-files)
+; (global-set-key (kbd "C-x C-f") #'helm-find-files)
 
 (use-package helm-projectile
   :ensure t
@@ -515,6 +516,15 @@
 ;  :bind (:map eshell-command-map
 ;              ("M-." . my-eshell-insert-last-argument)))
 
+(use-package eshell
+  :after t
+  :bind (:map eshell-command-map
+              ("M-." . my-eshell-insert-last-argument)))
+
+  ;; :bind not doing what I expect
+;;  (define-key eshell-command-map (kbd "M-.") #'my-eshell-insert-last-argument))
+
+
 (use-package groovy-mode
   :ensure t
   :init (add-to-list 'auto-mode-alist '("\\.gradle$" . groovy-mode)))
@@ -660,8 +670,7 @@ Can you derive the solution differently? Can you use the result or method in som
    org-default-notes-file my-inbox-orgfile))
 
 ;; This supports "<s TAB" template expansion
-(use-package org-tempo
-  :enure t)
+(require 'org-tempo)
 
 (use-package ob-http
   :ensure t)
@@ -1294,6 +1303,7 @@ is already narrowed."
 ;; ------------------------------------------------------
 
 (setq my-initials "MNP"
+      bidi-inhibit-bpa t
       vc-follow-symlinks t
       visible-bell nil
       ring-bell-function 'ignore
@@ -1312,6 +1322,8 @@ is already narrowed."
 )
 
 (custom-set-variables '(fill-column 99))
+
+; -- eshell ------------------------------------------------------------------------
 
 (defun my-eshell-insert-last-argument ()
   (interactive)
@@ -1338,6 +1350,12 @@ is already narrowed."
          (propertize "└─>" 'face `(:foreground "green"))
          (propertize (if (= (user-uid) 0) " # " " $ ") 'face `(:foreground "green"))
          )))
+
+(add-hook 'eshell-mode-hook 
+          (lambda ()
+            (define-key eshell-command-map (kbd "M-.") #'my-eshell-insert-last-argument)))
+
+
 
 ;; save minibuffer history across sessions
 (savehist-mode 1)
