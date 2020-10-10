@@ -19,7 +19,7 @@ path_append PATH $HOME/homebin
 macemacs=/Applications/Emacs.app/Contents/MacOS/bin-x86_64-10_14/
 test -d $macemacs && path_append PATH $macemacs
 
-PATH=$PATH:/usr/local/bin:/usr/local/bin:/usr/local/sbin:/usr/bin:/bin:/usr/sbin:/sbin
+PATH=/usr/local/bin:/usr/local/bin:/usr/local/sbin:/usr/bin:/bin:/usr/sbin:/sbin:$PATH
 
 # osx
 test -d /opt/local/bin && path_append PATH /opt/local/bin 
@@ -504,6 +504,28 @@ ew ()
 cw ()
 {
     _xw_sub cat $1
+}
+
+# edit find
+ef ()
+{
+    found=($(find . -name $1 -print))
+    case ${#found[@]} in
+        1) echo editing $found; $EDITOR $found ;;
+        0) echo none found, no action;;
+        *) echo many found, no action;;
+    esac
+}
+
+# pager find
+mf ()
+{
+    found=($(find . -name $1 -print))
+    case ${#found[@]} in
+        1) echo editing $found; $PAGER $found ;;
+        0) echo none found, no action;;
+        *) echo many found, no action;;
+    esac
 }
 
 _xw_sub ()

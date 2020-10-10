@@ -1,5 +1,10 @@
 * Shared Incoming 
 
+https://blog.firosolutions.com/2020/09/security-headlines-curl-special/
+
+carmack
+https://www.youtube.com/watch?v=sXmY26pOE-Y
+
 ** [2020-02-20 Thu] https://assets.amazon.science/96/c6/302e527240a3b1f86c86c3e8fc3d/firecracker-lightweight-virtualization-for-serverless-applications.pdf
  - Firecracker: Lightweight Virtualization for Serverless Applications
 ** [2020-02-25 Tue] 
@@ -11,6 +16,11 @@ https://www.usenix.org/conference/nsdi20/presentation/brooker
 ** [2020-03-13 Fri] 
 https://www.youtube.com/watch?v=v7Mt0GYHU9A
 APL design patterns
+* setup
+** firefox
+dont-touch-my-tabs https://addons.mozilla.org/en-US/firefox/addon/dont-touch-my-tabs/?utm_source=addons.mozilla.org&utm_medium=referral&utm_content=search
+
+
 * To Read
 https://naomistanford.com/2019/02/07/habits-of-a-systems-thinker/
 https://www.youtube.com/watch?v=iN6mhI5hFt4

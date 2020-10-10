@@ -158,6 +158,11 @@ left at @CURSOR@, if given."
 (defun ei-dashes () (interactive) (ei-line-of ?-))
 (defun ei-equals () (interactive) (ei-line-of ?=))
 
+(defun ei-line-comment(c)
+  (interactive "sComment: ")
+  (insert
+   (format "%s -- %s %s\n" comment-start c (make-string (- 78 (length c)) ?-))))
+
 (defun ei-box-comment()
   (interactive)
   (let ((line (make-string 78 ?-)))
@@ -194,6 +199,7 @@ left at @CURSOR@, if given."
 		      (?n ei-note-signature)
 		      (?p ei-perl-header)
 		      (?s ei-saluted-signature pfx)
+                      (?l ei-line-comment)
                       (?: ei-box-comment)
 		      (?- ei-dashes)
 		      (?= ei-equals)
