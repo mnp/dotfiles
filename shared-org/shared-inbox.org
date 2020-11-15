@@ -1,5 +1,7 @@
 * Shared Incoming 
 
+https://betterexplained.com/articles/adept-method/
+
 https://stevelosh.com/blog/2013/04/git-koans/
 
 https://blog.firosolutions.com/2020/09/security-headlines-curl-special/

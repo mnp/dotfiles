@@ -279,6 +279,11 @@ if type oocalc > /dev/null 2>&1; then
     OFFICE=yes
 fi
 
+open_markdown() {
+    local f=/tmp/markdown_${RANDOM}.html
+    markdown "$1" > $f && open $f
+}
+
 # my do it all superdeal - consider customized mailcap type alternative
 m()
 {
@@ -308,6 +313,7 @@ m()
 
     if [ -d /Applications ]; then
 	case "$1" in
+            *.md) open_markdown "$1";;
 	    *.wmv|*.mpg|*.WMV|*.rm|*.MPG|*.avi|*.AVI|*.mp4|*.3gp|*.wav|*.mp3|*.mkv|\
 	    *.pnm|*.pbm|*.jpg|*.jpeg|*.JPG|*.gif|*.GIF|*.tif|*.tiff|\
 	    *.doc|*.DOC|*.docx|\
