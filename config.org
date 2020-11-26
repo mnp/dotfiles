@@ -1,3 +1,5 @@
+#+PROPERTY: header-args :tangle yes
+
 The bottom of init.el pulls in this file via `org-babel-load-file`
 Or eval: (org-babel-load-file "~/prj/dotfiles/config.org" nil)
 
@@ -33,6 +35,13 @@ customize settings in [[file:init.el][init.el]].
 (load custom-file)
 #+end_src
 
+* Filesystem Locations
+  #+begin_src emacs-lisp
+  ; sometimes window system starts us dumb
+  (if (equal default-directory "/")
+      (cd "~"))
+  #+end_src
+
 * Theme
 
 #+begin_src emacs-lisp
@@ -43,7 +52,13 @@ customize settings in [[file:init.el][init.el]].
 * Fonts
   todo, see danielmai
 
-* Sane defaults
+  #+begin_src emacs-lisp
+    (use-package default-text-scale
+        :ensure t
+        :init (default-text-scale-mode))
+  #+end_src
+
+* defaults
 
 Let's start with some sane defaults, shall we?
 
@@ -96,6 +111,9 @@ Sources for this section include [[https://github.com/magnars/.emacs.d/blob/mast
 (setq shell-command-switch "-ic")
 
 (setq visible-bell nil)
+
+(global-auto-revert-mode 1)
+
 #+end_src
 
 * Occur DWIM
@@ -319,69 +337,134 @@ source: [[http://whattheemacsd.com/sane-defaults.el-01.html][Magnars Sveen]]
   (global-set-key [f6]            (lambda () (interactive) (switch-to-buffer nil)))
   (global-set-key [f7]            'my-toggle-hideshow-all)
   (global-set-key [f12]           'my-toggle-selective-display)
+
+  (global-set-key [?\C-_]         'help-command)
+  (global-set-key "\C-h"	  'backward-delete-char)
+
+  (global-set-key (kbd "M-SPC")	  'my-just-one-white)
+  (global-set-key "\C-cr"         'align-regexp)
+  #+end_src
+<s
+* Custom Fun
+** Navigation
+  #+begin_src emacs-lisp
+    (defun buffer-mode (buffer-or-string)
+      "Returns the major mode associated with a buffer."
+      (buffer-local-value 'major-mode (get-buffer buffer-or-string)))
+
+    (defun most-recent-mode-buffer (mode buffs)
+      "search list of buffers and return most recently accessed mode buffer"
+      (cond ((null buffs) nil)
+            ((equal mode (buffer-mode (car buffs))) (car buffs))
+            (t (most-recent-mode-buffer mode (cdr buffs)))))
+
+    (defun switch-to-most-recent-org-buffer ()
+      "if in org mode, jump to most recent other buffer, otherwise jump to most recently accessed org-mode buffer"
+      (interactive)
+      (if (equal major-mode 'org-mode)
+          (switch-to-buffer nil)
+        (switch-to-buffer (most-recent-mode-buffer 'org-mode (buffer-list)))))
+
+    (defun my-save-and-bury-buffer ()
+      (interactive)
+      (save-buffer)
+      (bury-buffer))
+
+    (defun pop-to-scratch ()
+      "If in *scratch*, bury it, otherwise pop to it."
+      (interactive nil)
+      (if (equal (buffer-name) "*scratch*")
+          (bury-buffer)
+        (switch-to-buffer "*scratch*")))
   #+end_src
 
-* Custom Fun
+** Shell-like
   #+begin_src emacs-lisp
-(defun buffer-mode (buffer-or-string)
-  "Returns the major mode associated with a buffer."
-  (buffer-local-value 'major-mode (get-buffer buffer-or-string)))
+    (defun find-file-most-recent (dir)
+      "Open most recently created file in DIR."
+      (let ((files (directory-files-and-attributes dir nil nil t)))
+        (find-file (concat dir "/" (caadr (sort
+                                           files
+                                           (lambda (a b) (time-less-p (nth 6 b) (nth 6 a)))))))))
 
-(defun most-recent-mode-buffer (mode buffs)
-  "search list of buffers and return most recently accessed mode buffer"
-  (cond ((null buffs) nil)
-	((equal mode (buffer-mode (car buffs))) (car buffs))
-	(t (most-recent-mode-buffer mode (cdr buffs)))))
+    (defun erd ()
+      "Edit most Recent Download"
+      (interactive nil)
+      (find-file-most-recent "~/Downloads"))
 
-(defun switch-to-most-recent-org-buffer ()
-  "if in org mode, jump to most recent other buffer, otherwise jump to most recently accessed org-mode buffer"
-  (interactive)
-  (if (equal major-mode 'org-mode)
-      (switch-to-buffer nil)
-    (switch-to-buffer (most-recent-mode-buffer 'org-mode (buffer-list)))))
-
-(defun my-save-and-bury-buffer ()
-  (interactive)
-  (save-buffer)
-  (bury-buffer))
+    (defun mrd ()
+      "View most Recent Download"
+      (interactive nil)
+      (erd)
+      (log-view-mode))
   #+end_src
 
 * ELPA packages
 ** Helm
 
 #+begin_src emacs-lisp :tangle on
-(use-package helm
-  :ensure t
-  :diminish helm-mode
-  :bind (("C-c h" . helm-command-prefix)
-         ("C-x b" . helm-mini)
-         ("C-`" . helm-resume)
-         ("M-x" . helm-M-x)
-         ("C-x C-f" . helm-find-files)
-         ("C-x C-r" . helm-recentf))
-  :init
-  (require 'helm-config)
-  :config
-  (setq helm-locate-command "mdfind -interpret -name %s %s"
-        helm-ff-newfile-prompt-p nil
-        helm-M-x-fuzzy-match t)
-  (helm-mode))
+  (use-package helm
+    :ensure t
+    :diminish helm-mode
+    :bind (("C-c h" . helm-command-prefix)
+           ("C-x b" . helm-mini)
+           ("C-`" . helm-resume)
+           ("M-x" . helm-M-x)
+           ("C-x C-f" . helm-find-files)
+           ("C-x C-r" . helm-recentf))
+    :init
+    (require 'helm-config)
+    :config
+    (setq helm-locate-command "mdfind -interpret -name %s %s"
+          helm-ff-newfile-prompt-p nil
+          helm-M-x-fuzzy-match t)
+    (helm-mode 1))
 
-(use-package helm-projectile
-  :ensure t
-  :after helm-mode
-  :commands helm-projectile
-  :bind ("C-c p h" . helm-projectile))
+  (use-package helm-projectile
+    :ensure t
+    :after helm-mode
+    :commands helm-projectile
+    :bind ("C-c p h" . helm-projectile))
 
-(use-package helm-ag
-  :ensure t
-  :after helm-mode)
+  (use-package helm-ag
+    :ensure t
+    :after helm-mode)
 
-;(use-package helm-swoop
-;  :ensure t
-;  :after helm-mode
-;  :bind ("H-w" . helm-swoop))
+    #+end_src
+
+*** Helm grepint
+    #+begin_src emacs-lisp
+
+      (defun my-helm-grepint-root ()
+          "Uses `my-grep-root` if set from .dir-locals.el, or ascends to .git."
+          (if (boundp 'my-grep-root)
+              my-grep-root
+              (locate-dominating-file (file-name-as-directory
+                                     (expand-file-name (file-truename default-directory)))
+                                    ".git")))
+
+        ;; https://github.com/kopoli/helm-grepint
+        (use-package helm-grepint
+          :ensure t
+          :init
+                (helm-grepint-add-grep-config myag
+                :command "ag"
+                :arguments "--nocolor --search-zip --nogroup :ignore-case-arg -- :search-pattern"
+                :ignore-case-arg "--ignore-case"
+                :root-directory-function my-helm-grepint-root)
+
+              ;; always use ag, even under a git repo, because not all files are checked in yet
+              (setq helm-grepint-grep-list '(myag ag))
+              (helm-grepint-add-grep-config NAME &rest CONFIGURATION)
+          :bind ("C-c g" . helm-grepint-grep-root)
+                ("C-c G" . helm-grepint-grep-root))
+
+        ;(use-package helm-swoop
+        ;  :ensure t
+        ;  :after helm-mode
+        ;  :bind ("H-w" . helm-swoop))
 #+end_src
+
 ** Projectile
 
 #+BEGIN_QUOTE
@@ -405,52 +488,93 @@ http://batsov.com/projectile/
 #+end_src
 
 * Languages 
+** Dockerfile
+   #+begin_src emacs-lisp
+   (use-package dockerfile-mode 
+       :ensure t)
+   #+end_src
 ** Pony
-
-(use-package ponylang-mode
-  :ensure t
-  :init
-  :init 
-  (setq compilation-scroll-output 'first-error)
-  (setenv "CC" "gcc")
-  (add-hook 'ponylang-mode-hook '(lambda () (whitespace-mode -1)))
-  :bind (:map ponylang-mode-map
-              (("<f6>" . (lambda () (interactive) (switch-to-buffer nil)))
-               ("<f8>" . ponylang-menu))))
+   #+begin_src emacs-lisp
+     (use-package ponylang-mode
+       :ensure t
+       :init
+       :init 
+       (setq compilation-scroll-output 'first-error)
+       (setenv "CC" "gcc")
+       (add-hook 'ponylang-mode-hook '(lambda () (whitespace-mode -1)))
+       :bind (:map ponylang-mode-map
+                   (("<f6>" . (lambda () (interactive) (switch-to-buffer nil)))
+                    ("<f8>" . ponylang-menu))))
+   #+end_src
 
 ** Rust
+   #+begin_src emacs-lisp
+     (use-package toml-mode
+       :ensure t)
 
-(use-package toml-mode
-  :ensure t)
+     (use-package ob-rust
+       :ensure t)
 
-(use-package ob-rust
-  :ensure t)
+     (use-package rustic
+       :ensure t
+       :init (setq rustic-format-trigger 'on-compile
+                   rustic-lsp-server 'rust-analyzer              
+                   lsp-rust-analyzer-server-command '("/usr/local/bin/rust-analyzer")
+                   compilation-scroll-output 'first-error)
+       :config
+       (use-package cargo
+         :ensure t
+         :hook (rust-mode . cargo-minor-mode))
+       :bind
+       (:map rustic-mode-map
+             ("C-c C-k" . #'rustic-cargo-build)
+             ("C-c C-t" . #'rustic-cargo-test-run)
+             ("C-c C-c" . #'rustic-cargo-run)))
+   
+   #+end_src
 
-(use-package rustic
-  :ensure t
-  :init (setq rustic-format-trigger 'on-compile
-              rustic-lsp-server 'rust-analyzer              
-              compilation-scroll-output 'first-error)
-  :config
-  (use-package cargo
-    :ensure t
-    :hook (rust-mode . cargo-minor-mode))
-  :bind
-  (:map rustic-mode-map
-        ("C-c C-k" . #'rustic-cargo-build)
-        ("C-c C-t" . #'rustic-cargo-test-run)
-        ("C-c C-c" . #'rustic-cargo-run)))
-
+** Yaml
+   #+begin_src emacs-lisp
+   (use-package yaml-mode
+       :mode "\\.yml"
+       :ensure t)
+   #+end_src
 * Org Mode
   #+begin_src emacs-lisp
   (require 'org-tempo)
+  
+  ;; ew
+  ;; (add-to-list 'org-structure-template-alist 
+  ;; '("p" "src emacs-lisp")))) 
   #+end_src
-* Bring Backs
+
+* Deft and Zetteldeft
+  #+begin_src emacs-lisp
+    (use-package deft
+      :ensure t
+      :custom
+      (deft-extensions '("org" "md" "txt"))
+      (deft-directory "~/org")
+      (deft-use-filename-as-title t)
+          ;;        deft-text-mode 'org-mode
+      :bind (([f9] . my-deft)
+             :map deft-mode-map
+             ("<backspace>" . 'deft-filter-decrement)))
+
+    (use-package zetteldeft
+      :ensure t
+      :after deft
+      :config (zetteldeft-set-classic-keybindings))
+
+    (defun my-deft ()
+      "Show deft buffer, or kill it."
+      (interactive)
+      (if (equal (buffer-name) "*Deft*")
+          (kill-buffer deft-buffer)
+        (deft)))
+  #+end_src
+* Services
 #+begin_src emacs-lisp
-
-#+end_src
-
-#+begin_src emacs-lisp
-
+(if window-system (server-start))
 #+end_src
 
