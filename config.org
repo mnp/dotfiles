@@ -37,9 +37,11 @@ customize settings in [[file:init.el][init.el]].
 
 * Filesystem Locations
   #+begin_src emacs-lisp
-  ; sometimes window system starts us dumb
-  (if (equal default-directory "/")
-      (cd "~"))
+    ; sometimes window system starts us dumb
+    (if (equal default-directory "/")
+        (cd "~"))
+
+    (exec-path-from-shell-initialize)
   #+end_src
 
 * Theme
@@ -340,7 +342,7 @@ source: [[http://whattheemacsd.com/sane-defaults.el-01.html][Magnars Sveen]]
 
   (global-set-key [?\C-_]         'help-command)
   (global-set-key "\C-h"	  'backward-delete-char)
-
+  (global-set-key (kbd "<home>")  'beginning-of-buffer)
   (global-set-key (kbd "M-SPC")	  'my-just-one-white)
   (global-set-key "\C-cr"         'align-regexp)
   #+end_src
@@ -524,7 +526,7 @@ http://batsov.com/projectile/
        :config
        (use-package cargo
          :ensure t
-         :hook (rust-mode . cargo-minor-mode))
+         :hook (rustic-mode . cargo-minor-mode))
        :bind
        (:map rustic-mode-map
              ("C-c C-k" . #'rustic-cargo-build)
