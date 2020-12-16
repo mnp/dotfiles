@@ -667,6 +667,7 @@ fi
 # fi
 
 alias dk=docker-compose
+alias kc=kubectl
 
 # Last Container operations
 lc ()
