@@ -1,4 +1,4 @@
-#+PROPERTY: header-args :tangle yes
+#<buffer config.org>#+PROPERTY: header-args :tangle yes
 
 The bottom of init.el pulls in this file via `org-babel-load-file`
 Or eval: (org-babel-load-file "~/prj/dotfiles/config.org" nil)
@@ -7,9 +7,11 @@ You can `:tangle on` or `off` to select.
 
 Based off Daniel Mai's config
 
+Instant Reloader:
+#+begin_src emacs-lisp
+(global-set-key (kbd "C-c i") (lambda() (interactive)(org-babel-load-file "~/.emacs.d/config.org")))
+#+end_src
 
-(global-set-key (kbd "C-c i")
-(lambda() (interactive)(org-babel-load-file "~/.emacs.d/config.org")))
 
 * Insert a reminder to touch the right file
   #+begin_src emacs-lisp
@@ -53,9 +55,11 @@ customize settings in [[file:init.el][init.el]].
   Minor mode enables Ctrl-M-+ Ctrl-M-- and Ctrl-M-0
 
   #+begin_src emacs-lisp
+    (set-face-attribute 'default nil :height 130)
+
     (use-package default-text-scale
-        :ensure t
-        :init (default-text-scale-mode))
+      :ensure t
+      :init (default-text-scale-mode))
   #+end_src
 
 * defaults
@@ -70,6 +74,9 @@ Sources for this section include [[https://github.com/magnars/.emacs.d/blob/mast
 (put 'upcase-region 'disabled nil)
 (put 'narrow-to-region 'disabled nil)
 (put 'dired-find-alternate-file 'disabled nil)
+
+;; I prefer splitting over/under instead of left/right
+(setq split-width-threshold nil)
 
 ;; Answering just 'y' or 'n' will do
 (defalias 'yes-or-no-p 'y-or-n-p)
@@ -90,6 +97,7 @@ Sources for this section include [[https://github.com/magnars/.emacs.d/blob/mast
 
 (setq-default indent-tabs-mode nil)
 (setq-default indicate-empty-lines t)
+(setq-default fill-column 99)
 
 ;; Don't count two spaces after a period as the end of a sentence.
 ;; Just one space is needed.
@@ -107,8 +115,11 @@ Sources for this section include [[https://github.com/magnars/.emacs.d/blob/mast
 
 (setq uniquify-buffer-name-style 'forward)
 
-;; -i gets alias definitions from .bash_profile
-(setq shell-command-switch "-ic")
+;; NON interactive shell - just for M-! etc
+(setq shell-command-switch "-c")
+(setq shell-file-name "sh")
+
+;; will need -ic for interactive shell mode etc to get alias definitions from .bash_profile
 
 (setq visible-bell nil)
 
@@ -349,12 +360,42 @@ source: [[http://whattheemacsd.com/sane-defaults.el-01.html][Magnars Sveen]]
   #+end_src
 
 * Custom Fun
+
+** calc
+#+begin_src emacs-lisp
+(use-package calc
+ :init (load-library "my-calc-extras")
+ :bind ("M-#" . calc))
+#+end_src
+
+
+** shell
+#+begin_src emacs-lisp
+(defun get-shell-file-env (FILE VAR)
+  "Use bash to source FILE in a temporary subshell and report the value of env VAR."
+  (let ((F (expand-file-name FILE)))
+    (if (file-readable-p F)
+        (shell-command-to-string
+         (format "sh -c '. %s; /bin/echo -n ${%s}' 2>/dev/null" F VAR))
+      nil)))
+#+end_src
+
+** work
+#+begin_src emacs-lisp
+(defun work()
+  "switch to main work context"
+  (interactive nil)
+  (let ((workdir (get-shell-file-env "~/.work" "WORK")))
+    (message workdir)
+    (find-file workdir)))
+#+end_src
 ** duplicate-line
 #+begin_src emacs-lisp
-; local
-(use-package duplicate-line
-  :bind (("M-p" . duplicate-previous-line)
-         ("M-n" . duplicate-following-line)))
+  ; local
+  (load-file "~/prj/dotfiles/shared-elisp/duplicate-line.el")
+  (use-package duplicate-line
+    :bind (("M-p" . duplicate-previous-line)
+           ("M-n" . duplicate-following-line)))
 #+end_src
 ** Navigation
   #+begin_src emacs-lisp
@@ -387,6 +428,25 @@ source: [[http://whattheemacsd.com/sane-defaults.el-01.html][Magnars Sveen]]
           (bury-buffer)
         (switch-to-buffer "*scratch*")))
   #+end_src
+
+** my-just-one-white
+#+begin_src emacs-lisp
+(defun my-just-one-white (&optional n)
+  "Delete all spaces, tabs, and NLs around point, leaving one space (or N spaces)."
+  (interactive "*p")
+  (let ((orig-pos (point)))
+    (skip-chars-backward " \t\n\r")
+    (constrain-to-field nil orig-pos)
+    (dotimes (i (or n 1))
+      (if (= (following-char) 32)
+          (forward-char 1)
+        (insert 32)))
+    (delete-region
+     (point)
+     (progn
+       (skip-chars-forward " \t\n\r")
+       (constrain-to-field nil orig-pos t)))))
+#+end_src
 
 ** Shell-like
   #+begin_src emacs-lisp
@@ -422,6 +482,24 @@ source: [[http://whattheemacsd.com/sane-defaults.el-01.html][Magnars Sveen]]
   #+end_src
 
 * ELPA packages
+** compile
+   #+begin_src emacs-lisp
+(use-package compile
+  :ensure t
+  :init (setq compilation-scroll-output 1
+              compile-command "make "
+              compilation-scroll-output 'first-error)
+  :bind ("C-x C-k" . compile))
+   #+end_src
+
+** browse-kill-ring
+#+begin_src emacs-lisp
+(use-package browse-kill-ring
+  :ensure t
+  :init (browse-kill-ring-default-keybindings)
+  :bind ("C-x 4 y" . browse-kill-ring))   ; extra for finger memory
+#+end_src
+
 ** dispwatch
    #+begin_src emacs-lisp
      (defun my-display-changed-hook (disp)
@@ -438,7 +516,8 @@ source: [[http://whattheemacsd.com/sane-defaults.el-01.html][Magnars Sveen]]
                  (dispwatch-mode 1)))
    #+end_src
 ** dot-mode
-   #+begin_src emacs-lisp;; This binds c-.
+   #+begin_src emacs-lisp
+;; This binds c-.
 ;; we've stolen c-. (from org-time-stamp, so we need to rebind that)
 (use-package dot-mode
   :ensure t
@@ -465,15 +544,15 @@ source: [[http://whattheemacsd.com/sane-defaults.el-01.html][Magnars Sveen]]
     :init
     (require 'helm-config)
     (defalias 'list-buffers 'helm-buffers-list)
-    (set-face-attribute 'helm-selection nil
-                            :background "LightYellow"
-                            :foreground "black")
     :config
     (setq helm-locate-command "mdfind -interpret -name %s %s"
           helm-ff-newfile-prompt-p nil
           helm-M-x-fuzzy-match t)
-    (helm-mode 1))
+    (helm-mode 1)
+    :custom-face
+    (helm-selection ((t :background "LightYellow" :foreground "black"))))
     #+end_src
+
 
 *** Helm other
     #+begin_src emacs-lisp :tangle on
@@ -548,6 +627,37 @@ http://batsov.com/projectile/
 #+end_src
 
 * Languages
+** Flycheck
+I'm putting this first so it disables flymake for the following
+langauges.
+#+begin_src emacs-lisp
+(use-package flycheck
+  :ensure t
+  :init
+  (global-flycheck-mode t))
+#+end_src
+** LSP
+Also before loading languages.
+#+begin_src emacs-lisp
+  (use-package lsp-mode
+    :ensure t
+    :demand t
+    :commands lsp
+    :config
+    ;;(require 'lsp-clients)
+    (diminish 'lsp-mode))
+
+  (use-package lsp-ui
+    :ensure t
+    :demand t
+    :config
+    (setq lsp-ui-flycheck-enable t)
+    (define-key lsp-ui-mode-map [remap xref-find-definitions] #'lsp-ui-peek-find-definitions)
+    (define-key lsp-ui-mode-map [remap xref-find-references] #'lsp-ui-peek-find-references)
+    :hook 
+    (lsp-mode . lsp-ui-mode))
+#+end_src
+
 ** Dockerfile
    #+begin_src emacs-lisp
    (use-package dockerfile-mode
@@ -567,51 +677,62 @@ http://batsov.com/projectile/
                     ("<f8>" . ponylang-menu))))
    #+end_src
 
+** Cargo
+Cargo implies rust-mode, but it must be brought in before rustic
+because that will override the mode.
+   
+   #+begin_src emacs-lisp
+(use-package cargo
+  :ensure t
+  :demand
+  :hook (rustic-mode . cargo-minor-mode))
+   #+end_src
+
 ** Rust
    #+begin_src emacs-lisp
-     (use-package toml-mode
-       :ensure t)
+(use-package ob-rust
+  :ensure t)
 
-     (use-package ob-rust
-       :ensure t)
+(use-package rustic
+  :ensure t
+  :init (setq rustic-format-trigger 'on-compile
+              rustic-lsp-server 'rust-analyzer
+              lsp-rust-analyzer-server-command '("/usr/local/bin/rust-analyzer")
+              compilation-scroll-output 'first-error
+              rustic-format-trigger 'on-save
+              rustic-format-on-save t)
+  :bind
+  (:map rustic-mode-map
+        ("C-c C-k" . #'rustic-cargo-build)
+        ("C-c C-t" . #'rustic-cargo-test-run)
+        ("C-c C-c" . #'rustic-cargo-run)))
 
-     (use-package rustic
-       :ensure t
-       :init (setq rustic-format-trigger 'on-compile
-                   rustic-lsp-server 'rust-analyzer
-                   lsp-rust-analyzer-server-command '("/usr/local/bin/rust-analyzer")
-                   compilation-scroll-output 'first-error)
-       :config
-       (use-package cargo
-         :ensure t
-         :hook (rustic-mode . cargo-minor-mode))
-       :bind
-       (:map rustic-mode-map
-             ("C-c C-k" . #'rustic-cargo-build)
-             ("C-c C-t" . #'rustic-cargo-test-run)
-             ("C-c C-c" . #'rustic-cargo-run)))
-
+(add-hook 'eglot--managed-mode-hook (lambda () (flymake-mode -1)))
    #+end_src
 
 ** Yaml
    #+begin_src emacs-lisp
-   (use-package yaml-mode
-       :mode "\\.yml"
-       :ensure t)
+(use-package toml-mode
+  :ensure t)
+
+(use-package yaml-mode
+  :mode "\\.yml"
+  :ensure t)
    #+end_src
 * Org Mode
 ** Prereq
    #+begin_src emacs-lisp
-     (use-package ob-http
-       :ensure t)
+       (use-package ob-http
+         :ensure t)
 
-     ;; Tempo lets you do "<s TAB" to insert a babel src block.
-     (require 'org-tempo)
-     (setq org-src-tab-acts-natively t)
+       ;; Tempo lets you do "<s TAB" to insert a babel src block.
+       (require 'org-tempo)
+       (setq org-src-tab-acts-natively t
+             org-confirm-babel-evaluate nil)
 
-     ;; eww
-     ;; (add-to-list 'org-structure-template-alist
-     ;; '("p" "src emacs-lisp"))))
+       ;; eww
+       ;; (add-to-list 'org-structure-template-alist
+       ;; '("p" "src emacs-lisp"))))
    #+end_src
 ** Get the latest
   #+begin_src emacs-lisp
@@ -619,53 +740,53 @@ http://batsov.com/projectile/
   :ensure t
   :bind (("C-c c" . org-capture)
          ("C-c a" . org-agenda)
-         ("C-c t" . org-time-stamp))	; This overrides dot-mode
-         ("C-c l" . org-store-link)
+         ("C-c t" . org-time-stamp)	; This overrides dot-mode
+         ("C-c l" . org-store-link))
 
          ;; todo: bind  org-return-indent?
          ;; and maybe
          ;; (global-set-key "\C-cb" 'org-switchb)
 
   :init
-  (org-babel-do-load-languages
-   'org-babel-load-languages
-   '((shell . t)
-     (python . t)
-     (dot . t)
-     (perl . t)
-     (rust . t)
-     (js . t)
-     (http . t) ; uses package ob-http
-     (emacs-lisp . t)))
-
-
-  ;; formatting for src blocks
-  (setq org-src-fontify-natively t
-      org-src-window-setup 'current-window
-      org-src-strip-leading-and-trailing-blank-lines t
-      org-src-preserve-indentation t
-      org-src-tab-acts-natively t)
-
-  (auto-fill-mode 1)
-  (add-hook 'org-mode-hook 'turn-on-auto-fill)
-  (setq
-   my-org-dir "~/org"
-   fill-column 99
-   org-todo-keywords '((sequence "TODO(t)" "WAITING(w)" "|" "DONE(d)" "CANCELLED(c)"))
-   org-startup-indented t
-   org-startup-folded "showall"
-   org-hide-leading-stars t
-   org-confirm-babel-evaluate nil
-;;   org-agenda-files (list my-inbox-orgfile
-;;			  my-projects-orgfile
-;;			  my-someday-orgfile
-;;			  my-tickler-orgfile)
-
-   org-export-with-toc nil    ;; do not generate a TOC on export please
-   org-export-with-sub-superscripts nil
-   org-directory my-org-dir
-   org-capture-bookmark nil
-   org-default-notes-file "~/org/inbox.org"))
+  (progn
+    (org-babel-do-load-languages
+     'org-babel-load-languages
+     '((shell . t)
+       (python . t)
+       (dot . t)
+       (perl . t)
+       (rust . t)
+       (js . t)
+       (http . t) ; uses package ob-http
+       (emacs-lisp . t)))
+  
+    ;; formatting for src blocks
+    (setq org-src-fontify-natively t
+        org-src-window-setup 'current-window
+        org-src-strip-leading-and-trailing-blank-lines t
+        org-src-preserve-indentation t
+        org-src-tab-acts-natively t)
+  
+    (auto-fill-mode 1)
+    (add-hook 'org-mode-hook 'turn-on-auto-fill)
+    (setq
+     my-org-dir "~/org"
+     fill-column 99
+     org-todo-keywords '((sequence "TODO(t)" "WAITING(w)" "|" "DONE(d)" "CANCELLED(c)"))
+     org-startup-indented t
+     org-startup-folded "showall"
+     org-hide-leading-stars t
+     org-confirm-babel-evaluate nil
+  ;;   org-agenda-files (list my-inbox-orgfile
+  ;;			  my-projects-orgfile
+  ;;			  my-someday-orgfile
+  ;;			  my-tickler-orgfile)
+  
+     org-export-with-toc nil    ;; do not generate a TOC on export please
+     org-export-with-sub-superscripts nil
+     org-directory my-org-dir
+     org-capture-bookmark nil
+     org-default-notes-file "~/org/inbox.org")))
    #+end_src
 * Deft and Zetteldeft
   #+begin_src emacs-lisp
@@ -692,6 +813,11 @@ http://batsov.com/projectile/
           (kill-buffer deft-buffer)
         (deft)))
   #+end_src
+
+* Tail Hacks
+#+begin_src emacs-lisp
+#+end_src
+
 * Services
 #+begin_src emacs-lisp
 (if window-system (server-start))

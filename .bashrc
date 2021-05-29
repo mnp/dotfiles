@@ -1,5 +1,6 @@
 
 # Noninteractive section
+echo bashrc noninteractive section
 
 . ~/lib/shlib.bash
 
@@ -20,6 +21,11 @@ macemacs=/Applications/Emacs.app/Contents/MacOS/bin-x86_64-10_14/
 test -d $macemacs && path_append PATH $macemacs
 
 PATH=/usr/local/bin:/usr/local/bin:/usr/local/sbin:/usr/bin:/bin:/usr/sbin:/sbin:$PATH
+
+# OSX. TODO: incorporate
+if [ -x /usr/libexec/path_helper ]; then
+    eval $(/usr/libexec/path_helper)
+fi
 
 # osx
 test -d /opt/local/bin && path_append PATH /opt/local/bin 
@@ -68,7 +74,8 @@ unset MIBS MIBDIRS
 # Interactive section
 # If not running interactively, don't do anything
 
-[ -z "$PS1" ] && return
+#[ -z "$PS1" ] && return
+echo bashrc interactive section
 
 case $BASH_VERSION in
     # check the window size after each command and, if necessary,
@@ -91,6 +98,7 @@ if type brew > /dev/null 2>&1; then
 	nametab "${PWD##*/}"
     }
 fi
+
 
 BASH_COMPLETION=${BASH_COMPLETION:-/usr/local/opt/bash-completion/etc/bash_completion}
 test -f $BASH_COMPLETION && . $BASH_COMPLETION
@@ -139,7 +147,6 @@ if [ 0 -eq $EUID ]; then
 else
     PS1COLOR=$LTGRN
 fi
-
 if type git > /dev/null 2>&1; then
     HAVEGIT=yes
     alias gsm=' git status --untracked-files=no --ignore-submodules'
@@ -164,14 +171,31 @@ if type git > /dev/null 2>&1; then
 	git grep $1 -- $git_grep_path
     }
 
+    # Set config variables first
+    # GIT_PROMPT_ONLY_IN_REPO=1
+ 
+    # GIT_PROMPT_FETCH_REMOTE_STATUS=0   # uncomment to avoid fetching remote status
+    # GIT_PROMPT_IGNORE_SUBMODULES=1 # uncomment to avoid searching for changed files in submodules
+    # GIT_PROMPT_WITH_VIRTUAL_ENV=0 # uncomment to avoid setting virtual environment infos for node/python/conda environments
+ 
+    # GIT_PROMPT_SHOW_UPSTREAM=1 # uncomment to show upstream tracking branch
+    # GIT_PROMPT_SHOW_UNTRACKED_FILES=normal # can be no, normal or all; determines counting of untracked files
+ 
+    # GIT_PROMPT_SHOW_CHANGED_FILES_COUNT=0 # uncomment to avoid printing the number of changed files
+ 
+    # GIT_PROMPT_STATUS_COMMAND=gitstatus_pre-1.7.10.sh # uncomment to support Git older than 1.7.10
+ 
+    # GIT_PROMPT_START=...    # uncomment for custom prompt start sequence
+    # GIT_PROMPT_END=...      # uncomment for custom prompt end sequence
+ 
+    # as last entry source the gitprompt script
+    # GIT_PROMPT_THEME=Custom # use custom theme specified in file GIT_PROMPT_THEME_FILE (default ~/.git-prompt-colors.sh)
+    # GIT_PROMPT_THEME_FILE=~/.git-prompt-colors.sh
+    # GIT_PROMPT_THEME=Solarized # use theme optimized for solarized color scheme
+ 
     if [ -f "/usr/local/opt/bash-git-prompt/share/gitprompt.sh" ]; then
-	__GIT_PROMPT_DIR=/usr/local/opt/bash-git-prompt/share
-	source $__GIT_PROMPT_DIR/gitprompt.sh
-    elif [ -f /usr/local/Cellar/bash-git-prompt/2.7.1/share/gitprompt.sh ]; then
-        __GIT_PROMPT_DIR=/usr/local/Cellar/bash-git-prompt/2.7.1/share
-        source $__GIT_PROMPT_DIR/gitprompt.sh
-    elif [ -f ~/.git-prompt.sh ]; then
-	source ~/.git-prompt.sh
+        __GIT_PROMPT_DIR="/usr/local/opt/bash-git-prompt/share"
+        source "/usr/local/opt/bash-git-prompt/share/gitprompt.sh"
     fi
 
     if [ -f ~/.git-completion.bash ]; then
@@ -194,29 +218,28 @@ my_prompt_command() {
 function nametab() {
     echo -ne "\033]0;"$@"\007"
 }
-
-# no prompt command for console
-case $TERM in
-    xterm*)
-        function nametab() {
-            echo -ne "\033]0;"$@"\007"
-        }
- 	PS1BASE="${PS1COLOR}\u@\h${CLEAR}:${WHITE}\w${YELLOW}\$(__git_ps1)${CLEAR}\n\$ "
- 	;;
-
-    screen|vt100)
-        function nametab() {
-            echo -ne "\033k"$@"\033\\"
-        }
-        # Git sets PROMPT_COMMAND above. Add to it.
-	PS1BASE="${PS1COLOR}\u@\h${CLEAR}:${WHITE}\w${YELLOW}\$(__git_ps1)${CLEAR}\n\$ "
-	;;
-
-    *)
-	PROMPT_COMMAND=''
-	PS1BASE='\u@\h:\w\n\$ '
-	;;
-esac
+# # no prompt command for console
+# case $TERM in
+#     xterm*)
+#         function nametab() {
+#             echo -ne "\033]0;"$@"\007"
+#         }
+#  	PS1BASE="${PS1COLOR}\u@\h${CLEAR}:${WHITE}\w${YELLOW}\$(__git_ps1)${CLEAR}\n\$ "
+#  	;;
+# 
+#     screen|vt100)
+#         function nametab() {
+#             echo -ne "\033k"$@"\033\\"
+#         }
+#         # Git sets PROMPT_COMMAND above. Add to it.
+# 	PS1BASE="${PS1COLOR}\u@\h${CLEAR}:${WHITE}\w${YELLOW}\$(__git_ps1)${CLEAR}\n\$ "
+# 	;;
+# 
+#     *)
+# 	PROMPT_COMMAND=''
+# 	PS1BASE='\u@\h:\w\n\$ '
+# 	;;
+# esac
 
 if type git > /dev/null 2>&1; then
     alias tf=terraform
@@ -228,7 +251,7 @@ PS1="$PS1BASE"
 # historystuff
 #
 HISTSIZE=10000
-HISTTIMEFORMAT=1
+HISTTIMEFORMAT='%F %T '
 MYHISTDIR=$HOME/.bash_histories
 NOW=$( date '+%Y%m%d-%H%M%S' )
 TTY=$( tty | sed s,/,-,g )
@@ -240,7 +263,6 @@ if [ -d $MYHISTDIR ]; then
 else
     note No $MYHISTDIR directory, no history saved
 fi
-
 # http://www.webupd8.org/2010/11/alternative-to-200-lines-kernel-patch.html
 #if [ "$PS1" -a $HOSTNAME == LT324011TP ] ; then
 #   mkdir -p -m 0700 /dev/cgroup/cpu/user/$$ > /dev/null 2>&1
@@ -279,11 +301,6 @@ if type oocalc > /dev/null 2>&1; then
     OFFICE=yes
 fi
 
-open_markdown() {
-    local f=/tmp/markdown_${RANDOM}.html
-    markdown "$1" > $f && open $f
-}
-
 # my do it all superdeal - consider customized mailcap type alternative
 m()
 {
@@ -303,6 +320,7 @@ m()
 	    fi
 	    return
 	    ;;
+        *.md) termd "$1" | $PAGER; return;;
 	*.jar) jar tvf "$1" | $PAGER ; return;;
 	*.gz)  $ZCAT "$1" | $PAGER ; return;;
 	*.bz2) bzcat "$1" | $PAGER ; return;;
@@ -311,9 +329,8 @@ m()
 	*.[123456789n]|*.3pm) nroff -man "$1" | $PAGER; return;;
     esac
 
-    if [ -d /Applications ]; then
+    if [[ $OSTYPE == darwin* ]]; then
 	case "$1" in
-            *.md) open_markdown "$1";;
 	    *.wmv|*.mpg|*.WMV|*.rm|*.MPG|*.avi|*.AVI|*.mp4|*.3gp|*.wav|*.mp3|*.mkv|\
 	    *.pnm|*.pbm|*.jpg|*.jpeg|*.JPG|*.gif|*.GIF|*.tif|*.tiff|\
 	    *.doc|*.DOC|*.docx|\
@@ -433,6 +450,9 @@ alias f10="awk '{print \$10}'"
 alias f11="awk '{print \$11}'"
 alias f12="awk '{print \$12}'"
 alias f13="awk '{print \$13}'"
+
+# See https://github.com/tecosaur/emacs-everywhere
+alias ee='emacsclient --eval "(emacs-everywhere)"'
 
 function pc ()
 {
@@ -667,7 +687,21 @@ fi
 # fi
 
 alias dk=docker-compose
-alias kc=kubectl
+alias k=kubectl
+alias kga='kubectl get pod,service,deployment,replicaset,pvc,cm --field-selector metadata.namespace!=kube-system'
+alias kgp='kubectl get pods -o wide --field-selector metadata.namespace!=kube-system'
+alias kc-disk='kc get cm,pv,pvc,crd --field-selector metadata.namespace!=kube-system -A'
+alias kcd='kubectl describe'
+
+kcns() { kubectl config set-context --current --namespace $1; }
+kcl() { kubectl logs -f pod/$(kc-getpod $1);  }
+kcs() { kubectl exec -it $(kc-getpod $1) -- sh; }
+
+source <(kubectl completion bash)
+
+if [ -d ${HOME}/.krew/bin ]; then
+    path_append PATH "${HOME}/.krew/bin"
+fi
 
 # Last Container operations
 lc ()
@@ -727,3 +761,10 @@ export SDKMAN_DIR="$HOME/.sdkman"
 # tabtab source for packages
 # uninstall by removing these lines
 [[ -f ~/.config/tabtab/__tabtab.zsh ]] && . ~/.config/tabtab/__tabtab.zsh || true
+
+PATH="/Users/mnp/perl5/bin${PATH:+:${PATH}}"; export PATH;
+PERL5LIB="/Users/mnp/perl5/lib/perl5${PERL5LIB:+:${PERL5LIB}}"; export PERL5LIB;
+PERL_LOCAL_LIB_ROOT="/Users/mnp/perl5${PERL_LOCAL_LIB_ROOT:+:${PERL_LOCAL_LIB_ROOT}}"; export PERL_LOCAL_LIB_ROOT;
+PERL_MB_OPT="--install_base \"/Users/mnp/perl5\""; export PERL_MB_OPT;
+PERL_MM_OPT="INSTALL_BASE=/Users/mnp/perl5"; export PERL_MM_OPT;
+

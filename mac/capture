@@ -2,3 +2,5 @@
 
 brew list         > homebrew-packages
 brew list --cask  > brew-cask-packages
+npm list -g       > npm-global-packages
+pip3 list         > pip3-packages
