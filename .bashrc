@@ -10,17 +10,11 @@ done
 export MANPATH
 export PATH
 
-PATH=$HOME/bin:$HOME/hosts
-path_append PATH $HOME/perl5/bin
-path_append PATH $HOME/osbin
-path_append PATH $HOME/workbin
-path_append PATH $HOME/homebin
-
 # emacsclient and etags on osx, needs to be before /usr/local
 macemacs=/Applications/Emacs.app/Contents/MacOS/bin-x86_64-10_14/
 test -d $macemacs && path_append PATH $macemacs
 
-PATH=/usr/local/bin:/usr/local/bin:/usr/local/sbin:/usr/bin:/bin:/usr/sbin:/sbin:$PATH
+PATH=/usr/local/bin:/usr/local/bin:/usr/local/sbin:/usr/bin:/bin:/usr/sbin:/sbin
 
 # OSX. TODO: incorporate
 if [ -x /usr/libexec/path_helper ]; then
@@ -29,13 +23,13 @@ fi
 
 # osx
 test -d /opt/local/bin && path_append PATH /opt/local/bin 
-test -d /Library/Frameworks/Mono.framework/Home/bin && path_append PATH /Library/Frameworks/Mono.framework/Home/bin
+#test -d /Library/Frameworks/Mono.framework/Home/bin && path_append PATH /Library/Frameworks/Mono.framework/Home/bin
 
 # pony
-if [ -d ~/.local/share/ponyup/bin ]; then
-    export CC=gcc
-    path_append PATH ~/.local/share/ponyup/bin
-fi
+#if [ -d ~/.local/share/ponyup/bin ]; then
+#    export CC=gcc
+#    path_append PATH ~/.local/share/ponyup/bin
+#fi
 
 test -d $HOME/.cask/bin && path_append PATH $HOME/.cask/bin
 
@@ -68,6 +62,13 @@ if [ -d $HOME/go ]; then
     path_append PATH $GOPATH/bin
 fi
 export GOPATH
+
+path_prepend PATH $HOME/bin
+path_prepend PATH $HOME/perl5/bin
+path_prepend PATH $HOME/osbin
+path_prepend PATH $HOME/workbin
+path_prepend PATH $HOME/homebin
+
 
 unset MIBS MIBDIRS
 
@@ -153,7 +154,7 @@ if type git > /dev/null 2>&1; then
     alias gds=' git diff --stat'
     alias gdp=' git diff        HEAD~1 --'
     alias gdps='git diff --stat HEAD~1 --'
-    alias glgp='git log --graph --decorate --pretty=oneline --abbrev-commit'
+    alias glgp='git log --graph --decorate=full --pretty=oneline --abbrev-commit'
     alias gls=' git log --stat'
     alias glf=' git ls-files -t'
     alias grpo='git remote prune origin'
@@ -406,7 +407,8 @@ alias ll='ls $LS_OPTIONS -l'
 alias la='ls $LS_OPTIONS -lA'
 alias lh='ls -lhS'
 
-alias jc='jq -C . $@ | less -r'
+function jc=() { jq -C . $@ | less -r; }
+function cj() { curl -s $1 | jq -C . | less -r; }
 
 alias mlp='m `ls -rt /tmp/*pdf|tail -1`'
 alias rm='rm -i'
@@ -658,10 +660,10 @@ aless(){ perl -e 'BEGIN{$f=shift;%cs=();} open(IN,"<", $f); while(<IN>){$c=0; ma
 # # Avoid errors from any UTF8 in code; I guess eclipse can add them.
 # export JAVA_TOOL_OPTIONS=-Dfile.encoding=UTF-8
 
-if [ -d ${HOME}/perl5/lib/perl5/local/lib.pm ]; then
-    # added by duckpan installer
-    eval $(perl -I${HOME}/perl5/lib/perl5 -Mlocal::lib)
-fi
+# if [ -d ${HOME}/perl5/lib/perl5/local/lib.pm ]; then
+#     # added by duckpan installer
+#     eval $(perl -I${HOME}/perl5/lib/perl5 -Mlocal::lib)
+# fi
 
 
 
@@ -692,12 +694,31 @@ alias kga='kubectl get pod,service,deployment,replicaset,pvc,cm --field-selector
 alias kgp='kubectl get pods -o wide --field-selector metadata.namespace!=kube-system'
 alias kc-disk='kc get cm,pv,pvc,crd --field-selector metadata.namespace!=kube-system -A'
 alias kcd='kubectl describe'
+alias kgs='kubectl get services'
 
-kcns() { kubectl config set-context --current --namespace $1; }
+kcns() {
+    local current
+    current=$(kubectl config view --minify --output 'jsonpath={..namespace}')
+
+    case $1 in
+        "")
+            echo current namespace: $current;;
+        "-")
+            kubectl config set-context --current --namespace $kcns_old_ns
+            echo new namespace: $kcns_old_ns
+            kcns_old_ns=$current;;
+        *)
+            kcns_old_ns=$current
+            kubectl config set-context --current --namespace $1
+            echo new namespace: $1;;
+    esac        
+}
+
 kcl() { kubectl logs -f pod/$(kc-getpod $1);  }
 kcs() { kubectl exec -it $(kc-getpod $1) -- sh; }
 
 source <(kubectl completion bash)
+complete -F __start_kubectl k
 
 if [ -d ${HOME}/.krew/bin ]; then
     path_append PATH "${HOME}/.krew/bin"
@@ -762,9 +783,5 @@ export SDKMAN_DIR="$HOME/.sdkman"
 # uninstall by removing these lines
 [[ -f ~/.config/tabtab/__tabtab.zsh ]] && . ~/.config/tabtab/__tabtab.zsh || true
 
-PATH="/Users/mnp/perl5/bin${PATH:+:${PATH}}"; export PATH;
-PERL5LIB="/Users/mnp/perl5/lib/perl5${PERL5LIB:+:${PERL5LIB}}"; export PERL5LIB;
-PERL_LOCAL_LIB_ROOT="/Users/mnp/perl5${PERL_LOCAL_LIB_ROOT:+:${PERL_LOCAL_LIB_ROOT}}"; export PERL_LOCAL_LIB_ROOT;
-PERL_MB_OPT="--install_base \"/Users/mnp/perl5\""; export PERL_MB_OPT;
-PERL_MM_OPT="INSTALL_BASE=/Users/mnp/perl5"; export PERL_MM_OPT;
+
 

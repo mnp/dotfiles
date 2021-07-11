@@ -9,6 +9,10 @@
 (setq inhibit-startup-message t)
 (setq initial-scratch-message "")
 
+;; Avoid an elpa pull problem
+(custom-set-variables
+ '(gnutls-algorithm-priority "normal:-vers-tls1.3"))
+
 ;;; Set up package
 (require 'package)
 (add-to-list 'package-archives

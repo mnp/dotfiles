@@ -42,6 +42,8 @@ customize settings in [[file:init.el][init.el]].
   ; sometimes window system starts us dumb
   (if (equal default-directory "/")
       (cd "~"))
+
+  (add-to-list 'load-path (expand-file-name "~/prj/dotfiles/shared-elisp"))
   #+end_src
 
 * Theme
@@ -279,6 +281,16 @@ source: http://ergoemacs.org/emacs/emacs_buffer_management.html
 
 source: [[http://whattheemacsd.com/sane-defaults.el-01.html][Magnars Sveen]]
 
+
+* Persistent Scratch
+#+begin_src emacs-lisp
+;; persistent-scratch
+(use-package persistent-scratch
+  :ensure t
+  :config
+  (persistent-scratch-setup-default))
+#+end_src
+
 * Recentf
 
 #+begin_src emacs-lisp
@@ -392,7 +404,7 @@ source: [[http://whattheemacsd.com/sane-defaults.el-01.html][Magnars Sveen]]
 ** duplicate-line
 #+begin_src emacs-lisp
   ; local
-  (load-file "~/prj/dotfiles/shared-elisp/duplicate-line.el")
+  (load-library "duplicate-line.el")
   (use-package duplicate-line
     :bind (("M-p" . duplicate-previous-line)
            ("M-n" . duplicate-following-line)))
@@ -690,6 +702,10 @@ because that will override the mode.
 
 ** Rust
    #+begin_src emacs-lisp
+;; dependency it doesn't bring in by itself
+(use-package project
+  :ensure t)
+
 (use-package ob-rust
   :ensure t)
 
