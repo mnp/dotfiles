@@ -734,6 +734,14 @@ because that will override the mode.
 (use-package yaml-mode
   :mode "\\.yml"
   :ensure t)
+
+(use-package highlight-indentation
+  :ensure t
+  :hook ((yaml-mode . highlight-indentation-current-column-mode)
+         (python-mode . highlight-indentation-current-column-mode)))
+
+;; (set-face-background 'highlight-indentation-face "#e3e3d3")
+;; (set-face-background 'highlight-indentation-current-column-face "#c3b3b3")
    #+end_src
 * Org Mode
 ** Prereq
