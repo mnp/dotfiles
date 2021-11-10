@@ -9,7 +9,13 @@ case $filename in
     *.doc|*.odp|*.ppt|*.ods|*.xls|*.odt) exec libreoffice --nologo "$filename";;
 
     *)
-	if emacsclient --no-wait "$filename" > /dev/null 2>&1; then
+        linecol=""
+        if [[ "$filename" =~ ^(.*):([[:digit:]]*:[[:digit:]]*)$ ]]; then
+            filename="${BASH_REMATCH[1]}"
+            linecol="+${BASH_REMATCH[2]}"
+        fi
+
+	if emacsclient --no-wait "$linecol" "$filename" > /dev/null 2>&1; then
 	    emacsclient --eval '(raise-frame)'
 	    echo Sent to existing emacs
 	else
