@@ -15,7 +15,7 @@ case $filename in
             linecol="+${BASH_REMATCH[2]}"
         fi
 
-	if emacsclient --no-wait "$linecol" "$filename" > /dev/null 2>&1; then
+	if emacsclient --no-wait $linecol "$filename" > /dev/null 2>&1; then
 	    emacsclient --eval '(raise-frame)'
 	    echo Sent to existing emacs
 	else
