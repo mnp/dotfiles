@@ -1,0 +1,9 @@
+#!/bin/bash
+
+case $OSTYPE in
+    darwin*) pmset sleepnow;;
+    linux*) sudo systemctl suspend;;
+    *) echo 'What?'; exit 1;;
+esac
+exit 0
+

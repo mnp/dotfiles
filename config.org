@@ -1,4 +1,4 @@
-#<buffer config.org>#+PROPERTY: header-args :tangle yes
+#+PROPERTY: header-args :tangle yes
 
 The bottom of init.el pulls in this file via `org-babel-load-file`
 Or eval: (org-babel-load-file "~/prj/dotfiles/config.org" nil)
@@ -11,7 +11,6 @@ Instant Reloader:
 #+begin_src emacs-lisp
 (global-set-key (kbd "C-c i") (lambda() (interactive)(org-babel-load-file "~/.emacs.d/config.org")))
 #+end_src
-
 
 * Insert a reminder to touch the right file
   #+begin_src emacs-lisp
@@ -49,15 +48,16 @@ customize settings in [[file:init.el][init.el]].
 * Theme
 
 #+begin_src emacs-lisp
-(load-theme 'wombat)
-(set-cursor-color "#ffffff")
+(use-package gruvbox-theme
+  :ensure t)
+(load-theme 'gruvbox-dark-soft)
 #+end_src
 
 * Fonts
   Minor mode enables Ctrl-M-+ Ctrl-M-- and Ctrl-M-0
 
   #+begin_src emacs-lisp
-    (set-face-attribute 'default nil :height 130)
+    (set-face-attribute 'default nil :height 150)
 
     (use-package default-text-scale
       :ensure t
@@ -71,6 +71,8 @@ Let's start with some sane defaults, shall we?
 Sources for this section include [[https://github.com/magnars/.emacs.d/blob/master/settings/sane-defaults.el][Magnars Sveen]] and [[http://pages.sachachua.com/.emacs.d/Sacha.html][Sacha Chua]].
 
 #+begin_src emacs-lisp
+(setq confirm-kill-emacs #'yes-or-no-p)
+
 ;; These functions are useful. Activate them.
 (put 'downcase-region 'disabled nil)
 (put 'upcase-region 'disabled nil)
@@ -723,7 +725,7 @@ because that will override the mode.
         ("C-c C-t" . #'rustic-cargo-test-run)
         ("C-c C-c" . #'rustic-cargo-run)))
 
-(add-hook 'eglot--managed-mode-hook (lambda () (flymake-mode -1)))
+; (add-hook 'eglot--managed-mode-hook (lambda () (flymake-mode -1)))
    #+end_src
 
 ** Yaml
@@ -738,11 +740,22 @@ because that will override the mode.
 (use-package highlight-indentation
   :ensure t
   :hook ((yaml-mode . highlight-indentation-current-column-mode)
-         (python-mode . highlight-indentation-current-column-mode)))
-
-;; (set-face-background 'highlight-indentation-face "#e3e3d3")
-;; (set-face-background 'highlight-indentation-current-column-face "#c3b3b3")
+         (python-mode . highlight-indentation-current-column-mode))
+;  :init (progn
+;            (set-face-background 'highlight-indentation-face "#f3f3d3")
+;            (set-face-background 'highlight-indentation-current-column-face "#e3c3b3")))
+)
    #+end_src
+
+** python
+#+begin_src emacs-lisp
+(use-package python-black
+  :ensure t
+  :demand t
+  :after python
+  :hook (python-mode . python-black-on-save-mode))
+#+end_src
+
 * Org Mode
 ** Prereq
    #+begin_src emacs-lisp
@@ -825,10 +838,10 @@ because that will override the mode.
              :map deft-mode-map
              ("<backspace>" . 'deft-filter-decrement)))
 
-    (use-package zetteldeft
-      :ensure t
-      :after deft
-      :config (zetteldeft-set-classic-keybindings))
+;;    (use-package zetteldeft
+;;      :ensure t
+;;      :after deft
+;;      :config (zetteldeft-set-classic-keybindings))
 
     (defun my-deft ()
       "Show deft buffer, or kill it."
