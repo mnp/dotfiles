@@ -1,0 +1,862 @@
+#+PROPERTY: header-args :tangle yes
+
+The bottom of init.el pulls in this file via `org-babel-load-file`
+Or eval: (org-babel-load-file "~/prj/dotfiles/config.org" nil)
+
+You can `:tangle on` or `off` to select.
+
+Based off Daniel Mai's config
+
+Instant Reloader:
+#+begin_src emacs-lisp
+(global-set-key (kbd "C-c i") (lambda() (interactive)(org-babel-load-file "~/.emacs.d/config.org")))
+#+end_src
+
+* Insert a reminder to touch the right file
+  #+begin_src emacs-lisp
+    ;;
+    ;; NOTE: Automatically generated config.el made by init.el running
+    ;; `org-babel-load-file` on config.org.
+    ;;
+  #+end_src
+* Personal Information
+
+#+begin_src emacs-lisp
+(setq user-full-name "Mitchell Perilstein"
+      user-mail-address "mitchell.perilstein@gmail.com")
+#+end_src
+
+* Customize settings
+
+Set up the customize file to its own separate file, instead of saving
+customize settings in [[file:init.el][init.el]].
+
+#+begin_src emacs-lisp
+(setq custom-file (expand-file-name "custom.el" user-emacs-directory))
+(load custom-file)
+#+end_src
+
+* Filesystem Locations
+  #+begin_src emacs-lisp
+  ; sometimes window system starts us dumb
+  (if (equal default-directory "/")
+      (cd "~"))
+
+  (add-to-list 'load-path (expand-file-name "~/prj/dotfiles/shared-elisp"))
+  #+end_src
+
+* Theme
+
+#+begin_src emacs-lisp
+(use-package gruvbox-theme
+  :ensure t)
+(load-theme 'gruvbox-dark-soft)
+#+end_src
+
+* Fonts
+  Minor mode enables Ctrl-M-+ Ctrl-M-- and Ctrl-M-0
+
+  #+begin_src emacs-lisp
+    (set-face-attribute 'default nil :height 150)
+
+    (use-package default-text-scale
+      :ensure t
+      :init (default-text-scale-mode))
+  #+end_src
+
+* defaults
+
+Let's start with some sane defaults, shall we?
+
+Sources for this section include [[https://github.com/magnars/.emacs.d/blob/master/settings/sane-defaults.el][Magnars Sveen]] and [[http://pages.sachachua.com/.emacs.d/Sacha.html][Sacha Chua]].
+
+#+begin_src emacs-lisp
+(setq confirm-kill-emacs #'yes-or-no-p)
+
+;; These functions are useful. Activate them.
+(put 'downcase-region 'disabled nil)
+(put 'upcase-region 'disabled nil)
+(put 'narrow-to-region 'disabled nil)
+(put 'dired-find-alternate-file 'disabled nil)
+
+;; I prefer splitting over/under instead of left/right
+(setq split-width-threshold nil)
+
+;; Answering just 'y' or 'n' will do
+(defalias 'yes-or-no-p 'y-or-n-p)
+
+;; Keep all backup and auto-save files in one directory
+(setq backup-directory-alist '(("." . "~/.emacs.d/backups")))
+(setq auto-save-file-name-transforms '((".*" "~/.emacs.d/auto-save-list/" t)))
+
+;; UTF-8 please
+(setq locale-coding-system 'utf-8) ; pretty
+(set-terminal-coding-system 'utf-8) ; pretty
+(set-keyboard-coding-system 'utf-8) ; pretty
+(set-selection-coding-system 'utf-8) ; please
+(prefer-coding-system 'utf-8) ; with sugar on top
+
+;; Turn off the blinking cursor
+;(blink-cursor-mode -1)
+
+(setq-default indent-tabs-mode nil)
+(setq-default indicate-empty-lines t)
+(setq-default fill-column 99)
+
+;; Don't count two spaces after a period as the end of a sentence.
+;; Just one space is needed.
+(setq sentence-end-double-space nil)
+
+;; delete the region when typing, just like as we expect nowadays.
+(delete-selection-mode t)
+
+(show-paren-mode t)
+
+(column-number-mode t)
+
+(global-visual-line-mode)
+(diminish 'visual-line-mode)
+
+(setq uniquify-buffer-name-style 'forward)
+
+;; NON interactive shell - just for M-! etc
+(setq shell-command-switch "-c")
+(setq shell-file-name "sh")
+
+;; will need -ic for interactive shell mode etc to get alias definitions from .bash_profile
+
+(setq visible-bell nil)
+
+(global-auto-revert-mode 1)
+
+#+end_src
+
+* Occur DWIM
+  The following function for ~occur-dwim~ is taken from [[https://github.com/abo-abo][Oleh Krehel]] from
+[[http://oremacs.com/2015/01/26/occur-dwim/][his blog post at (or emacs]]. It takes the current region or the symbol
+at point as the default value for occur.
+
+#+begin_src emacs-lisp
+(defun occur-dwim ()
+  "Call `occur' with a sane default."
+  (interactive)
+  (push (if (region-active-p)
+            (buffer-substring-no-properties
+             (region-beginning)
+             (region-end))
+          (thing-at-point 'symbol))
+        regexp-history)
+  (call-interactively 'occur))
+
+(bind-key "M-s o" 'occur-dwim)
+#+end_src
+
+* Page Breaks
+  Here we make page-break characters look pretty, instead of appearing
+as =^L= in Emacs. [[http://ericjmritz.name/2015/08/29/using-page-breaks-in-gnu-emacs/][Here's an informative article called "Using
+Page-Breaks in GNU Emacs" by Eric J. M. Ritz.]]
+
+#+begin_src emacs-lisp :tangle no
+(use-package page-break-lines
+  :ensure t)
+#+end_src
+
+* Mac customizations
+
+There are configurations to make when running Emacs on macOS (hence the
+"darwin" system-type check).
+
+#+begin_src emacs-lisp
+  (when (string-equal system-type "darwin")
+    ;; Non-native fullscreen
+    (setq ns-use-native-fullscreen nil)
+    ;; delete files by moving them to the trash
+    (setq delete-by-moving-to-trash t)
+    (setq trash-directory "~/.Trash")
+
+    ;; Don't make new frames when opening a new file with Emacs
+    (setq ns-pop-up-frames nil)
+
+    ;; set the Fn key as the hyper key
+    ;(setq ns-function-modifier 'hyper)
+
+    ;; Use Command-` to switch between Emacs windows (not frames)
+    (bind-key "s-`" 'other-window)
+
+    ;; Use Command-Shift-` to switch Emacs frames in reverse
+    ;(bind-key "s-~" (lambda() () (interactive) (other-window -1)))
+
+    ;; Because of the keybindings above, set one for `other-frame'
+    ;(bind-key "s-1" 'other-frame)
+
+    ;; Fullscreen!
+    (setq ns-use-native-fullscreen nil) ; Not Lion style
+    (bind-key "<s-return>" 'toggle-frame-fullscreen)
+
+    ;; buffer switching
+    (bind-key "s-{" 'previous-buffer)
+    (bind-key "s-}" 'next-buffer)
+
+    ;; Compiling
+    ;  (bind-key "H-c" 'compile)
+    ;  (bind-key "H-r" 'recompile)
+    ;  (bind-key "H-s" (defun save-and-recompile () (interactive) (save-buffer) (recompile)))
+
+    ;; disable the key that minimizes emacs to the dock because I don't
+    ;; minimize my windows
+    (global-unset-key (kbd "C-z"))
+
+    ;; Not going to use these commands
+    (put 'ns-print-buffer 'disabled t)
+    (put 'suspend-frame 'disabled t))
+#+end_src
+
+~exec-path-from-shell~ makes the command-line path with Emacs's shell
+match the same one on macOS.
+
+#+begin_src emacs-lisp
+(use-package exec-path-from-shell
+  :ensure t
+  :init
+  (exec-path-from-shell-initialize))
+#+end_src
+
+** Open other apps from Emacs
+
+#+BEGIN_SRC emacs-lisp
+(defun open-dir-in-finder ()
+  "Open a new Finder window to the path of the current buffer"
+  (interactive)
+  (start-process "mai-open-dir-process" nil "open" "."))
+
+(defun open-dir-in-iterm ()
+  "Open the current directory of the buffer in iTerm."
+  (interactive)
+  (let* ((iterm-app-path "/Applications/iTerm.app")
+         (iterm-brew-path "/opt/homebrew-cask/Caskroom/iterm2/1.0.0/iTerm.app")
+         (iterm-path (if (file-directory-p iterm-app-path)
+                         iterm-app-path
+                       iterm-brew-path)))
+    (start-process "mai-open-dir-process" nil "open" "-a" iterm-path ".")))
+
+(defun open-dir-in-studio ()
+  "Open the current directory in Android Studio."
+  (interactive)
+  (start-process "mai-open-dir-process" nil "studio" "."))
+
+(bind-key "C-c o f" 'open-dir-in-finder)
+(bind-key "C-c o t" 'open-dir-in-iterm)
+(bind-key "C-c o a" 'open-dir-in-studio)
+#+END_SRC
+
+** Title bar appearance
+
+#+BEGIN_SRC emacs-lisp
+(when (string-equal system-type "darwin")
+  (add-to-list 'default-frame-alist
+               '(ns-transparent-titlebar . t))
+  (add-to-list 'default-frame-alist
+               '(ns-appearance . dark))) ;; light or dark
+#+END_SRC
+
+* List buffers
+
+;;; Use helm-buffers list
+
+;; ibuffer is the improved version of list-buffers.
+;;
+;; #+begin_src emacs-lisp
+;; ;; make ibuffer the default buffer lister.
+;; (defalias 'list-buffers 'ibuffer)
+;; #+end_src
+
+
+source: http://ergoemacs.org/emacs/emacs_buffer_management.html
+
+#+begin_src emacs-lisp
+(add-hook 'dired-mode-hook 'auto-revert-mode)
+
+;; Also auto refresh dired, but be quiet about it
+(setq global-auto-revert-non-file-buffers t)
+(setq auto-revert-verbose nil)
+#+end_src
+
+source: [[http://whattheemacsd.com/sane-defaults.el-01.html][Magnars Sveen]]
+
+
+* Persistent Scratch
+#+begin_src emacs-lisp
+;; persistent-scratch
+(use-package persistent-scratch
+  :ensure t
+  :config
+  (persistent-scratch-setup-default))
+#+end_src
+
+* Recentf
+
+#+begin_src emacs-lisp
+(use-package recentf
+  :config
+  (recentf-mode t)
+  (setq recentf-max-saved-items 500))
+#+end_src
+
+* Whitespace mode
+
+#+begin_src emacs-lisp
+(use-package whitespace
+  :bind ("<f10>" . whitespace-mode))
+#+end_src
+* Narrow to enclosing thing
+  #+begin_src emacs-lisp
+    (use-package fancy-narrow
+      :ensure t)
+
+    (defun narrow-or-widen-dwim (p)
+      "Widen if buffer is narrowed, narrow-dwim otherwise.
+    Dwim means: region, org-src-block, org-subtree, or
+    defun, whichever applies first. Narrowing to
+    org-src-block actually calls `org-edit-src-code'.
+
+    With prefix P, don't widen, just narrow even if buffer
+    is already narrowed."
+      (interactive "P")
+      (declare (interactive-only))
+      (cond ((and (fancy-buffer-narrowed-p) (not p))
+                (fancy-widen)
+                (fancy-remove-buffer-narrowed))
+            ((region-active-p)
+             (fancy-set-buffer-narrowed)
+             (fancy-narrow-to-region (region-beginning)
+                               (region-end)))
+            ((derived-mode-p 'org-mode)
+             ;; `org-edit-src-code' is not a real narrowing
+             ;; command. Remove this first conditional if
+             ;; you don't want it.
+             (cond ((ignore-errors (org-edit-src-code) t)
+                    (delete-other-windows))
+                   ((ignore-errors (org-narrow-to-block) t))
+                   (t (org-narrow-to-subtree))))
+            ((derived-mode-p 'latex-mode)
+             (LaTeX-narrow-to-environment))
+            (t (fancy-narrow-to-defun) (fancy-set-buffer-narrowed))))
+
+    ;; fancy-narrow doesn't remember if it narrowed or not. Regular
+    ;; buffer-narrowed-p looks at size of buffer which isn't changed by
+    ;; fancy.
+    (defun fancy-remove-buffer-narrowed ()
+        (kill-local-variable 'fancy-narrowed))
+
+    (defun fancy-set-buffer-narrowed ()
+        (setq-local fancy-narrowed t))
+
+    (defun fancy-buffer-narrowed-p ()
+        (local-variable-p 'fancy-narrowed))
+  #+end_src
+* Keybindings
+  #+begin_src emacs-lisp
+  (global-set-key [f1]            'switch-to-most-recent-org-buffer)
+  (global-set-key [f2]            'narrow-or-widen-dwim)
+  (global-set-key [f3]            'pop-to-scratch)
+  (global-set-key [f4]            'my-code-search)
+  (global-set-key [f5]            (lambda () (interactive) (revert-buffer t nil)))
+  (global-set-key [f6]            (lambda () (interactive) (switch-to-buffer nil)))
+  (global-set-key [f7]            'my-toggle-hideshow-all)
+  (global-set-key [f12]           'my-toggle-selective-display)
+
+  (global-set-key [?\C-_]         'help-command)
+  (global-set-key "\C-h"          'backward-delete-char)
+
+  (global-set-key (kbd "<home>")  'beginning-of-buffer)
+  (global-set-key (kbd "M-SPC")   'my-just-one-white)
+  (global-set-key "\C-cr"         'align-regexp)
+  #+end_src
+
+* Custom Fun
+
+** calc
+#+begin_src emacs-lisp
+(use-package calc
+ :init (load-library "my-calc-extras")
+ :bind ("M-#" . calc))
+#+end_src
+
+
+** shell
+#+begin_src emacs-lisp
+(defun get-shell-file-env (FILE VAR)
+  "Use bash to source FILE in a temporary subshell and report the value of env VAR."
+  (let ((F (expand-file-name FILE)))
+    (if (file-readable-p F)
+        (shell-command-to-string
+         (format "sh -c '. %s; /bin/echo -n ${%s}' 2>/dev/null" F VAR))
+      nil)))
+#+end_src
+
+** work
+#+begin_src emacs-lisp
+(defun work()
+  "switch to main work context"
+  (interactive nil)
+  (let ((workdir (get-shell-file-env "~/.work" "WORK")))
+    (message workdir)
+    (find-file workdir)))
+#+end_src
+** duplicate-line
+#+begin_src emacs-lisp
+  ; local
+  (load-library "duplicate-line.el")
+  (use-package duplicate-line
+    :bind (("M-p" . duplicate-previous-line)
+           ("M-n" . duplicate-following-line)))
+#+end_src
+** Navigation
+  #+begin_src emacs-lisp
+    (defun buffer-mode (buffer-or-string)
+      "Returns the major mode associated with a buffer."
+      (buffer-local-value 'major-mode (get-buffer buffer-or-string)))
+
+    (defun most-recent-mode-buffer (mode buffs)
+      "search list of buffers and return most recently accessed mode buffer"
+      (cond ((null buffs) nil)
+            ((equal mode (buffer-mode (car buffs))) (car buffs))
+            (t (most-recent-mode-buffer mode (cdr buffs)))))
+
+    (defun switch-to-most-recent-org-buffer ()
+      "if in org mode, jump to most recent other buffer, otherwise jump to most recently accessed org-mode buffer"
+      (interactive)
+      (if (equal major-mode 'org-mode)
+          (switch-to-buffer nil)
+        (switch-to-buffer (most-recent-mode-buffer 'org-mode (buffer-list)))))
+
+    (defun my-save-and-bury-buffer ()
+      (interactive)
+      (save-buffer)
+      (bury-buffer))
+
+    (defun pop-to-scratch ()
+      "If in *scratch*, bury it, otherwise pop to it."
+      (interactive nil)
+      (if (equal (buffer-name) "*scratch*")
+          (bury-buffer)
+        (switch-to-buffer "*scratch*")))
+  #+end_src
+
+** my-just-one-white
+#+begin_src emacs-lisp
+(defun my-just-one-white (&optional n)
+  "Delete all spaces, tabs, and NLs around point, leaving one space (or N spaces)."
+  (interactive "*p")
+  (let ((orig-pos (point)))
+    (skip-chars-backward " \t\n\r")
+    (constrain-to-field nil orig-pos)
+    (dotimes (i (or n 1))
+      (if (= (following-char) 32)
+          (forward-char 1)
+        (insert 32)))
+    (delete-region
+     (point)
+     (progn
+       (skip-chars-forward " \t\n\r")
+       (constrain-to-field nil orig-pos t)))))
+#+end_src
+
+** Shell-like
+  #+begin_src emacs-lisp
+    (defun find-file-most-recent (dir)
+      "Open most recently created file in DIR."
+      (let ((files (directory-files-and-attributes dir nil nil t)))
+        (find-file (concat dir "/" (caadr (sort
+                                           files
+                                           (lambda (a b) (time-less-p (nth 6 b) (nth 6 a)))))))))
+
+    ;; edit-which
+    (defun ew (prog)
+      (interactive "sProgram: ")
+      (find-file (or (executable-find prog)
+                     (error (concat prog " not found in exec-path")))))
+
+    ;; more-which
+    (defun mw (prog)
+      (interactive "sProgram: ")
+      (view-file (or (executable-find prog)
+                     (error (concat prog " not found in exec-path")))))
+
+    (defun erd ()
+      "Edit most Recent Download"
+      (interactive nil)
+      (find-file-most-recent "~/Downloads"))
+
+    (defun mrd ()
+      "View most Recent Download"
+      (interactive nil)
+      (erd)
+      (log-view-mode))
+  #+end_src
+
+* ELPA packages
+** compile
+   #+begin_src emacs-lisp
+(use-package compile
+  :ensure t
+  :init (setq compilation-scroll-output 1
+              compile-command "make "
+              compilation-scroll-output 'first-error)
+  :bind ("C-x C-k" . compile))
+   #+end_src
+
+** browse-kill-ring
+#+begin_src emacs-lisp
+(use-package browse-kill-ring
+  :ensure t
+  :init (browse-kill-ring-default-keybindings)
+  :bind ("C-x 4 y" . browse-kill-ring))   ; extra for finger memory
+#+end_src
+
+** dispwatch
+   #+begin_src emacs-lisp
+     (defun my-display-changed-hook (disp)
+       (message "Adjusting for display %s" disp)
+       (cond ((equal disp '(3840 . 1080))   ; laptop + ext monitor
+              (my-set-font-size-absolute 10))
+             ((equal disp '(1920 . 1080))      ; just laptop
+              (my-set-font-size-absolute 14))))
+
+     (use-package dispwatch
+       :ensure t
+       :config (progn
+                 (add-hook 'dispwatch-display-change-hooks #'my-display-changed-hook)
+                 (dispwatch-mode 1)))
+   #+end_src
+** dot-mode
+   #+begin_src emacs-lisp
+;; This binds c-.
+;; we've stolen c-. (from org-time-stamp, so we need to rebind that)
+(use-package dot-mode
+  :ensure t
+  :init (add-hook 'find-file-hooks (lambda () (dot-mode 1)))
+  :bind ("C-." . dot-mode))
+   #+end_src
+** iedit
+   #+begin_src emacs-lisp
+      (use-package iedit
+         :ensure t)
+   #+end_src
+** Helm
+
+#+begin_src emacs-lisp
+  (use-package helm
+    :ensure t
+    :diminish helm-mode
+    :bind (("C-c h" . helm-command-prefix)
+           ("C-x b" . helm-mini)
+           ("C-`" . helm-resume)
+           ("M-x" . helm-M-x)
+           ("C-x C-f" . helm-find-files)
+           ("C-x C-r" . helm-recentf))
+    :init
+    (require 'helm-config)
+    (defalias 'list-buffers 'helm-buffers-list)
+    :config
+    (setq helm-locate-command "mdfind -interpret -name %s %s"
+          helm-ff-newfile-prompt-p nil
+          helm-M-x-fuzzy-match t)
+    (helm-mode 1)
+    :custom-face
+    (helm-selection ((t :background "LightYellow" :foreground "black"))))
+    #+end_src
+
+
+*** Helm other
+    #+begin_src emacs-lisp :tangle on
+  (use-package helm-projectile
+    :ensure t
+    :after helm-mode
+    :commands helm-projectile
+    :bind ("C-c p h" . helm-projectile))
+
+  (use-package helm-ag
+    :ensure t
+    :after helm-mode)
+
+    #+end_src
+
+*** Helm grepint
+    #+begin_src emacs-lisp
+      (defun my-helm-grepint-root ()
+            "Uses `my-grep-root` if set from .dir-locals.el, or ascends to .git."
+            (let ((z (if (boundp 'my-grep-root)
+                         my-grep-root
+                       (locate-dominating-file (file-name-as-directory
+                                                (expand-file-name (file-truename default-directory)))
+                                               ".git"))))
+              (setq got z)
+              z))
+
+          ;; https://github.com/kopoli/helm-grepint
+          (use-package helm-grepint
+            :ensure t
+            :config
+                  (helm-grepint-add-grep-config myag
+                  :command "ag"
+                  :arguments "--nocolor --search-zip --nogroup :ignore-case-arg -- :search-pattern"
+                  :ignore-case-arg "--ignore-case"
+                  :root-directory-function my-helm-grepint-root)
+
+                ;; Always use ag, even under a git repo, because not all files
+                ;; are checked in yet. Also if working on a monorepo we want
+                ;; to ascend to project root, not all the way up to the .git dir.
+                (setq helm-grepint-grep-list '(myag))
+
+            :bind ("C-c g" . helm-grepint-grep-root)
+                  ("C-c G" . helm-grepint-grep-root))
+
+          ;(use-package helm-swoop
+          ;  :ensure t
+          ;  :after helm-mode
+          ;  :bind ("H-w" . helm-swoop))
+#+end_src
+
+** Projectile
+
+#+BEGIN_QUOTE
+Project navigation and management library for Emacs.
+#+END_QUOTE
+http://batsov.com/projectile/
+
+#+begin_src emacs-lisp :tangle on
+(use-package projectile
+  :ensure t
+  :diminish projectile-mode
+  :commands (projectile-mode projectile-switch-project)
+  :bind (("C-c p p" . projectile-switch-project)
+         ("C-c p s s" . projectile-ag)
+         ("C-c p s r" . projectile-ripgrep))
+  :config
+  (setq projectile-keymap-prefix (kbd "C-c p"))
+  (projectile-global-mode t)
+  (setq projectile-enable-caching t)
+  (setq projectile-switch-project-action 'projectile-dired))
+#+end_src
+
+* Languages
+** Flycheck
+I'm putting this first so it disables flymake for the following
+langauges.
+#+begin_src emacs-lisp
+(use-package flycheck
+  :ensure t
+  :init
+  (global-flycheck-mode t))
+#+end_src
+** LSP
+Also before loading languages.
+#+begin_src emacs-lisp
+  (use-package lsp-mode
+    :ensure t
+    :demand t
+    :commands lsp
+    :config
+    ;;(require 'lsp-clients)
+    (diminish 'lsp-mode))
+
+  (use-package lsp-ui
+    :ensure t
+    :demand t
+    :config
+    (setq lsp-ui-flycheck-enable t)
+    (define-key lsp-ui-mode-map [remap xref-find-definitions] #'lsp-ui-peek-find-definitions)
+    (define-key lsp-ui-mode-map [remap xref-find-references] #'lsp-ui-peek-find-references)
+    :hook 
+    (lsp-mode . lsp-ui-mode))
+#+end_src
+
+** Dockerfile
+   #+begin_src emacs-lisp
+   (use-package dockerfile-mode
+       :ensure t)
+   #+end_src
+** Pony
+   #+begin_src emacs-lisp
+     (use-package ponylang-mode
+       :ensure t
+       :init
+       :init
+       (setq compilation-scroll-output 'first-error)
+       (setenv "CC" "gcc")
+       (add-hook 'ponylang-mode-hook '(lambda () (whitespace-mode -1)))
+       :bind (:map ponylang-mode-map
+                   (("<f6>" . (lambda () (interactive) (switch-to-buffer nil)))
+                    ("<f8>" . ponylang-menu))))
+   #+end_src
+
+** Cargo
+Cargo implies rust-mode, but it must be brought in before rustic
+because that will override the mode.
+   
+   #+begin_src emacs-lisp
+(use-package cargo
+  :ensure t
+  :demand
+  :hook (rustic-mode . cargo-minor-mode))
+   #+end_src
+
+** Rust
+   #+begin_src emacs-lisp
+;; dependency it doesn't bring in by itself
+(use-package project
+  :ensure t)
+
+(use-package ob-rust
+  :ensure t)
+
+(use-package rustic
+  :ensure t
+  :init (setq rustic-format-trigger 'on-compile
+              rustic-lsp-server 'rust-analyzer
+              lsp-rust-analyzer-server-command '("/usr/local/bin/rust-analyzer")
+              compilation-scroll-output 'first-error
+              rustic-format-trigger 'on-save
+              rustic-format-on-save t)
+  :bind
+  (:map rustic-mode-map
+        ("C-c C-k" . #'rustic-cargo-build)
+        ("C-c C-t" . #'rustic-cargo-test-run)
+        ("C-c C-c" . #'rustic-cargo-run)))
+
+; (add-hook 'eglot--managed-mode-hook (lambda () (flymake-mode -1)))
+   #+end_src
+
+** Yaml
+   #+begin_src emacs-lisp
+(use-package toml-mode
+  :ensure t)
+
+(use-package yaml-mode
+  :mode "\\.yml"
+  :ensure t)
+
+(use-package highlight-indentation
+  :ensure t
+  :hook ((yaml-mode . highlight-indentation-current-column-mode)
+         (python-mode . highlight-indentation-current-column-mode))
+;  :init (progn
+;            (set-face-background 'highlight-indentation-face "#f3f3d3")
+;            (set-face-background 'highlight-indentation-current-column-face "#e3c3b3")))
+)
+   #+end_src
+
+** python
+#+begin_src emacs-lisp
+(use-package python-black
+  :ensure t
+  :demand t
+  :after python
+  :hook (python-mode . python-black-on-save-mode))
+#+end_src
+
+* Org Mode
+** Prereq
+   #+begin_src emacs-lisp
+       (use-package ob-http
+         :ensure t)
+
+       ;; Tempo lets you do "<s TAB" to insert a babel src block.
+       (require 'org-tempo)
+       (setq org-src-tab-acts-natively t
+             org-confirm-babel-evaluate nil)
+
+       ;; eww
+       ;; (add-to-list 'org-structure-template-alist
+       ;; '("p" "src emacs-lisp"))))
+   #+end_src
+** Get the latest
+  #+begin_src emacs-lisp
+(use-package org
+  :ensure t
+  :bind (("C-c c" . org-capture)
+         ("C-c a" . org-agenda)
+         ("C-c t" . org-time-stamp)	; This overrides dot-mode
+         ("C-c l" . org-store-link))
+
+         ;; todo: bind  org-return-indent?
+         ;; and maybe
+         ;; (global-set-key "\C-cb" 'org-switchb)
+
+  :init
+  (progn
+    (org-babel-do-load-languages
+     'org-babel-load-languages
+     '((shell . t)
+       (python . t)
+       (dot . t)
+       (perl . t)
+       (rust . t)
+       (js . t)
+       (http . t) ; uses package ob-http
+       (emacs-lisp . t)))
+  
+    ;; formatting for src blocks
+    (setq org-src-fontify-natively t
+        org-src-window-setup 'current-window
+        org-src-strip-leading-and-trailing-blank-lines t
+        org-src-preserve-indentation t
+        org-src-tab-acts-natively t)
+  
+    (auto-fill-mode 1)
+    (add-hook 'org-mode-hook 'turn-on-auto-fill)
+    (setq
+     my-org-dir "~/org"
+     fill-column 99
+     org-todo-keywords '((sequence "TODO(t)" "WAITING(w)" "|" "DONE(d)" "CANCELLED(c)"))
+     org-startup-indented t
+     org-startup-folded "showall"
+     org-hide-leading-stars t
+     org-confirm-babel-evaluate nil
+  ;;   org-agenda-files (list my-inbox-orgfile
+  ;;			  my-projects-orgfile
+  ;;			  my-someday-orgfile
+  ;;			  my-tickler-orgfile)
+  
+     org-export-with-toc nil    ;; do not generate a TOC on export please
+     org-export-with-sub-superscripts nil
+     org-directory my-org-dir
+     org-capture-bookmark nil
+     org-default-notes-file "~/org/inbox.org")))
+   #+end_src
+* Deft and Zetteldeft
+  #+begin_src emacs-lisp
+    (use-package deft
+      :ensure t
+      :custom
+      (deft-extensions '("org" "md" "txt"))
+      (deft-directory "~/org")
+      (deft-use-filename-as-title t)
+          ;;        deft-text-mode 'org-mode
+      :bind (([f9] . my-deft)
+             :map deft-mode-map
+             ("<backspace>" . 'deft-filter-decrement)))
+
+;;    (use-package zetteldeft
+;;      :ensure t
+;;      :after deft
+;;      :config (zetteldeft-set-classic-keybindings))
+
+    (defun my-deft ()
+      "Show deft buffer, or kill it."
+      (interactive)
+      (if (equal (buffer-name) "*Deft*")
+          (kill-buffer deft-buffer)
+        (deft)))
+  #+end_src
+
+* Tail Hacks
+#+begin_src emacs-lisp
+#+end_src
+
+* Services
+#+begin_src emacs-lisp
+(if window-system (server-start))
+#+end_src
+

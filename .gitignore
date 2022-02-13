@@ -1,8 +1,14 @@
-# org-roam.db especially
-*.db
+# homebin like https://coreyja.com/dotfiles-git-in-home-dir
 
-*.[oa]
-*.exe
-*~
+# store nothing by default
+*
 
-*.gdb_history
+!/bin
+!/lib
+!/shared-org
+!/shared-elisp
+!/snippets
+!/.emacs.d
+
+
+

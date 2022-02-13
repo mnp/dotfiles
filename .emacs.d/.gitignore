@@ -1,0 +1,19 @@
+# ignore these
+
+*.elc
+
+# this is generated from config.org so don't vc it
+/config.el
+
+/backups
+/eshell/history
+/custom.el
+/elpa/*
+/.org-id-locations
+/auto-save-list
+/image-dired/
+/session.*
+/tramp
+/url/
+/var/
+*.elc
