@@ -55,7 +55,9 @@ export MVS_BROWSER=firefox
 [ -s "/usr/local/opt/nvm/nvm.sh" ] && . "/usr/local/opt/nvm/nvm.sh"  # This loads nvm
 
 # Go lang
-path_append PATH /usr/local/opt/go/libexec/bin
+if [ -d /usr/local/opt/go/libexec/bin ]; then
+    path_append PATH /usr/local/opt/go/libexec/bin
+fi
 
 if [ -d $HOME/go ]; then
     GOPATH=$HOME/go
@@ -104,13 +106,13 @@ fi
 BASH_COMPLETION=${BASH_COMPLETION:-/usr/local/opt/bash-completion/etc/bash_completion}
 test -f $BASH_COMPLETION && . $BASH_COMPLETION
 
-if type pyenv > /dev/null 2>&1; then
-    export PYENV_ROOT="$HOME/.pyenv"
-    export PATH="$PYENV_ROOT/bin:$PATH"
-    eval "$(pyenv init -)"
-else
-    path_append PATH /usr/local/Cellar/python/2.7.13_1/Frameworks/Python.framework/Versions/2.7/bin
-fi
+# if type pyenv > /dev/null 2>&1; then
+#     export PYENV_ROOT="$HOME/.pyenv"
+#     export PATH="$PYENV_ROOT/bin:$PATH"
+#     eval "$(pyenv init -)"
+# else
+#     path_append PATH /usr/local/Cellar/python/2.7.13_1/Frameworks/Python.framework/Versions/2.7/bin
+# fi
 
 # eval "`pip completion --bash`"
 
@@ -283,12 +285,10 @@ export VISUAL='fe'
 export LANG=C
 
 # # enable color support of ls
-if type dircolors > /dev/null 2>&1; then
-     if [[ "$TERM" != "dumb" && -d ~/prj/dircolors-solarized ]]; then
- 	eval `dircolors ~/prj/dircolors-solarized/dircolors.256dark`
-	export LS_OPTIONS=--color=auto
-     fi
- fi
+if [ -f .dircolors-solarized-256dark ]; then
+    source .dircolors-solarized-256dark
+    export LS_OPTIONS=--color=auto
+fi
 
 if type gzcat > /dev/null 2>&1; then
     ZCAT=gzcat
@@ -321,7 +321,6 @@ m()
 	    fi
 	    return
 	    ;;
-        *.md) termd "$1" | $PAGER; return;;
 	*.jar) jar tvf "$1" | $PAGER ; return;;
 	*.gz)  $ZCAT "$1" | $PAGER ; return;;
 	*.bz2) bzcat "$1" | $PAGER ; return;;
@@ -407,7 +406,7 @@ alias ll='ls $LS_OPTIONS -l'
 alias la='ls $LS_OPTIONS -lA'
 alias lh='ls -lhS'
 
-function jc=() { jq -C . $@ | less -r; }
+function jc() { jq -C . $@ | less -r; }
 function cj() { curl -s $1 | jq -C . | less -r; }
 
 alias mlp='m `ls -rt /tmp/*pdf|tail -1`'
@@ -697,25 +696,36 @@ alias kcd='kubectl describe'
 alias kgs='kubectl get services'
 
 kcns() {
+    local file=~/.kcns-old-namespace
     local current
+    local old
+    if [ -f $file ]; then
+        old=$(cat $file)
+    else
+        old=''
+    fi
+
+    echo "context:           " $(kubectl config current-context)
     current=$(kubectl config view --minify --output 'jsonpath={..namespace}')
 
     case $1 in
         "")
-            echo current namespace: $current;;
+            echo previous namespace: "$old"
+            echo current namespace: " $current";;
         "-")
-            kubectl config set-context --current --namespace $kcns_old_ns
-            echo new namespace: $kcns_old_ns
-            kcns_old_ns=$current;;
+            kubectl config set-context --current --namespace $old
+            echo new namespace: $old
+            old=$current;;
         *)
-            kcns_old_ns=$current
+            old=$current
             kubectl config set-context --current --namespace $1
             echo new namespace: $1;;
     esac        
+    echo $old > $file
 }
 
 kcl() { kubectl logs -f pod/$(kc-getpod $1);  }
-kcs() { kubectl exec -it $(kc-getpod $1) -- sh; }
+kcs() { kubectl exec -it $(kc-getpod $1 | grep -v kots) -- sh; }
 
 source <(kubectl completion bash)
 complete -F __start_kubectl k

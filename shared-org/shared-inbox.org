@@ -1,5 +1,7 @@
 * Shared Incoming 
 
+https://stackoverflow.com/questions/28800614/run-while-loop-concurrently-with-flask-server
+
 https://betterexplained.com/articles/adept-method/
 
 https://stevelosh.com/blog/2013/04/git-koans/

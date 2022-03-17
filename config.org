@@ -48,9 +48,13 @@ customize settings in [[file:init.el][init.el]].
 * Theme
 
 #+begin_src emacs-lisp
-(use-package gruvbox-theme
-  :ensure t)
-(load-theme 'gruvbox-dark-soft)
+(use-package nano-theme
+  :ensure t
+  :init (load-theme 'nano-dark))
+
+;; (use-package gruvbox-theme
+;;   :ensure t)
+;; (load-theme 'gruvbox-dark-soft)
 #+end_src
 
 * Fonts
@@ -129,6 +133,9 @@ Sources for this section include [[https://github.com/magnars/.emacs.d/blob/mast
 
 (global-auto-revert-mode 1)
 
+;; Go to top of packages buffer after loading it, so the new items are visible
+(add-hook 'package--post-download-archives-hook
+          '(lambda () (goto-char (point-min))))
 #+end_src
 
 * Occur DWIM
@@ -293,13 +300,29 @@ source: [[http://whattheemacsd.com/sane-defaults.el-01.html][Magnars Sveen]]
   (persistent-scratch-setup-default))
 #+end_src
 
-* Recentf
+* Git Gutter
+#+begin_src emacs-lisp
+(use-package git-gutter
+  :ensure t
+  :hook ((prog-mode . git-gutter-mode)
+         (yaml-mode . git-gutter-mode))
+  :config
+  (setq git-gutter:update-interval 0.5))
+
+(use-package git-gutter-fringe
+  :ensure t
+  :config
+  (define-fringe-bitmap 'git-gutter-fr:added [224] nil nil '(center repeated))
+  (define-fringe-bitmap 'git-gutter-fr:modified [224] nil nil '(center repeated))
+  (define-fringe-bitmap 'git-gutter-fr:deleted [128 192 224 240] nil nil 'bottom))
+#+end_src
+
+* Recent context
 
 #+begin_src emacs-lisp
-(use-package recentf
-  :config
-  (recentf-mode t)
-  (setq recentf-max-saved-items 500))
+(recentf-mode t)
+(setq recentf-max-saved-items 100)
+(save-place-mode 1)
 #+end_src
 
 * Whitespace mode
@@ -653,23 +676,41 @@ langauges.
 ** LSP
 Also before loading languages.
 #+begin_src emacs-lisp
-  (use-package lsp-mode
-    :ensure t
-    :demand t
-    :commands lsp
-    :config
-    ;;(require 'lsp-clients)
-    (diminish 'lsp-mode))
+(use-package lsp-mode
+  :ensure t
+  :hook ((c-mode          ; clangd
+          python-mode     ; pyright
+          rustic-mode
+          ) . lsp-deferred)
+  :commands lsp
+  :config
+  (setq lsp-auto-guess-root t)
+  (setq lsp-log-io nil)
+  (setq lsp-restart 'auto-restart)
+  (setq lsp-enable-symbol-highlighting nil)
+  (setq lsp-enable-on-type-formatting nil)
+  (setq lsp-signature-auto-activate nil)
+  (setq lsp-signature-render-documentation nil)
+  (setq lsp-eldoc-hook nil)
+  (setq lsp-modeline-code-actions-enable nil)
+  (setq lsp-modeline-diagnostics-enable nil)
+  (setq lsp-headerline-breadcrumb-enable nil)
+  (setq lsp-semantic-tokens-enable nil)
+  (setq lsp-enable-folding nil)
+  (setq lsp-enable-imenu nil)
+  (setq lsp-enable-snippet nil)
+  (setq read-process-output-max (* 1024 1024)) ;; 1MB
+  (setq lsp-idle-delay 0.5))
 
-  (use-package lsp-ui
-    :ensure t
-    :demand t
-    :config
-    (setq lsp-ui-flycheck-enable t)
-    (define-key lsp-ui-mode-map [remap xref-find-definitions] #'lsp-ui-peek-find-definitions)
-    (define-key lsp-ui-mode-map [remap xref-find-references] #'lsp-ui-peek-find-references)
-    :hook 
-    (lsp-mode . lsp-ui-mode))
+  ;; (use-package lsp-ui
+  ;;   :ensure t
+  ;;   :demand t
+  ;;   :config
+  ;;   (setq lsp-ui-flycheck-enable t)
+  ;;   (define-key lsp-ui-mode-map [remap xref-find-definitions] #'lsp-ui-peek-find-definitions)
+  ;;   (define-key lsp-ui-mode-map [remap xref-find-references] #'lsp-ui-peek-find-references)
+  ;;   :hook 
+  ;;   (lsp-mode . lsp-ui-mode))
 #+end_src
 
 ** Dockerfile
@@ -677,18 +718,19 @@ Also before loading languages.
    (use-package dockerfile-mode
        :ensure t)
    #+end_src
+
 ** Pony
    #+begin_src emacs-lisp
-     (use-package ponylang-mode
-       :ensure t
-       :init
-       :init
-       (setq compilation-scroll-output 'first-error)
-       (setenv "CC" "gcc")
-       (add-hook 'ponylang-mode-hook '(lambda () (whitespace-mode -1)))
-       :bind (:map ponylang-mode-map
-                   (("<f6>" . (lambda () (interactive) (switch-to-buffer nil)))
-                    ("<f8>" . ponylang-menu))))
+     ;; (use-package ponylang-mode
+     ;;   :ensure t
+     ;;   :init
+     ;;   :init
+     ;;   (setq compilation-scroll-output 'first-error)
+     ;;   (setenv "CC" "gcc")
+     ;;   (add-hook 'ponylang-mode-hook '(lambda () (whitespace-mode -1)))
+     ;;   :bind (:map ponylang-mode-map
+     ;;               (("<f6>" . (lambda () (interactive) (switch-to-buffer nil)))
+     ;;                ("<f8>" . ponylang-menu))))
    #+end_src
 
 ** Cargo
@@ -804,6 +846,12 @@ because that will override the mode.
         org-src-preserve-indentation t
         org-src-tab-acts-natively t)
   
+    (setq org-capture-templates
+      '(("t" "Todo" entry (file+headline "~/org/inbox.org" "Tasks")
+         "* TODO %?\n  %i\n  %a")
+        ("j" "Journal" entry (file+datetree "~/org/journal.org")
+         "* %?\nEntered on %U\n  %i\n%a\n%[~/.work]")))
+
     (auto-fill-mode 1)
     (add-hook 'org-mode-hook 'turn-on-auto-fill)
     (setq
