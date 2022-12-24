@@ -1,2 +1,6 @@
 #!/bin/bash
+
+# this is called by git, etc for VISUAL or EDITOR; it needs to wait until the edit is finished so
+# this is not using --no-wait intentionally.
+
 emacsclient "$@"

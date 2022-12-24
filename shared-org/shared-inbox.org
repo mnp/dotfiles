@@ -226,3 +226,78 @@ https://web.archive.org/web/20161009151935/http://www.hiswasymposium.com/assets/
 
 https://medium.com/awesome-cloud/aws-difference-between-sqs-and-sns-61a397bf76c5
 
+* 2022
+
+** 2022-03 March
+
+*** 2022-03-17 Thursday
+**** SYNC [2022-03-17 Thu 13:36]
+**** Sync [2022-03-17 Thu 13:58]
+**** Sync [2022-03-17 Thu 13:59]
+**** Sync [2022-03-17 Thu 13:59]
+**** Sync [2022-03-17 Thu 14:00]
+**** Sync [2022-03-17 Thu 14:01]
+  -     Like ‘%l’, but without brackets (the link content itself).
+
+*** 2022-03-18 Friday
+**** Sync [2022-03-18 Fri 09:38]
+  - https://alhassy.github.io/emacs.d/
+**** Sync [2022-03-18 Fri 09:48]
+  - https://www.youtube.com/watch?v=CRU-KwoIY0o
+
+** 2022-08 August
+
+*** 2022-08-03 Wednesday
+**** Sync [2022-08-03 Wed 08:40]
+  thorium research Earl Twp, PA uranium mining corp
+https://www.corporations.pa.gov/search/corpsearch
+https://www.corporations.pa.gov/
+https://duckduckgo.com/?t=ffcm&q=577+SACKETSFORD+RD+IVYLAND+PA+18974-0+Bucks&ia=maps&iaxm=maps
+https://www.redfin.com/PA/Ivyland/577-Sacketts-Ford-Rd-18974/home/38976066
+https://duckduckgo.com/?t=ffcm&q=577+SACKETSFORD+RD+IVYLAND+PA+18974-0+Bucks&ia=maps
+https://duckduckgo.com/?t=ffcm&q=577+SACKETSFORD+RD+IVYLAND+PA+18974-0+Bucks
+https://www.bizapedia.com/pro-search.aspx
+https://www.bizapedia.com/people/ronald-hartman.html
+https://www.bizapedia.com/pa/international-exploration.html
+https://duckduckgo.com/?q=INTERNATIONAL+EXPLORATION+ivyland&t=ffcm&ia=web
+https://duckduckgo.com/?q=INTERNATIONAL+EXPLORATION+ivyland&t=ffcm
+https://duckduckgo.com/?t=ffcm&q=INTERNATIONAL+EXPLORATION&ia=web
+https://duckduckgo.com/?t=ffcm&q=INTERNATIONAL+EXPLORATION
+https://www.corporations.pa.gov/search/corpsearch;
+https://duckduckgo.com/?t=ffab&q=searcdh+corporations.pa.gov&ia=web
+https://duckduckgo.com/?t=ffab&q=searcdh+corporations.pa.gov
+https://duckduckgo.com/?t=ffab&q=BusinessCharities&ia=web
+https://duckduckgo.com/?t=ffab&q=BusinessCharities
+https://www.dos.pa.gov/BusinessCharities/Business/Resources/Pages/Pennsylvania-Business-Corporations.aspx
+https://www.dos.pa.gov/BusinessCharities/Business/Resources/Pages/default.aspx
+https://www.dos.pa.gov/pages/search.aspx
+https://www.dos.pa.gov/pages/search.aspx#
+https://www.dos.pa.gov/Pages/default.aspx
+https://duckduckgo.com/?t=ffab&q=pa+dept+state&ia=web
+https://duckduckgo.com/?t=ffab&q=pa+dept+state
+https://countyfusion4.kofiletech.us/countyweb/main.jsp?countyname=Berks
+https://countyfusion4.kofiletech.us/countyweb/loginDisplay.action?town=&countyname=Berks
+https://countyfusion4.kofiletech.us/countyweb/login.do?town=&countyname=Berks
+https://countyfusion4.kofiletech.us/countyweb/loginDisplay.action?countyname=Berks
+https://countyfusion4.kofiletech.us/countyweb/login.do?countyname=Berks
+https://www.co.berks.pa.us/Dept/Deeds/Pages/OnlineRecordsSearchInstructions.aspx
+https://www.co.berks.pa.us/Dept/Deeds/Pages/default.aspx
+https://duckduckgo.com/?t=ffab&q=berks+county+deeds&ia=places
+https://duckduckgo.com/?t=ffab&q=berks+county+deeds
+http://elibrary.dcnr.pa.gov/PDFProvider.ashx?action=PDFStream&docID=1751344&chksum=&revision=0&docName=M97_Geo-Min_Uranium-Thorium_ReadingProng&nativeExt=zip&PromptToSave=True&Size=68646410&ViewerMode=1&overlay=0
+http://elibrary.dcnr.pa.gov/GetDocument?docId=1751344&DocName=M97_Geo-Min_Uranium-Thorium_ReadingProng
+https://www.dcnr.pa.gov/Geology/GeologicEconomicResources/MineralIndustries/Pages/default.aspx
+https://www.usgs.gov/publications/mineralogy-uranium-and-thorium-rj-lauf
+https://duckduckgo.com/?t=ffab&q=GEOLOGY+AND+MINERALOGY+OF+URANIUM+AND+THORIUM+IN+THE+READING+PRONG+OF+BERKS%2C+LEHIGH%2C+AND+NORTHAMPTON+COUNTIES%2C+PENNSYLVANIA&ia=web
+https://duckduckgo.com/?t=ffab&q=GEOLOGY+AND+MINERALOGY+OF+URANIUM+AND+THORIUM+IN+THE+READING+PRONG+OF+BERKS%2C+LEHIGH%2C+AND+NORTHAMPTON+COUNTIES%2C+PENNSYLVANIA
+https://www.mindat.org/loc-274338.html
+https://www.mindat.org/loc-293908.html
+https://duckduckgo.com/?q=thorite+earl+township+pa&t=ffab&ia=web
+https://duckduckgo.com/?q=thorite+earl+township+pa&t=ffab
+https://duckduckgo.com/?q=thorite+earl+township&t=ffab&ia=web
+https://duckduckgo.com/?q=thorite+earl+township&t=ffab
+https://duckduckgo.com/?q=earl+shaft+pa+uranium+corp&t=ffab&ia=web
+https://duckduckgo.com/?q=earl+shaft+pa+uranium+corp&t=ffab
+https://duckduckgo.com/?t=ffab&q=earl+uranium+corp&ia=web
+https://duckduckgo.com/?t=ffab&q=earl+uranium+corp
+

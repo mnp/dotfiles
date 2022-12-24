@@ -1,8 +1,14 @@
+if [ $SHLVL -gt 1 ]; then
+    echo SUBSHELL DETECTED
+    PS1='subshell $ '
+fi
 
 # Noninteractive section
 echo bashrc noninteractive section
 
 . ~/lib/shlib.bash
+
+set_have_cmd_vars git bat brew terraform gzcat zcat oocalc kubectl
 
 for d in /usr/man /usr/share/man /usr/local/man $HOME/perl5/man; do
     path_append MANPATH $d
@@ -38,6 +44,9 @@ test -d ~/.local/bin && path_append PATH ~/.local/bin
 
 # node
 test -d ~/node_modules/.bin && path_append PATH ~/node_modules/.bin
+
+# golang
+test -d $HOME/go/bin && path_append PATH $HOME/go/bin
 
 # rust, cargo, etc
 test -r $HOME/.cargo/env && . $HOME/.cargo/env
@@ -89,10 +98,12 @@ esac
 # various formatters use these
 export COLUMNS LINES
 
-export BC_ENV_ARGS='-l $HOME/etc/mylib.bc'
+if [ -f $HOME/etc/mylib.bc ]; then
+    export BC_ENV_ARGS='-l $HOME/etc/mylib.bc'
+fi
 
 # OSX
-if type brew > /dev/null 2>&1; then
+if $have_brew; then
     # iterm
     nametab() { echo -ne "\033]0;"$@"\007"; }
 
@@ -150,8 +161,7 @@ if [ 0 -eq $EUID ]; then
 else
     PS1COLOR=$LTGRN
 fi
-if type git > /dev/null 2>&1; then
-    HAVEGIT=yes
+if $have_git; then
     alias gsm=' git status --untracked-files=no --ignore-submodules'
     alias gds=' git diff --stat'
     alias gdp=' git diff        HEAD~1 --'
@@ -206,7 +216,7 @@ if type git > /dev/null 2>&1; then
     fi
 fi
 
-if type terraform > /dev/null 2>&1; then
+if $have_tf; then
     alias tf=terraform
 fi
 
@@ -244,10 +254,6 @@ function nametab() {
 # 	;;
 # esac
 
-if type git > /dev/null 2>&1; then
-    alias tf=terraform
-fi
-
 PS1="$PS1BASE"
 
 #
@@ -280,26 +286,34 @@ else
 fi
 
 export PAGER=less
-export EDITOR='fe'
-export VISUAL='fe'
+export EDITOR='fe'              # emacsclient
+export VISUAL='fe'              # emacsclient
 export LANG=C
 
-# # enable color support of ls
-if [ -f .dircolors-solarized-256dark ]; then
-    source .dircolors-solarized-256dark
-    export LS_OPTIONS=--color=auto
-fi
+# Enable color support of ls. better mac only?
+export LSCOLORS="Gxfxcxdxbxegedabagacad"
 
-if type gzcat > /dev/null 2>&1; then
+# if [ -f .dircolors-solarized-256dark ]; then
+#     source .dircolors-solarized-256dark
+#     export LS_OPTIONS=--color=auto
+# fi
+
+if $have_gzcat; then
     ZCAT=gzcat
-elif type zcat > /dev/null 2>&1; then
+elif $have_zcat; then
     ZCAT=no
 else
     echo note: no zcat found
 fi
 
-if type oocalc > /dev/null 2>&1; then
+if $have_oocalc; then
     OFFICE=yes
+fi
+
+if $have_bat; then
+    PREPAGER=bat
+else
+    PREPAGER=less
 fi
 
 # my do it all superdeal - consider customized mailcap type alternative
@@ -314,11 +328,19 @@ m()
     # text cases
     case "$1" in
 	*.tar.gz|*.tgz)
-	    if [ $ZCAT != no ]; then
-		gzcat "$1" | tar tvf - | $PAGER
-	    else
-		tar ztvf "$1" | $PAGER
-	    fi
+            if [ -n "$2" ]; then
+	        if [ $ZCAT != no ]; then
+		    gzcat "$1" | tar -xvf - -O "$2" | $PAGER
+	        else
+		    tar -zxvf "$1" -O "$2" | $PAGER
+	        fi
+            else
+	        if [ $ZCAT != no ]; then
+		    gzcat "$1" | tar tvf - | $PAGER
+	        else
+		    tar ztvf "$1" | $PAGER
+	        fi
+            fi
 	    return
 	    ;;
 	*.jar) jar tvf "$1" | $PAGER ; return;;
@@ -338,7 +360,7 @@ m()
 	    *.ods|*.xls|*.XLS|*.xlsx|*.odt|\
 	    *.djvu|*.ps|*.pdf|*.PDF|\
 	    *.png|*.PNG|*.bmp|*.BMP|*.jpg|*.JPG|*.gif|*.GIF|*.html) open "$1";;
-	    *) less "$1";;
+	    *) $PREPAGER "$1";;
 	esac
     else
 	case "$1" in
@@ -350,7 +372,7 @@ m()
 	    *.ods|*.xls|*.XLS|.xlsx|*.odt) libreoffice "$1";;
 	    *.djvu|*.ps|*.pdf|*.PDF) evince "$1" > /dev/null 2>&1 & ;;
 	    *.png|*.PNG|*.bmp|*.BMP|*.jpg|*.JPG|*.gif|*.GIF) eog "$1";;
-	    *) less "$1";;
+	    *) $PREPAGER "$1";;
 	esac
     fi
 }
@@ -389,7 +411,15 @@ lstoday()
 
 logcmd()
 {
-    eval "$@" 2>&1 | tee log
+    
+    local beg=$(date +%s)
+    (
+        date "+Logcmd started: %Y-%m-%d %H:%M:%S %Z";
+        eval "$@" 2>&1;
+        date "+Logcmd finished: %Y-%m-%d %H:%M:%S %Z"
+    ) | tee log
+    local end=$(date +%s)
+    echo Logcmd wrote to ./log, $[end - beg] sec elapsed
 }
 
 # saves to clipboard
@@ -398,7 +428,7 @@ rsatoken()
     stoken | tr -d '\n' | pbcopy
 }
 
-type ack    > /dev/null 2>&1 && alias ack='ack-grep'
+$have_ack && alias ack='ack-grep'
 
 alias l='ls $LS_OPTIONS'
 alias ls='ls $LS_OPTIONS'
@@ -467,14 +497,15 @@ function fj ()
 }
 
 #
-# remember what we were doing and where
-# todo? keep some k,v in that file for notes or context
-# or maybe use emacs' .dir-locals.el?  (work) would be okay..
+# Remember what we were doing and where. I like to keep two projects like this, ie work and workb
+# todo? keep some k,v in that file for notes or context or maybe use emacs' .dir-locals.el? (work)
+# would be okay..
 #
 work() {
     if [ -n "$1" ]; then
 	cd $1
 	echo WORK=\"`pwd`\" > ~/.work
+        WORK=`pwd`
     elif [ -f ~/.work ]; then
 	.  ~/.work
 	cd $WORK
@@ -482,6 +513,54 @@ work() {
 	echo you have to set work
     fi
 }
+
+workb() {
+    if [ -n "$1" ]; then
+	cd $1
+	echo WORKB=\"`pwd`\" > ~/.workb
+        WORKB=`pwd`
+    elif [ -f ~/.workb ]; then
+	.  ~/.workb
+	cd $WORKB
+    else
+	echo you have to set workb
+    fi
+}
+
+# Just like work but called task. Two contexts are needed.
+task() {
+    if [ -n "$1" ]; then
+	cd $1
+	echo TASK=\"`pwd`\" > ~/.task
+        TASK=`pwd`
+    elif [ -f ~/.task ]; then
+	.  ~/.task
+	cd $TASK
+    else
+	echo you have to set task
+    fi
+}
+
+taskb() {
+    if [ -n "$1" ]; then
+	cd $1
+	echo TASKB=\"`pwd`\" > ~/.taskb
+        TASKB=`pwd`
+    elif [ -f ~/.taskb ]; then
+	.  ~/.taskb
+	cd $TASKB
+    else
+	echo you have to set taskb
+    fi
+}
+
+export TASK TASKB WORK WORKB
+
+# read context another shell might have created
+test -f ~/.work && source ~/.work
+test -f ~/.task && source ~/.task
+test -f ~/.workb && source ~/.workb
+test -f ~/.taskb && source ~/.taskb
 
 #
 # ..   - Does a "cd .."
@@ -555,7 +634,7 @@ mf ()
     esac
 }
 
-_xw_sub ()
+_xw_sub ()    # _xw_sub ACTION FILE
 {
     local path;
     local fileres;
@@ -689,43 +768,51 @@ aless(){ perl -e 'BEGIN{$f=shift;%cs=();} open(IN,"<", $f); while(<IN>){$c=0; ma
 
 alias dk=docker-compose
 alias k=kubectl
-alias kga='kubectl get pod,service,deployment,replicaset,pvc,cm --field-selector metadata.namespace!=kube-system'
-alias kgp='kubectl get pods -o wide --field-selector metadata.namespace!=kube-system'
 alias kc-disk='kc get cm,pv,pvc,crd --field-selector metadata.namespace!=kube-system -A'
-alias kcd='kubectl describe'
-alias kgs='kubectl get services'
 
-kcns() {
-    local file=~/.kcns-old-namespace
-    local current
-    local old
-    if [ -f $file ]; then
-        old=$(cat $file)
-    else
-        old=''
-    fi
+# --field-selector metadata.namespace!=kube-system
+kga() { kubectl get pod,service,deployment,replicaset,pvc,cm,crd $@; }
+kgp() { kubectl get pods -o wide  $@; }
+kdp() { kubectl describe pod $@; }
+kgs() { kubectl get services $@; }
 
-    echo "context:           " $(kubectl config current-context)
-    current=$(kubectl config view --minify --output 'jsonpath={..namespace}')
+alias kcns=kubens
 
-    case $1 in
-        "")
-            echo previous namespace: "$old"
-            echo current namespace: " $current";;
-        "-")
-            kubectl config set-context --current --namespace $old
-            echo new namespace: $old
-            old=$current;;
-        *)
-            old=$current
-            kubectl config set-context --current --namespace $1
-            echo new namespace: $1;;
-    esac        
-    echo $old > $file
-}
+# kcns() {
+#     local file=~/.kcns-old-namespace
+#     local current
+#     local old
+#     if [ -f $file ]; then
+#         old=$(cat $file)
+#     else
+#         old=''
+#     fi
+
+#     echo "context:           " $(kubectl config current-context)
+#     current=$(kubectl config view --minify --output 'jsonpath={..namespace}')
+
+#     case $1 in
+#         "")
+#             echo previous namespace: "$old"
+#             echo current namespace: " $current";;
+#         "-")
+#             kubectl config set-context --current --namespace $old
+#             echo new namespace: $old
+#             old=$current;;
+#         *)
+#             old=$current
+#             kubectl config set-context --current --namespace $1
+#             echo new namespace: $1;;
+#     esac        
+#     echo $old > $file
+# }
 
 kcl() { kubectl logs -f pod/$(kc-getpod $1);  }
-kcs() { kubectl exec -it $(kc-getpod $1 | grep -v kots) -- sh; }
+kcs() {
+    local pod="$(kubectl getpod ${1:?'Pod expected'})"
+    shift
+    kubectl exec -it "$pod" -- ${@:-sh};
+}
 
 source <(kubectl completion bash)
 complete -F __start_kubectl k
@@ -795,3 +882,6 @@ export SDKMAN_DIR="$HOME/.sdkman"
 
 
 
+alias docker-minikube='eval $(minikube -p minikube docker-env)'
+
+. "$HOME/.cargo/env"
