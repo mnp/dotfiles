@@ -2,7 +2,7 @@
 
 while(<>) {
     chmop;
-    $x += $_;
+    for $i (split) { $x += $i };
 }
 
 END {

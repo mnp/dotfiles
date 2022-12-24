@@ -25,3 +25,5 @@
 	autocrlf = input
 [branch]
 	autosetuprebase = always
+[init]
+	defaultBranch = main
