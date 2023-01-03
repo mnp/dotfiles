@@ -1,14 +1,14 @@
 [user]
 	name = Mitchell Perilstein
-	email = mitchell.perilstein@gmail.com
+	email = mitch@wallaroo.ai
 [github]
 [push]
 	default = simple
 [alias]
-        co = checkout
 	stashed = stash list --pretty=format:'%gd: %Cred%h%Creset %Cgreen[%ar]%Creset %s'
 	lg = log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit
-
+        co = checkout
+        
 # for $deity's sake, check that anything we're getting is complete and sane on a regular basis
 [transfer]
         fsckobjects = true
@@ -23,7 +23,25 @@
 [grep]
 [core]
 	autocrlf = input
-[branch]
-	autosetuprebase = always
+# [branch]
+# 	autosetuprebase = always
+
+# LFS stuff should be local to repo
+# [filter "lfs"]
+# 	process = git-lfs filter-process
+# 	required = true
+# 	clean = git-lfs clean -- %f
+# 	smudge = git-lfs smudge -- %f
+[filter "lfs"]
+	required = true
+	clean = git-lfs clean -- %f
+	smudge = git-lfs smudge -- %f
+	process = git-lfs filter-process
+
 [init]
-	defaultBranch = main
+        defaultBranch = main
+
+# attempt to help some rebase merge griefs we've encountered
+# https://codeinthehole.com/guides/resolving-conflicts-during-a-git-rebase/#resolve-conflicts-safely
+[rerere]
+	enabled = true
