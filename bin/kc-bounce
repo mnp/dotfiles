@@ -1,0 +1,19 @@
+#!/bin/bash
+
+set -euo pipefail
+
+usage="`basename $0` namespace deployment"
+
+case $# in
+    1) deployment="$1"; namespace='';   nsarg='';;
+    2) deployment="$2"; namespace="$1"; nsarg="--namespace $1";;
+    *) echo $usage; exit 1;;
+esac
+
+replicas="$(kubectl get deployment $deployment -o template --template '{{.spec.replicas}}')"
+echo Original: "$deployment - $replicas" replicas
+
+kubectl $nsarg scale deployment $deployment --replicas=0
+echo Told it. Sleeping...
+sleep 5
+kubectl $nsarg scale deployment $deployment --replicas="$replicas"

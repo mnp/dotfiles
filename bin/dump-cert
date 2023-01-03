@@ -1,0 +1,3 @@
+#!/bin/bash
+
+openssl x509 -inform PEM -in $1 -text -noout | egrep '(Before|After |DNS|Subject):' | sed 's/^ *//'

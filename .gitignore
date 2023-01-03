@@ -3,6 +3,9 @@
 # store nothing by default
 *
 
+!/.gitignore
+!/.bashrc
+!/.profile
 !/bin
 !/lib
 !/shared-org

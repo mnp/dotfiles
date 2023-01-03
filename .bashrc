@@ -8,7 +8,7 @@ echo bashrc noninteractive section
 
 . ~/lib/shlib.bash
 
-set_have_cmd_vars git bat brew terraform gzcat zcat oocalc kubectl docker
+set_have_cmd_vars git bat brew terraform gzcat zcat oocalc kubectl docker lesspipe
 
 for d in /usr/man /usr/share/man /usr/local/man $HOME/perl5/man; do
     path_append MANPATH $d
@@ -136,7 +136,10 @@ test -f $BASH_COMPLETION && . $BASH_COMPLETION
 # eval "`pip completion --bash`"
 
 # make less more friendly for non-text input files, see lesspipe(1)
-#[ -x /usr/bin/lesspipe ] && eval "$(lesspipe)"
+if $have_lesspipe; then
+    eval "$(lesspipe)"
+    # TODO: bat and m integrate
+fi
 export LESS=-inXR
 
 # happy terminal

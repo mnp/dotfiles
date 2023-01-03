@@ -1,0 +1,9 @@
+#!/bin/bash
+
+if [ $# -gt 0 ]; then 
+    cmd="$*"   
+else
+    cmd=bash
+fi
+
+docker exec -it kind-control-plane $cmd

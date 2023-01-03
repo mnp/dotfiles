@@ -1,5 +1,9 @@
 * Shared Incoming 
 
+https://www.sigstore.dev
+https://slsa.dev
+https://www.chainguard.dev/unchained/what-an-sbom-can-do-for-you
+
 https://betterexplained.com/articles/adept-method/
 
 https://stevelosh.com/blog/2013/04/git-koans/
