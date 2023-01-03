@@ -1,0 +1,4 @@
+#!/usr/bin/env python3
+import sys
+import onnx
+print(onnx.load(sys.argv[1]).graph.input)

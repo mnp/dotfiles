@@ -1,0 +1,9 @@
+#!/bin/bash
+
+# docker run exec bash
+#
+# USAGE: dreb [image]
+#
+#    If image is not given, runs the most recently created one. 
+
+docker run --entrypoint bash --rm -it ${1:-$(docker images -q | head -1)}

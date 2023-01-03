@@ -1,0 +1,16 @@
+#!/bin/bash
+
+# Bash comments are echoed
+# Other lines are executed with a wait prompt afterward
+
+input=${1?'Input script expected'}
+
+cat "$input" | while read; do    
+    if [[ "$REPLY" =~ ^# ]]; then
+        echo "comment $REPLY";
+    else
+        echo run $REPLY;
+        echo ...
+        read -N1 -rs
+    fi
+done

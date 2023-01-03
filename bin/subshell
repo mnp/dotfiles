@@ -1,0 +1,8 @@
+#!/bin/bash
+
+# Run a subshell with custom prompt
+
+cat > /tmp/subshell.rc <<EOF
+PS1="subshell $* $ "
+EOF
+bash --init-file /tmp/subshell.rc

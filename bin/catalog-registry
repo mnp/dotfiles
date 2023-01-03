@@ -1,0 +1,29 @@
+#!/bin/bash
+
+function get_gcr_token() {
+    #    curl -L -s --user "_token:$(gcloud auth print-access-token)" 'https://us.gcr.io/v2/token?service=gcr.io&scope=registry:catalog:*' 
+    # echo "_token:$(gcloud auth print-access-token)" | base64
+    gcloud auth print-access-token
+}
+
+# empty 200
+# curl -v -L -s -H "Authorization: Bearer $(get_gcr_token)" https://us.gcr.io/v2/_catalog  #  gcr.io/wallaroo-dev-253816/v2/_catalog
+
+# curl -v -L -s -H "Authorization: Bearer $(get_gcr_token)"   https://us.gcr.io/v2/_catalog/gcr.io/wallaroo-dev-253816
+# exit
+
+regy=${1:?"Usage: $0 registry"}
+userpass=""
+
+case $regy in
+    gcr.io*) userpass="--user oauth2accesstoken:$(gcloud auth print-access-token)";;
+    *) ;;
+#    *) echo Teach me how to auth to $auth; exit 1;;
+esac
+
+repos=$(curl -L -s $userpass $regy/v2/_catalog | jq -r '.repositories|.[]' )
+
+for i in $repos; do
+    curl -L -s $userpass $regy/v2/$i/tags/list | echo -n $i $(curl -s $regy/v2/$i/tags/list | jq -c '.tags')
+    echo     
+done
