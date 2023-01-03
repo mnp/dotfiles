@@ -1,7 +1,7 @@
 #+PROPERTY: header-args :tangle yes
 
 The bottom of init.el pulls in this file via `org-babel-load-file`
-Or eval: (org-babel-load-file "~/prj/dotfiles/config.org" nil)
+Or eval: (org-babel-load-file "~/.emacs.d/config.org" nil)
 
 You can `:tangle on` or `off` to select.
 
@@ -42,15 +42,21 @@ customize settings in [[file:init.el][init.el]].
   (if (equal default-directory "/")
       (cd "~"))
 
-  (add-to-list 'load-path (expand-file-name "~/prj/dotfiles/shared-elisp"))
+  (add-to-list 'load-path (expand-file-name "~/.emacs.d/shared-elisp"))
   #+end_src
 
 * Theme
 
 #+begin_src emacs-lisp
-(use-package gruvbox-theme
-  :ensure t)
-(load-theme 'gruvbox-dark-soft)
+  (use-package spacemacs-theme
+    :ensure t
+    :init (load-theme 'spacemacs-dark))
+
+  ;; (use-package nano-theme
+  ;;   :ensure t)
+
+  ;; (use-package tango-theme
+  ;;  :ensure t)
 #+end_src
 
 * Fonts
@@ -129,6 +135,9 @@ Sources for this section include [[https://github.com/magnars/.emacs.d/blob/mast
 
 (global-auto-revert-mode 1)
 
+;; Go to top of packages buffer after loading it, so the new items are visible
+(add-hook 'package--post-download-archives-hook
+          '(lambda () (goto-char (point-min))))
 #+end_src
 
 * Occur DWIM
@@ -173,6 +182,9 @@ There are configurations to make when running Emacs on macOS (hence the
     ;; delete files by moving them to the trash
     (setq delete-by-moving-to-trash t)
     (setq trash-directory "~/.Trash")
+
+    ;; web browser
+    (setq browse-url-default-browser "open")
 
     ;; Don't make new frames when opening a new file with Emacs
     (setq ns-pop-up-frames nil)
@@ -239,14 +251,8 @@ match the same one on macOS.
                        iterm-brew-path)))
     (start-process "mai-open-dir-process" nil "open" "-a" iterm-path ".")))
 
-(defun open-dir-in-studio ()
-  "Open the current directory in Android Studio."
-  (interactive)
-  (start-process "mai-open-dir-process" nil "studio" "."))
-
 (bind-key "C-c o f" 'open-dir-in-finder)
 (bind-key "C-c o t" 'open-dir-in-iterm)
-(bind-key "C-c o a" 'open-dir-in-studio)
 #+END_SRC
 
 ** Title bar appearance
@@ -258,6 +264,24 @@ match the same one on macOS.
   (add-to-list 'default-frame-alist
                '(ns-appearance . dark))) ;; light or dark
 #+END_SRC
+
+* Web stuff
+#+BEGIN_SRC emacs-lisp
+(use-package search-web
+  :ensure t
+  :bind ("C-c w" . my-search-web-dwim))
+
+(defun my-search-web-dwim ()
+  "I don't switch engines much so just override its offer."
+  (interactive nil)
+  (cond
+   ((region-active-p) (search-web-region "duck"))
+   (t (search-web-at-point "duck"))))
+
+#+END_SRC
+
+#+RESULTS:
+: my-search-web-dwim
 
 * List buffers
 
@@ -293,13 +317,29 @@ source: [[http://whattheemacsd.com/sane-defaults.el-01.html][Magnars Sveen]]
   (persistent-scratch-setup-default))
 #+end_src
 
-* Recentf
+* Git Gutter
+#+begin_src emacs-lisp
+(use-package git-gutter
+  :ensure t
+  :hook ((prog-mode . git-gutter-mode)
+         (yaml-mode . git-gutter-mode))
+  :config
+  (setq git-gutter:update-interval 0.5))
+
+(use-package git-gutter-fringe
+  :ensure t
+  :config
+  (define-fringe-bitmap 'git-gutter-fr:added [224] nil nil '(center repeated))
+  (define-fringe-bitmap 'git-gutter-fr:modified [224] nil nil '(center repeated))
+  (define-fringe-bitmap 'git-gutter-fr:deleted [128 192 224 240] nil nil 'bottom))
+#+end_src
+
+* Recent context
 
 #+begin_src emacs-lisp
-(use-package recentf
-  :config
-  (recentf-mode t)
-  (setq recentf-max-saved-items 500))
+(recentf-mode t)
+(setq recentf-max-saved-items 100)
+(save-place-mode 1)
 #+end_src
 
 * Whitespace mode
@@ -308,6 +348,20 @@ source: [[http://whattheemacsd.com/sane-defaults.el-01.html][Magnars Sveen]]
 (use-package whitespace
   :bind ("<f10>" . whitespace-mode))
 #+end_src
+
+* Match parens on '%' - an old VI key
+#+begin_src emacs-lisp
+;; https://www.gnu.org/software/emacs/manual/html_node/efaq/Matching-parentheses.html
+(global-set-key "%" 'match-paren)
+
+(defun match-paren (arg)
+  "Go to the matching paren if on a paren; otherwise insert %."
+  (interactive "p")
+  (cond ((looking-at "\\s(") (forward-list 1) (backward-char 1))
+        ((looking-at "\\s)") (forward-char 1) (backward-list 1))
+        (t (self-insert-command (or arg 1)))))
+#+end_src
+
 * Narrow to enclosing thing
   #+begin_src emacs-lisp
     (use-package fancy-narrow
@@ -394,7 +448,7 @@ source: [[http://whattheemacsd.com/sane-defaults.el-01.html][Magnars Sveen]]
       nil)))
 #+end_src
 
-** work
+** work and task
 #+begin_src emacs-lisp
 (defun work()
   "switch to main work context"
@@ -402,6 +456,27 @@ source: [[http://whattheemacsd.com/sane-defaults.el-01.html][Magnars Sveen]]
   (let ((workdir (get-shell-file-env "~/.work" "WORK")))
     (message workdir)
     (find-file workdir)))
+
+(defun workb()
+  "switch to work-b context"
+  (interactive nil)
+  (let ((workdir (get-shell-file-env "~/.workb" "WORKB")))
+    (message workdir)
+    (find-file workdir)))
+
+(defun task()
+  "switch to main task context"
+  (interactive nil)
+  (let ((taskdir (get-shell-file-env "~/.task" "TASK")))
+    (message taskdir)
+    (find-file taskdir)))
+
+(defun taskb()
+  "switch to b task context"
+  (interactive nil)
+  (let ((taskdir (get-shell-file-env "~/.taskb" "TASKB")))
+    (message taskdir)
+    (find-file taskdir)))
 #+end_src
 ** duplicate-line
 #+begin_src emacs-lisp
@@ -460,6 +535,19 @@ source: [[http://whattheemacsd.com/sane-defaults.el-01.html][Magnars Sveen]]
      (progn
        (skip-chars-forward " \t\n\r")
        (constrain-to-field nil orig-pos t)))))
+#+end_src
+
+** markdown quote
+#+begin_src emacs-lisp
+(defun my-md-quote ()
+  (interactive nil)
+  (save-excursion
+    (backward-word 1)
+    (insert "`")
+    (forward-word 1)
+    (insert "`")))
+
+(global-set-key "\C-c`" 'my-md-quote)
 #+end_src
 
 ** Shell-like
@@ -565,7 +653,7 @@ source: [[http://whattheemacsd.com/sane-defaults.el-01.html][Magnars Sveen]]
     (helm-mode 1)
     :custom-face
     (helm-selection ((t :background "LightYellow" :foreground "black"))))
-    #+end_src
+#+end_src
 
 
 *** Helm other
@@ -584,38 +672,39 @@ source: [[http://whattheemacsd.com/sane-defaults.el-01.html][Magnars Sveen]]
 
 *** Helm grepint
     #+begin_src emacs-lisp
-      (defun my-helm-grepint-root ()
-            "Uses `my-grep-root` if set from .dir-locals.el, or ascends to .git."
-            (let ((z (if (boundp 'my-grep-root)
-                         my-grep-root
-                       (locate-dominating-file (file-name-as-directory
-                                                (expand-file-name (file-truename default-directory)))
-                                               ".git"))))
-              (setq got z)
-              z))
+(defun my-helm-grepint-root ()
+  "Uses `my-grep-root` if set from .dir-locals.el, or ascends to .git."
+  (if (boundp 'my-grep-root)
+      my-grep-root
+    (locate-dominating-file (file-name-as-directory
+                             (expand-file-name (file-truename default-directory)))
+                            (lambda (x)
+                              (or (file-exists-p (concat x "/.git"))
+                                  (file-exists-p (concat x "/setup.py"))
+                                  (file-exists-p (concat x "/Cargo.toml")))))))
 
-          ;; https://github.com/kopoli/helm-grepint
-          (use-package helm-grepint
-            :ensure t
-            :config
-                  (helm-grepint-add-grep-config myag
-                  :command "ag"
-                  :arguments "--nocolor --search-zip --nogroup :ignore-case-arg -- :search-pattern"
-                  :ignore-case-arg "--ignore-case"
-                  :root-directory-function my-helm-grepint-root)
+;; https://github.com/kopoli/helm-grepint
+(use-package helm-grepint
+  :ensure t
+  :config
+  (helm-grepint-add-grep-config myag
+    :command "ag"
+    :arguments "--nocolor --search-zip --nogroup :ignore-case-arg -- :search-pattern"
+    :ignore-case-arg "--ignore-case"
+    :root-directory-function my-helm-grepint-root)
 
-                ;; Always use ag, even under a git repo, because not all files
-                ;; are checked in yet. Also if working on a monorepo we want
-                ;; to ascend to project root, not all the way up to the .git dir.
-                (setq helm-grepint-grep-list '(myag))
+  ;; Always use ag, even under a git repo, because not all files
+  ;; are checked in yet. Also if working on a monorepo we want
+  ;; to ascend to project root, not all the way up to the .git dir.
+  (setq helm-grepint-grep-list '(myag))
 
-            :bind ("C-c g" . helm-grepint-grep-root)
-                  ("C-c G" . helm-grepint-grep-root))
+  :bind ("C-c g" . helm-grepint-grep-root)
+  ("C-c G" . helm-grepint-grep-root))
 
-          ;(use-package helm-swoop
-          ;  :ensure t
-          ;  :after helm-mode
-          ;  :bind ("H-w" . helm-swoop))
+                                        ;(use-package helm-swoop
+                                        ;  :ensure t
+                                        ;  :after helm-mode
+                                        ;  :bind ("H-w" . helm-swoop))
 #+end_src
 
 ** Projectile
@@ -651,44 +740,95 @@ langauges.
   (global-flycheck-mode t))
 #+end_src
 ** LSP
+;; See lsp-start-plain.el for their canonical test case.
+
 Also before loading languages.
 #+begin_src emacs-lisp
-  (use-package lsp-mode
-    :ensure t
-    :demand t
-    :commands lsp
-    :config
-    ;;(require 'lsp-clients)
-    (diminish 'lsp-mode))
+(use-package lsp-mode
+  :ensure t
+  :hook ((c-mode          ; clangd
+          python-mode     ; pyright
+          rustic-mode
+          ) . lsp-deferred)
+  :commands lsp
+  :config
+  (setq lsp-auto-guess-root t)
+  (setq lsp-log-io nil)
+  (setq lsp-restart 'auto-restart)
+  (setq lsp-enable-symbol-highlighting t)
+  (setq lsp-enable-on-type-formatting nil)
+  (setq lsp-signature-auto-activate t)
+  (setq lsp-signature-render-documentation t)
+  (setq lsp-eldoc-hook nil)
+  (setq lsp-modeline-code-actions-enable t)
+  (setq lsp-modeline-diagnostics-enable t)
+  (setq lsp-headerline-breadcrumb-enable t)
+  (setq lsp-semantic-tokens-enable t)
+  (setq lsp-enable-folding t)
+  (setq lsp-enable-imenu t)
+  (setq lsp-enable-snippet t)
+  (setq read-process-output-max (* 1024 1024)) ;; 1MB
+  (setq lsp-idle-delay 0.5))
 
-  (use-package lsp-ui
-    :ensure t
-    :demand t
-    :config
-    (setq lsp-ui-flycheck-enable t)
-    (define-key lsp-ui-mode-map [remap xref-find-definitions] #'lsp-ui-peek-find-definitions)
-    (define-key lsp-ui-mode-map [remap xref-find-references] #'lsp-ui-peek-find-references)
-    :hook 
-    (lsp-mode . lsp-ui-mode))
+  ;; (use-package lsp-ui
+  ;;   :ensure t
+  ;;   :demand t
+  ;;   :config
+  ;;   (setq lsp-ui-flycheck-enable t)
+  ;;   (define-key lsp-ui-mode-map [remap xref-find-definitions] #'lsp-ui-peek-find-definitions)
+  ;;   (define-key lsp-ui-mode-map [remap xref-find-references] #'lsp-ui-peek-find-references)
+  ;;   :hook 
+  ;;   (lsp-mode . lsp-ui-mode))
+
+(use-package lsp-ui
+  :ensure t)
+
+(use-package yasnippet
+  :ensure t
+  :init (yas-global-mode))
+
+(use-package helm-lsp
+  :ensure t)
+
+(use-package lsp-treemacs
+  :ensure t)
+
+(use-package dap-mode
+  :ensure t)
+
+(use-package lsp-origami
+  :ensure t)
+
+(use-package company
+  :ensure t)
+
+(use-package lsp-pyright
+  :ensure t)
+
+(add-hook 'prog-mode-hook 'lsp)
 #+end_src
+
+#+RESULTS:
+| lsp | git-gutter-mode |
 
 ** Dockerfile
    #+begin_src emacs-lisp
    (use-package dockerfile-mode
        :ensure t)
    #+end_src
+
 ** Pony
    #+begin_src emacs-lisp
-     (use-package ponylang-mode
-       :ensure t
-       :init
-       :init
-       (setq compilation-scroll-output 'first-error)
-       (setenv "CC" "gcc")
-       (add-hook 'ponylang-mode-hook '(lambda () (whitespace-mode -1)))
-       :bind (:map ponylang-mode-map
-                   (("<f6>" . (lambda () (interactive) (switch-to-buffer nil)))
-                    ("<f8>" . ponylang-menu))))
+     ;; (use-package ponylang-mode
+     ;;   :ensure t
+     ;;   :init
+     ;;   :init
+     ;;   (setq compilation-scroll-output 'first-error)
+     ;;   (setenv "CC" "gcc")
+     ;;   (add-hook 'ponylang-mode-hook '(lambda () (whitespace-mode -1)))
+     ;;   :bind (:map ponylang-mode-map
+     ;;               (("<f6>" . (lambda () (interactive) (switch-to-buffer nil)))
+     ;;                ("<f8>" . ponylang-menu))))
    #+end_src
 
 ** Cargo
@@ -715,7 +855,7 @@ because that will override the mode.
   :ensure t
   :init (setq rustic-format-trigger 'on-compile
               rustic-lsp-server 'rust-analyzer
-              lsp-rust-analyzer-server-command '("/usr/local/bin/rust-analyzer")
+              lsp-rust-analyzer-server-command '("rust-analyzer")
               compilation-scroll-output 'first-error
               rustic-format-trigger 'on-save
               rustic-format-on-save t)
@@ -804,6 +944,14 @@ because that will override the mode.
         org-src-preserve-indentation t
         org-src-tab-acts-natively t)
   
+    (setq org-capture-templates
+      '(("t" "Todo" entry (file+headline "~/org/inbox.org" "Tasks")
+         "* TODO %?\n  %i\n  %a")
+        ("s" "Shared" entry (file+datetree "~/shared-org/shared-inbox.org")
+         "* Sync %U\n %x %c\n%?")
+        ("j" "Journal" entry (file+datetree "~/org/journal.org")
+         "* %?\nEntered on %U\n  %i\n%a\nwork: %[~/.work]\ntask: %[~/.task]")))
+
     (auto-fill-mode 1)
     (add-hook 'org-mode-hook 'turn-on-auto-fill)
     (setq
@@ -825,6 +973,29 @@ because that will override the mode.
      org-capture-bookmark nil
      org-default-notes-file "~/org/inbox.org")))
    #+end_src
+
+   #+RESULTS:
+   : org-store-link
+
+* Undo tree
+#+begin_src emacs-lisp
+;; leaves ~ droppings everywhere
+;; (use-package undo-tree
+;;   :ensure t
+;;   :diminish                       ;; Don't show an icon in the modeline
+;;   :bind ("C-x u" . undo-tree-visualize)
+;;   :hook (org-mode . undo-tree-mode) ;; For some reason, I need this. FIXME.
+;;   :config
+;;     ;; Always have it on
+;;     (global-undo-tree-mode)
+
+;;     ;; Each node in the undo tree should have a timestamp.
+;;     (setq undo-tree-visualizer-timestamps t)
+
+;;     ;; Show a diff window displaying changes between undo nodes.
+;;     (setq undo-tree-visualizer-diff t))
+#+end_src
+
 * Deft and Zetteldeft
   #+begin_src emacs-lisp
     (use-package deft

@@ -24,6 +24,6 @@ esac
 repos=$(curl -L -s $userpass $regy/v2/_catalog | jq -r '.repositories|.[]' )
 
 for i in $repos; do
-    curl -L -s $userpass $regy/v2/$i/tags/list | echo -n $i $(curl -s $regy/v2/$i/tags/list | jq -c '.tags')
+    curl -L -s $userpass $regy/v2/$i/tags/list | printf "%-40s %s" "$i" "$(curl -s $regy/v2/$i/tags/list | jq -rc '.tags | .[]' | column)"
     echo     
 done
