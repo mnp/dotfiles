@@ -1,8 +1,8 @@
-: # Hypercalc, Copyright (C) 1998-2016 Robert P. Munafo  *-*-perl-*-*
+: # Hypercalc, Copyright (C) 1998-2022 Robert P. Munafo  *-*-perl-*-*
   eval 'exec perl -S  $0 ${1+"$@"}' 
     if 0;  # if running under some shell
 
-# This is the 2016 May 21 version of Hypercalc.
+# This is the 2022 Aug 20 version of Hypercalc.
 
 my $bapropos = q@
 hypercalc(1r)      - interpreted calculator with special provisions
@@ -24,10 +24,10 @@ use IPC::Open2;
 $format_debug = 0;
 $g_min_mant_digits = 3;
 
-q@
+$HC_BANNER = q@
 
-    Hypercalc, Copyright (C) 1998-2016 Robert P. Munafo.
-    This is the 2016 May 21 version of Hypercalc.
+    Hypercalc, Copyright (C) 1998-2022 Robert P. Munafo.
+    This is the 2022 Aug 20 version of Hypercalc.
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -45,7 +45,25 @@ q@
 
     For more perl goodness, go to mrob.com/pub/perl
 
-@; $GPL_VERSION_3 = q`
+@; $HC_MANPAGE = q`
+NAME
+
+  hypercalc        - interpreted calculator with special provisions
+                     to avoid overflow
+
+DESCRIPTION
+
+#hypercalc# is an interactive calculator program with command history,
+variable substitution, and a programming language similar to BASIC.
+Its most distinctive feature is that it uses an internal representation
+of numbers that avoids overflow by supporting arbitrarily high "towers"
+of exponents.
+
+For more information and complete descriptions of #hypercalc# expression
+syntax, variables, programming, etc. start hypercalc with no argument
+and then type "help" at the prompt.
+
+`; $GPL_VERSION_3 = q`
 
                    GNU GENERAL PUBLIC LICENSE
 
@@ -729,7 +747,7 @@ sub subst_global_tags
 #
 
 $tagline = &subst_global_tags("
-       Hypercalc by Robert Munafo, 2016 May 21
+       Hypercalc by Robert Munafo, 2022 Aug 20
       Go ahead -- just TRY to make me overflow!
            _ _
            |_| . . ._   _  ._  _ ._  |  _
@@ -918,7 +936,7 @@ merge and translate into Perl.
 loop to handle parentheses. Subroutines for all four operators +, -, *
 and /. "e" and "%" in an expression represent 2.71828... and previous
 result, respectively.
- 19990725 Add split() and start writing first operator that handles PT
+ 19990725 Add splt() and start writing first operator that handles PT
 types: p_add, pt.add, pt.addpos.
  19990727.2125 Do lots of porting work: put all routines in "proper"
 (Pascal) order; lots of global replaces to change things like "x.pt"
@@ -939,7 +957,7 @@ back again, and that dramatically reduces roundoff error.
  19990729 Start editing all the f_xxx routines so the primitive
 floating-point type can be changed easily later. This involves
 implementing a minimal set of "primitives" like f_int, f_le, f_neg,
-f_mul, etc. and making all the other f_xxx routines do all their
+f.mul, etc. and making all the other f_xxx routines do all their
 operations by calling these primitives. Also, inline constants like
 "10" are replaced with globals.
  19990801 &pt.root and &pt.log_n work. All of the &f_xxx routines are
@@ -952,13 +970,13 @@ primitive precision. Make it auto-promote inlines like "23e456".
  19990802 Pretty much finished making the &pt_xxx routines call &f_xxx
 routines explicitly.
  1999080x Use open2() to launch #bc#. Write bce.
- 19990805 Write &fbc_fix2sci, &fbc_split, &f_cmp, comparison primitives,
-&f_neg, &me_magcompare, &m_truncround, &me_addpos, &f_add, &f_sub.
-&fbc_encode renamed to &fbc_sci2fix. Redirect stderr when launching
+ 19990805 Write &fbc_fix2sci, &fbc_split, &f.cmp, comparison primitives,
+&f_neg, &me_magcompare, &m_truncround, &me_addpos, &f_add, &f.sub.
+&fbc_encode renamed to &fbc.sci2fix. Redirect stderr when launching
 #bc#.
  1999080x Write &me_subpos
  19990811 Add HC_LOG debug log, lots of calls to dbg1. Fix lots of
-bugs. Write bc version of &f_mul and &f_div.
+bugs. Write bc version of &f.mul and &f_div.
  19991015 Fix bug that caused small PT1's to be printed as e.g. 10 ^
 301.30103. Make dbg1flag a bitmask to allow debugging functions,
 expression parsing, or both.
@@ -978,26 +996,26 @@ parsing; add error-check for undefined variables.
 and sci2fix; it now correctly computes 2^100 in scale 30. Fix bugs in
 switching back and forth between f64 and fbc.
  20000206 Fix bug that prevented "sqrt(1+2)" from working
- 20000304 sqrt now goes through f_sqrt. Fix bugs that made bc hi_init
+ 20000304 sqrt now goes through f_sqrt. Fix bugs that made bc hi.init
 not compute g_pi properly.
  20000728 Remove dependency on "rpmlib.pl"
  20010102 Add ERASE_BS test.
- 20010103 Clean up internals of eval_2. Fix "right-to-left precedence
+ 20010103 Clean up internals of eval.2. Fix "right-to-left precedence
 bug": "4-3-2" used to give "3", and "4/3/2" used to give "2.66667". I
 am deliberately leaving exponents that way: 4^3^2 still gives 262144.
  20010107 Fix bugs: 2+2/(1+1) gave 2; 7^-1 didn't parse; scale
-50,27^27 printed in scientific notation. Write &pt_roundup. Fix &prnt1
+50,27^27 printed in scientific notation. Write &pt.roundup. Fix &prnt1
 handling of high PT1's. fbc-based PT calculation is actually usable
 now!
  20010108 Add history array and define_hist. Conversion across scale
-changes works, at least in the cases I checked. Fix bug in eval_2:
+changes works, at least in the cases I checked. Fix bug in eval.2:
 sqrt() and other functions had become broken as a result of
-yesterday's fixes. Clean up fbc version of f_gamma a little, but it
+yesterday's fixes. Clean up fbc version of f.gamma a little, but it
 still suffers from a fundamental limit of the Stirling formula method,
 which basically requires that the number being factorialed must be at
 least as big as the 15th root of 10^curscale. Combined with the current
 limit of 1.0e300 for the fbc float data type, that means we can't get
-more than 33 digits of accuracy out of the f_gamma function. Increasing
+more than 33 digits of accuracy out of the f.gamma function. Increasing
 the exponent limit would fix it, but that poses another problem with
 the scaling loop -- for 50 digits of accuracy, the scaling loop has to
 loop 2154 times (because 2154 = 10^(50/15)).
@@ -1032,7 +1050,7 @@ on UNIX.
 (Unix only)
  20020129 Move automatic stty erase fix to subroutine fixerase.
  20020301 Read first expression from command line.
- 20020305 Fix some bugs in rounding and prnt2 -- but it still has the
+ 20020305 Fix some bugs in rounding and pr.nt2 -- but it still has the
 problem that "scale=15" prints the same number of digits as the
 default "scale=14"
  20020306 Now can put multiple commands including 'scale=' and 'quit'
@@ -1086,9 +1104,9 @@ has been computed.
  20100329 Add $pt_str; handle $apt greater than 9 in &for.mat5.
  20100601 &do.cmd3: Don't allow user to "set" the constants pi, e or phi
  20100603 &do.cmd3: setvar errors now stop BASIC; detect setting r1, etc.
- 20100611 Add $format_debug and several changes to &split, &prnt2,
+ 20100611 Add $format.debug and several changes to &splt, &pr.nt2,
 &canon_sci, &for.mat5, and &prnt1 which collectively make for.mat5
-labels more accurate, correctly handle denormalized scientific
+labels more accurate, correctly handle denormalised scientific
 notation input like "13.72e9", and properly deal with infinity (e.g.
 from inputting "1/0"). Also, &BASIC_old now allows whitespace blank
 lines anywhere in its input.
@@ -1105,21 +1123,21 @@ statement.
 
  20110821 BASIC 'old' and 'new' now print a message if/when they do
 nothing because the user did not give a name.
- 20110822 Allow bare REM statement; print line number on "unrecognized
+ 20110822 Allow bare REM statement; print line number on "unrecognised
 variable/function" error.
  A couple bug fixes in parsing '!!' and 'x' for multiplication; some
 preparations for uncertainty (error) component. Bug fixes in handling
 statement separators ':' and ';' (which had already been broken and
 which I broke a little more in today's changes).
- 20110823 More groundwork for uncertainty, mostly in &normalize (which
+ 20110823 More groundwork for uncertainty, mostly in &normalise (which
 is now used for all number literals, even when not specified in "1.23e5"
-format). Fix bugs in fbc_sci2fix (parsing mising sign), fbc version of
+format). Fix bugs in fbc.sci2fix (parsing mising sign), fbc version of
 f.exp (negative exponents)
  20110828 A little cleanup in &eval.1; add &init_ir
  20110829 Begin work on handling uncertainty: changes to pt.add,
 pt.addpos, pt.subpos; add pt.addlog.
  20110830 Add and subtract now handle uncertainty (for PT0 results
-only). Rename prnt2 to "prnt3"; &prnt2 is now a wrapper for prnt3 that
+only). Rename pr.nt2 to "prnt3"; &pr.nt2 is now a wrapper for prnt3 that
 inserts the uncertainty digits into the output.
   &pt.mul and &pt.div now handle uncertainty.
   &pt.log10, &pt.pow10, &pt.exp, &pt.pow and pt.sqrt now handle uncertainty.
@@ -1129,12 +1147,12 @@ inserts the uncertainty digits into the output.
 native floating point for most uncertainty calculations, since their
 precision never needs to be more than that. A couple changes to ensure
 uncertainty is always positive.
-  Add &insert_uncertainty to encapsulate most of the new code in &prnt2,
+  Add &insert_uncertainty to encapsulate most of the new code in &pr.nt2,
 mainly so I can use it elsewhere e.g. in format7.
  20110901 Get format7 to display uncertainty; fix a bug with
-uncertainty exponent in normalize case 0.D
+uncertainty exponent in normalise case 0.D
  20110902 Add uncertainty calculation to the remaining functions
-(pt_gamma, pt_log_n, pt_root, and the trig functions). Fix a couple
+(pt.gamma, pt_log_n, pt_root, and the trig functions). Fix a couple
 bugs with infinity handling in prnt1 and prnt3. Consolidate TTD notes
 on Gamma precision issues.
  20110908 Fix a couple bugs related to uncertainty and base-60 with
@@ -1149,12 +1167,12 @@ by the "1.23e-4" fix)
  20120111 BASIC changes: Loop ranges can be a simple variable (e.g.
 "for x=a to b"); single-quote "'" is now a synonym for "rem" to mark
 comments.
- Use f_mul instead of explicit multiplication in division's
+ Use f.mul instead of explicit multiplication in division's
 uncertainty calculation.
  20120204 Fix formatting of "39.37" when format=5
  20120422 Fix a number of Perl warnings (as suggested by Michael Samos)
 (add "use warnings;" at top of file to see any remaining warnings).
- 20120426 Stop trying to use f_gamma for large values when scale>14.
+ 20120426 Stop trying to use f.gamma for large values when scale>14.
  20120610 Show more digits in format.5 for values in the range (1e5..1e10)
  20120612 Expand range of base-60 input and output.
  20120613 Fix a bug with parentheses in expand_C_hist and define.Chist.
@@ -1168,14 +1186,14 @@ accuracy problems for huge numbers of digits. For example,
 correct answer starts with 1.629404332. The Gamma value is too small
 by a factor of e^2. Taking the factorial of 10^50 gives an answer too
 small by a factor of e.
- 20121102 Add &set_var and predefined variables "vigintillion",
+ 20121102 Add &set.var and predefined variables "vigintillion",
 "googol", etc. for some commonly-known big numbers. These should work
 at all precisions.
- 20121103 Add &isnan, &isinf, etc. and use them in most places,
+ 20121103 Add &is.nan, &is.inf, etc. and use them in most places,
 hopefully to get more consistent handling of special cases. Work a
 while on fixing the inconsistencies, e.g. for a while 1/0 gave NAN at
 scale=14 but Inf at scale=200.
- 20121209 Add g_BASIC_unsaved variable, accept single-quote REM
+ 20121209 Add g_BASIC.unsaved variable, accept single-quote REM
 statements on immediate input.
  20130118 Fix bug in parsing OLD command
  20130208 Handle the syntax error that comes if you type "1+2t" where t
@@ -1183,7 +1201,7 @@ is a valid variable.
  20130224 &define.Chist does nothing when BASIC is running. &BASIC.save
 sets g_BASIC.unsaved to 0.
  20130604 Add date to splash screen
- 20131212 Add force_ee param to prnt3 and prnt2, use it in prnt1 when
+ 20131212 Add force_ee param to prnt3 and pr.nt2, use it in prnt1 when
 we're printing any PT1 or higher, to tell it we need the Mx10^E form.
 Add g_min_mant_digits constant (currently set to 5). Here is a
 comparison of selected lines of the output of 'vals.basic':
@@ -1213,7 +1231,7 @@ bare '.' is now a synonym for '%', and '**' is a synonym for '^'.
  20140123 Print the "factorial will give only XX digits" warning only when
 the scale changes (so if you do "scale 50" twice in a row you only get the
 warning once).
- 20140715 Add comparison operators; add demotion to &split so that
+ 20140715 Add comparison operators; add demotion to &splt so that
 e.g. '1p1.000(1)e2' is converted to '0p1.00(26)e100'; add comments in
 TO DO section outlining plans for a more complete BASIC language
  20140717 Add GOTO, catch ^C so user can stop a runaway BASIC program.
@@ -1221,7 +1239,7 @@ Add IF..THEN (one-line goto variant) and STOP; print statistics when
 program finishes running.
  20140718 Add READ and DATA
  20140719 SQR is now an alias for SQRT; change the marker character in
-eval_1/2 to single-quote (previously it was backtick and before that
+eval.1/2 to single-quote (previously it was backtick and before that
 pipe). BASIC implementation is now pretty much on par with the October
 1968 version, except for the lack of DEF FN_ and MAT statements.
  20140720 Add INPUT statement.
@@ -1233,92 +1251,195 @@ evaluation work; remove unused 'showeach' parameter in a few places.
  20141208 Switch to GPL v3.
  20160317 Fix a couple bugs in parsing of PRINT statement arguments
  20160520 Allow 0s at beginning of a large number input.
+ 20180105 Format=5 now includes input expression, which is often useful
+ 20180208 fix.erase now removes any remaining non-ASCII characters,
+this is to avoid messing up the screen when the user enters "up-arrow"
+as input (and without having defined the variable 'a'), causing
+normalise to print "ESC ( 0" which renders the terminal unusable.
+ 20181025 Add -h/--help and 'help manpage'
+ 20190207 Date of a version sent me by Alan Eliasen, which implements
+a generalised 3-argument hyper function (that version of hypercalc is
+called 'ae-hypercalc' and is in my ~/bin, see its help and revision
+history for more info)
+ 20190212 Allow direct input of 'U' in numbers (e.g. 1.23U1); rename
+&split() to &splt() to avoid confusion with the Perl builtin
+ 20190314 A little more margin in pt.mul's check against scale in the
+PT2*PT2 case; add comments in pt.div about unhandled cases
+ 20190319 Suppress printing messages when setting 'scale' if there is
+a semicolon; useful for BASIC programs that need higher precision but
+don't actually use the gamma function.
+ 20190327 Avoid printing unneeded "1 x " before "10 ^"
+ 20190328 Add notes about stuctured IF; avoid saving a file as
+"foo.basic.basic"
+ 20180330 Fix PRINT tab and newline after a string; structured multiline
+IF .. ELSE .. END IF now works.
+ 20190409 Make pt.roundup do nothing if the input is an integer and
+has fewer digits than scale. This fixes imprecise result in j from the
+statement "j=1e5000". pt.div() now does integer precise 10^N in cases
+like 1p5000/1p4900 (a test of an idea I want to do more of). Replace a
+lot of f.mul calls with literal multiplcation in the f64 (native)
+versions.
+ 20190411 Add boolean operators AND, OR, NOT and equivalent symbols &,
+\|, ~ or !. For now, the first two also function as cheap bitwise
+operators. ! is now overloaded: !6 is logical NOT, 6! is factorial.
+ 20190413 Implement GOSUB and RETURN; add RND() function.
+ 20190414 Improve parsing of variables and functions in eval.1() to
+prepare for user-defined functions and arrays.
+ 20190415 More eval.1 changes, add constants true and false.
+ 20190418 Add reading of array values (but still can't set an array value)
+ 20190419 Track lvalues throughout expression evaluation (including
+calls to define_ir and splt) and determine if an application of the '='
+operator can be interpreted as an assignment; only eval_3 needs to be
+changed to make it possible to assign to an array element.
+ 20190420 add pvu.sint, p.1d_lookup and p.2d_lookup; 1D and 2D arrays
+now work (after refactoring assignment, IF evaluation, and a few other
+things); eliminate use of 'A' for arctan.
+ 20190421 Add RESTORE statement
+ 20190422 Several fixes (e.g. READing array elements) to facilitate
+wumpus.basic
+ 20190504 Add 'pragma' command
+ 20190505 Support out-of-order NEXT (happens when a GOTO exits a loop
+causing a different NEXT to be reached)
+ 20190907 Add p.mod and pt.mod, and some changes to try to overload
+'%' as both a "variable" and an operator. Programs rubik.basic and
+bb2.basic demonstrate it.
+ 20190911 'run' rommand now accepts an argument, it will load and run
+the specified program. Trace is now off by default.
+ 20190927 Increase g.gammalim to 101 and add a little more debugging;
+add simple.nint and use it in f.gamma, pt.gamma
+ 20190928 Add intgam and return exact values for factorial when scale>14
+and argument is in [1..164]
+ 20190929 fbc primitives for add, sub, mul, and div now preserve
+simple.int property whenever possible. Modulo now works when scale>14.
+ 20190418 #list# now only puts one blank space after the line number.
+ 20201221 Fix a bug in fbc f.add calling simple.nint
+ 20210615 Add p_vr2 and fix parsing of e.g. "%-2", which had been broken
+since 20190907. Note that modulo still doesn't work when scale is large.
+ 20211002 Improved pt.mod when using fbc_* primitives.
+ 20211102 Statements can now be separated by ';:' which combines the
+effects of ';' and ';' (just the value is printed)
+ 20220311 Add int() function (using the existing two versions of f_int
+that were there for ages). Fix parsing error with arctan(). CAT command
+now does multiple columns.
+ 20220819 Use normal time() routine as a fallback for missing Time::HiRes
 
 |; # End of revision history
 
 $ignored_block_comment = qq@
 
-TO DO and FUTURE IMPROVEMENTS
+BUGS, TTD / TO DO and FUTURE IMPROVEMENTS
+
+LIST parser does not handle "if a<0 then goto 200" and reports it as a NEXT WITHOUT FOR
+
+Accept multiple 'e' in input to help support common usage (these are
+also accepted by a lot of the JavaScript libraries):
+ e1.2e34 = 10^1.2e34
+ ee123 = 10^10^123
+ ee1.2e34 = 10^10^1.2e34
+ eee123 = 10^10^10^123
+ ... (etc.)
+New "pp" for towers of tetration:
+ 3pp7 = 10^^10^^10^^7
+And reserve "`" for future use in providing a lexicograpically logical format:
+ 45`1.23 = 10^45*1.23
+ 6p45`1.23 = 6 PT 1.23e45
+ 4pp = 10^^^4 = 10^^10^^10^^10
+ 4pp`45`1.23 = 10^^10^^10^^10^^(10^1.23e45)
+ 4pp`3p`22`1.11 = 10^^10^^10^^10^^(10^10^10^(10^22*1.11))
+
+Factorial in bc mode is wrong for arguments above about 166 (compare
+f_gamma to pt_gamma)
+
+Modulo (%) does not work when scale is 15 or more (i.e. when using fbc
+as native type). I think fixing this would require not always normalising
+'17' to '1.7e1'.
+
+Add pragma modes for sloppy NEXT and strict NEXT. Add ALTAIR (or
+MSFT?) pragma which implies sloppy NEXT. If in strict NEXT mode, also
+prohibit GOTO from exiting a loop scope.
+
+"INPUT A(I)" does not work because it only recognizes plain variables.
+To handle this I need to do the same thing that assignment does:
+evaluate the argument of INPUT to discover if it is an lvalue and
+get its lvalue key if so.
+
+When loading a BASIC program, reset scale, format, pragma to defaults
+(but the program or the user can then change any of these)
+
+Arguments to LIST command to show parts of a program (have it do a full
+BASIC_parse to get the indentation, saving the lines of text to a temp
+array, from which the partial listing can be generated)
+
+Try to unify and improve the format and content of the common parsing
+errors. Here are two examples:
+  C1 = 4!0!6
+  *** Cannot parse '4!0!6' (nrm1)
+  C2 = b=4;d=6;b!0!d
+  *** Invalid syntax; I was left with 'I5!0!I4' (ev1)
+In the (ev1) case I'd like to have it substitute I5 and I4 before
+displaying to the user. The code near the end of eval.1 shows how to
+recognise and convert 'I5'. The same would be useful in other error
+messages such as "Illegal array index 'I4'"
+
+Add \ as shorthand for int(a/b)  (as in VB).
+
+Exact integer exponentiation -- might need a faster int function in bc
+(the current f_int does fbc.fix2sci(fbc.sci2fix(x)) ) Look at the place
+in pt_div that calls simple.int() and note the limited range of cases
+(start with quick tests base and exponent both integers, 1<exponent<1024)
 
 Expand BASIC implementation towards the goal of full compatibility
 with the original Dartmouth BASIC:
+ * Allow expressions in FOR limits
  * Add custom functions by DEF FNA(X)=... which can be implemented in
 a similar way to the existing input history substitution (the
 difference is, that any argument(s) should be evaluated as far as
-possible before doing the substitution). Presently an attempt to
-"evaluate" fnx(a,b) gives '*** Unrecognized variable/function name a',
-which should be easy to refactor. To "define" fnx(a,b), detect
+possible before doing the substitution). The 'rnd()' function shows how
+and where to handle function calls. To "define" fnx(a,b), detect
 "fnx(a,b) = ..." in do.cmd3
- * Add ABS, ATN, INT, and RND functions
- * Add GOSUB and RETURN
+ * Add ABS and INT functions; ATN synonym for existing arctan
  * Add arrays. The syntax is like a function: 'a(3)' or 'b(3,7)'.
+Assigning to an array element requires recognising a new syntax,
+consider input "a(rnd(2)+3) = 7"
  * Add DIM, which can be a no-op.
 
 Additional BASIC improvements for version 2's CARDBASIC
  * Add preprocessing step that maps EQU to '=', LSS to '<', etc.
  * Matrix operations: MAT var = name OP name
 
-Additional BASIC improvements for version 4 (196801):
+BASIC version 4 (196801, see "19680101 BASIC 4th_Edition.pdf"):
  * ON .. GOTO
- * Strings and CHANGE keyword
+ * Strings and CHANGE keyword (which converts between a Pascal-like string
+and an array of integers)
 
 Later BASIC enhancements:
+ * Don't allow GOTO or IF..THEN <line-number> to jump out of a loop.
+This can be done in BASIC.parse by creating a new "scope-zone" with
+each FOR statement, remembering the scope-zone of each non-FOR line,
+and making sure control never transfers into a different scope zone.
+NEXT statement should be tagged with the scope-zone that was created
+by its FOR, so you can GOTO the NEXT statement from within the loop,
+and a FOR should have the scope-zone of the loop it's inside (or 0 if
+it's at the top level)
  * Generalize IF to allow IF .. THEN FOO for any keyword FOO
- * Multi-line IF .. THEN .. ELSE .. END IF syntax (already implemented
-in BASIC_parse)
- * Implement boolean/logical operators &&, || and ~
- * Preprocess AND, OR and NOT onto &&, || and ~
+ * It's okay to overload bitwise and logical operations onto the same
+symbols (that's what VB does)
+ * 1970's extensions by Microsoft:
+   - strings and functions ASC, CHR$, LEFT$, LEN, MID$, RIGHT$, SPC,
+     STR, TAB, VAL
+   - single-character input with GET
+   - SGN function (returns sign -1 0 or 1)
+   - STEP parameter in FOR loops
+ * (see also error messages at www.vintage-basic.net/downloads/Vintage_BASIC_Users_Guide.html)
+
+Other BASIC ideas of my own:
+ * PRAGMA command to select different BASIC compatibility modes
 
 Write some BASIC programs to test Hypercalc. For example, a program
-that tests all branches of the pt_gamma code.
+that tests all branches of the pt.gamma code.
 
-There is a discrepancy vs. Wolfram Alpha on large factorials:
-
-                   Wolfram Alpha          Hypercalc        error
- N^N answers:
-  (10^100)!     3p2.008600171761918   3p2.0085921235101  -0.000008
-  (10^20)!      3p1.328400603937241   3p1.3282061673145  -0.00019
-  (10^10)!      3p1.041392685158225   3p1.0406306991294  -0.00076
-
- Mystery (truncated Stirling series?):
-  (10^8)!       2p8.878849437722037   2p8.878849435655   -2.06e-9
-  (10^7)!       2p7.817281446362576   2p7.8172814258513  -2.05e-8
-  (10^6)!       2p6.745520692234177   2p6.7455204892842  -2.03e-7
-
- Gamma[N] answers:
-  100000!       2p5.659505898232984   2p5.6595106542789  +0.0000048
-  30000!        2p5.083799800996968   2p5.0838158325409  +0.000016
-  10000!        2.8462596809e35659    2.846259682e35659     OK
-  1000!         4.02387260077e2567    4.02387260088e2567    OK
-
-Oddly, Wolfram Alpha seems to be in error. For 20000!, it gives the
-answer in two forms:
-
-  Input:
-    20000!
-  Decimal approximation:
-    1.8192063202303451348276... x 10^77337
-  Power of 10 representation:
-    10^10^4.888364627124846
-
-We can check the conversion from the 1.819e77337 form to the
-2p4.888... form by calculating log(77337+log(1.81920632023)).
-Hypercalc and Mathematica agree that the answer is about
-4.8883887806252, showing that the error is in Wolfram Alpha's
-conversion to "Power of 10 representation".
-  {Later I computed the ratio of the two Wolfram answers, which is
-20000, making it clear that the wrong answer is actually Gamma[20000].
-Meeussen Wouter responded to my math-fun posting with the same
-discovery.}
-  20130228: For (10^10)! and the larger cases, WolframAlpha is using
-the approximation n! ~ n^n. Thus, their answer for (10^10)! is
-10^10^11. The 10^20 and 10^100 cases are also n^n.
-  For some intermediate values of N including 10^6 and 10^8, the
-error is much smaller; it is clearly not giving Gamma[N] or N^N,
-and yet there is still an error.
-
-Add isnan and isinf routines and use them to standardize the tests for
-Infinity and NAN throughout all the functions (like f_div and pt_div).
+Add is.nan and isinf routines and use them to standardize the tests for
+Infinity and NAN throughout all the functions (like f_div and pt.div).
 
 Currently the uncertainty field is forced to zero whenever a PT1 or
 higher quantity is computed. This is based on the idea that a computed
@@ -1372,7 +1493,7 @@ result, so th epsilon should be chosen as if the mantissa precision is
 for use in subsequent calculations (I think hypercalc already does
 this)
 
-For more precision in f_gamma and pt_gamma, perhaps I can use the
+For more precision in f.gamma and pt.gamma, perhaps I can use the
 Lanczos series given in A090674 and A090675. Details and analysis are
 in "Pugh 2004 Analysis.pdf". There is a good practical explanation at:
   www.vttoth.com/CMS/projects/41-the-lanczos-approximation
@@ -1415,6 +1536,7 @@ multiplications to do the nested SIGMA and PI the simple way.
 Obviously the partial product PI[i=0..n, z+i] can be carried from
 one term of the SIGMA to the next, but it's still a lot of work.
 
+
 OVERVIEW OF OPERATION
 
   mainloop
@@ -1422,19 +1544,24 @@ OVERVIEW OF OPERATION
       docmd10
         (calls docmd6)
     docmd6
-      do.cmd4
-        do.cmd3
-          set_var, hi_init, printing and formatting routines
+      docmd4
+        docmd3
+          expand_ih2
+          set_var, hi.init, printing and formatting routines
           eval_1
             eval_2
               p_add, p_sub, p_mul, p_sqrt, p_negate, p_fact, p_ln, p_logn etc.
                 pt_add, pt_sub, pt_mul, pt_sqrt, pt_negate, etc.
                   pt_addpos, pt_addlog, etc.
-                    f_add, f_sub, f_mul, f_sqrt, f_neg, etc.
+                    f.add, f.sub, f.mul, f.sqrt, f_neg, etc.
                       ("f64 version" uses built-in functions;
-                       "fbc version" uses a chile #bc# process)
+                       "fbc version" uses a child #bc# process)
 
-Lexing and parsing are all done by string manipulation. To illustrate, 
+Lexing and parsing are all done by string manipulation. To illustrate,
+consider the following sequence of input: ("3+4", "j = 17",
+"c1*ln(pi+j)"). Here the actions needed for the third input are
+described in detail; each description starts with the literal value of
+the string currently being evaluated.
 
 C1 = 3+4
   'c1' is defined to be the string '3+4'
@@ -1444,28 +1571,28 @@ C3 = c1*ln(pi+j)
   In do.cmd3, 'c1' is replaced with '(3+4)'
 (3+4)*ln(pi+j)
   In do.cmd3, this string "(3+4)*ln(pi+j)" is stored into command history C4.
-  In eval_1, single-quotes are placed around the whole expression
+  In eval.1, single-quotes are placed around the whole expression
 '(3+4)*ln(pi+j)'
-  In eval1, the value of 'j', "0 PT 1.70E1(0)", is stored in intermediate
+  In eval.1, the value of 'j', "0 PT 1.70E1(0)", is stored in intermediate
   value I5
 '(3+4)*ln(pi+I5)'
-  The value of 'pi' is already in intermediate value I2
+  In eval.1, the value of 'pi' is replaced with I2 (which is always pi)
 '(3+4)*ln(I2+I5)'
-  In eval_1, the predefined function name 'ln' is replaced with its
+  In eval.1, the predefined function name 'ln' is replaced with its
   abbreviation 'K'
 '(3+4)*K(I2+I5)'
-  The expression is now in canonical form ready for processing by eval_2.
-  In eval_2, the first part '(3+4)*K(' and the final part ')' are "held"
+  The expression is now in canonical form ready for processing by eval.2.
+  In eval.2, the first part '(3+4)*K(' and the final part ')' are "held"
   so that it can work on the section 'I2+I5' which contains no parentheses
 'I2+I5'
-  In eval_2, the addition is recognized and performed, the result
+  In eval.2, the addition is recognized and performed, the result
   "0 PT 20.1415926535898(0)" is stored in I6
 'I6'
-  In eval_2, the "held" parts of the expression are restored. Since the first
+  In eval.2, the "held" parts of the expression are restored. Since the first
   part ends in a function name, the original parentheses are replaced with
   curly braces
 '(3+4)*K{I6}'
-  In eval_2, now the '(' and ')*K{I6}' are "held" to work on "3+4"
+  In eval.2, now the '(' and ')*K{I6}' are "held" to work on "3+4"
 '3+4'
   The addition is performed and result "0 PT 7(0)" stored in I7
 'I7'
@@ -1473,18 +1600,84 @@ C3 = c1*ln(pi+j)
   a function so they are dropped.
 'I7*K{I6}'
   There are now no more parentheses, so no further "holding" is needed.
-  in eval_2, the 'K{I6}' is recognized and the ln function of I6 is computed,
+  in eval.2, the 'K{I6}' is recognized and the ln function of I6 is computed,
   with the result "0 PT 3.00278696328944(0)"  stored into I8
 'I7*I8'
-  eval_2 recognizes a multiplication and performs it, storing the
+  eval.2 recognizes a multiplication and performs it, storing the
   result "0 PT 21.0195087430261(0)" in I9
 'I9'
-  The expression is now a single atom, which eval_2 returns to eval_1.
-  eval_1 removes the single-quotes and substitutes the value of I9
+  The expression is now a single atom, which eval_2 returns to eval.1.
+  eval.1 removes the single-quotes and substitutes the value of I9
 0P21.0195087430261
   do.cmd3 assigns this result to the results array R4.
-  prnt1 (via various subroutines, usually prnt2 and prnt3) formats and prints
+  prnt1 (via various subroutines, usually pr.nt2 and prnt3) formats and prints
   the result "21.019508743026"
+
+
+OLD NOTES
+
+There is a discrepancy vs. Wolfram Alpha on large factorials:
+
+                   Wolfram|Alpha          Hypercalc        error
+ Cases where W|A gives N^N as the answer for N!
+  (10^100)!     3p2.008600171761918   3p2.0085921235101  -0.000008
+  (10^20)!      3p1.328400603937241   3p1.3282061673145  -0.00019
+  (10^10)!      3p1.041392685158225   3p1.0406306991294  -0.00076
+
+ Mystery (truncated Stirling series?):
+  (10^8)!       2p8.878849437722037   2p8.878849435655   -2.06e-9
+  (10^7)!       2p7.817281446362576   2p7.8172814258513  -2.05e-8
+  (10^6)!       2p6.745520692234177   2p6.7455204892842  -2.03e-7
+
+ Cases where W|A gives Gamma[N] as the answer fo N!
+  100000!       2p5.659505898232984   2p5.6595106542789  +0.0000048
+  30000!        2p5.083799800996968   2p5.0838158325409  +0.000016
+  10000!        2.8462596809e35659    2.846259682e35659     OK
+  1000!         4.02387260077e2567    4.02387260088e2567    OK
+
+Oddly, Wolfram Alpha seems to be in error. For 20000!, it gives the
+answer in two forms:
+
+  Input:
+    20000!
+  Decimal approximation:
+    1.8192063202303451348276... x 10^77337
+  Power of 10 representation:
+    10^10^4.888364627124846
+
+We can check the conversion from the 1.819e77337 form to the
+2p4.888... form by calculating log(77337+log(1.81920632023)).
+Hypercalc and Mathematica agree that the answer is about
+4.8883887806252, showing that the error is in Wolfram Alpha's
+conversion to "Power of 10 representation".
+  {Later I computed the ratio of the two Wolfram answers, which is
+20000, making it clear that the wrong answer is actually Gamma[20000].
+Meeussen Wouter responded to my math-fun posting with the same
+discovery.}
+  20130228: For (10^10)! and the larger cases, WolframAlpha is using
+the approximation n! ~ n^n. Thus, their answer for (10^10)! is
+10^10^11. The 10^20 and 10^100 cases are also n^n.
+  For some intermediate values of N including 10^6 and 10^8, the
+error is much smaller; it is clearly not giving Gamma[N] or N^N,
+and yet there is still an error.
+
+
+Steps that I took to implement % (modulo) operator:
+  Get it to a point where variable values are set without being
+normalised unless the value requires it (negative exponent of 10 i.e.
+absolute value less than 1, or PT greater than 0).
+  Make splt() leave the value alone if it is a simple integer. As it
+stands now, '17' gets turned into '1.70E1'. This change needed to
+happen inside normalise() because that routine is responsible for
+taking user input "1e5000" and promoting it to 1P5.0E3. It still needs
+to do that or something equivalent (1P5000 would be okay) but it also
+needs to leave '1000' alone and preferably turn '1e3' into '1000'.
+  Make sure that plain integers make it into operator functions like
+p_mul or pt_mul.
+  Try to move handling of '%' so that it can be overloaded in a way
+similar to how 'x' is overloaded. This means allowing '%' to be
+recognised as a variable name. I made '%' both an argument and a
+non-argument (as defined by p_arg and p_nonarg)
 
 
 @;
@@ -1492,29 +1685,33 @@ C3 = c1*ln(pi+j)
 $hd = $ENV{"HOME"};
 
 $p_progname = "[a-z][-a-z_0-9]*[a-z0-9]";
+$p_fname = "[A-Z_0-9]+";
 $p_var = "[a-z][a-z_0-9]*";
+$p_vr2 = "\%|[a-z][a-z_0-9]*";  # Only used for parsing e,g, "%-2"
 $p_multvars = "[a-z_0-9, ]*";
 $p_nonvar = "[^a-z_0-9]";
-$p_arg = "[0-9.EINPRU]+";
+# Note that '%' is both an argument and a non-argument
+$p_arg =     "\%|[0-9.EINPRU]+";
 $p_nonarg = "[^0-9.EINPRU]";
+$p_na2 = "[^0-9._A-Z]";
 
-$p_rawarg = "[-.0-9EP()]+"; # For parsing DATA statements
+$p_rawarg = "[-.0-9EP()]+"; # For parsing INPUT and DATA statements
 $p_rawargs = "[-.0-9EP(), ]+";
 
 # The special letters are: (addfunc: choose a new letter here)
 #
-# A  - arctan
+# A
 # B  - cos()
 # C  - input history string (during input only)
 # D
 # E  - for scientific notation
-# F  - defined functions, function parameters
+# F  - defined functions, function parameters (future, reserved)
 # G
 # H
 # I  - intermediate result
 # J
 # K  - ln()
-# L  - log()
+# L
 # M  - logn()
 # N  - negative (a minus sign within a number)
 # O
@@ -1600,6 +1797,9 @@ sub fixerase
 
   $l =~ s/\011/ /g;
 
+  # Convert any remaining illegal characters to something printable
+  $l =~ s/([^\010 -~])/sprintf("\\0%o",ord($1))/ge;
+
   return $l;
 }
 
@@ -1622,6 +1822,31 @@ sub isinf { my($a) = @_; return($a =~ m/inf/i); }
 sub isninf { my($a) = @_; return($a =~ m/[-n]inf/i); }
 sub ispinf { my($a) = @_; return((&isinf($a) && (!(&isninf($a))))); }
 sub finite { my($a) = @_; return(!($a =~ m/inf/i)); }
+
+# Return true iff the argument is a positive integer with $sc ("scale")
+# digits or fewer.
+sub simple_int
+{
+  my($x, $sc) = @_;
+  $x =~ s/\.0*$//;
+  if (($x =~ m/^[0-9]+$/) && (length($x) <= $sc)) {
+    return length($x);
+  }
+  return 0;
+}
+
+# Return true iff the argument is an integer (negative or positive)
+# with $sc ("scale") digits or fewer.
+sub simple_nint
+{
+  my($x, $sc) = @_;
+  $x =~ s/\.0*$//;
+  $x =~ s/^[-]//;
+  if (($x =~ m/^[0-9]+$/) && (length($x) <= $sc)) {
+    return length($x);
+  }
+  return 0;
+}
 
 #--------------------------------------------------- F64 primitives
 #
@@ -1646,10 +1871,10 @@ sub f64_div
   my($n, $d) = @_;
 
   if (&isnan($n) || &isnan($d)) {
-    &dbg1("f64_div NAN/NAN : NAN\n", 32);
+    &dbg1("f64.div NAN/NAN : NAN]]", 32);
     return $g_f64_nan;
   } elsif (&f_eq($d, $g_0)) {
-    &dbg1("f64_div K/0 : NAN\n", 32);
+    &dbg1("f64.div K/0 : NAN", 32);
     return $g_f64_nan;
   }
   return ($n / $d);
@@ -1666,13 +1891,13 @@ sub f64_ln
 
   # Handle 0 and infinities first
   if ($x == 0.0) {
-    &dbg1("f64_ln(0) : ninf\n", 32);
+    &dbg1("f64_ln(0) : ninf", 32);
     return $g_f64_ninf;
   } elsif (&isinf($x)) {
-    &dbg1("f64_ln(inf) : inf\n", 32);
+    &dbg1("f64_ln(inf) : inf", 32);
     return $g_f64_inf;
   } elsif (&isnan($x)) {
-    &dbg1("f64_ln(NAN) : NAN\n", 32);
+    &dbg1("f64_ln(NAN) : NAN", 32);
     return $g_f64_nan;
   }
 
@@ -1767,32 +1992,32 @@ sub f_div                    # f64 version
   my($n, $d) = @_;
 
   if (&isnan($n) || &isnan($d)) {
-    &dbg1("f_div NAN/NAN : NAN\n", 32);
+    &dbg1("f_div NAN/NAN : NAN", 32);
     return $g_nan;
   }
   if (&finite($n)) {
     # finite numerator
     if (&f_eq($d, $g_0)) {
       # Anything/0 = NAN
-      &dbg1("f_div K/0 : NAN\n", 32);
+      &dbg1("f_div K/0 : NAN", 32);
       return $g_nan;
     } elsif (&isinf($d)) {
       # Anything/infinity = 0
-      &dbg1("f_div K/inf : 0\n", 32);
+      &dbg1("f_div K/inf : 0", 32);
       return $g_0;
     }
   } else {
     # infinite numerator
     if (&finite($d)) {
       if (&f_lt($n, 0)) {
-        &dbg1("f_div inf/-K : ninf\n", 32);
+        &dbg1("f_div inf/-K : ninf", 32);
         return &f_neg($n);
       }
-      &dbg1("f_div inf/K : inf\n", 32);
+      &dbg1("f_div inf/K : inf", 32);
       return $n;
     } else {
       # inf/inf
-      &dbg1("f_div inf/inf : NAN\n", 32);
+      &dbg1("f_div inf/inf : NAN", 32);
       return $g_nan;
     }
   }
@@ -1805,6 +2030,8 @@ sub f_div                    # f64 version
 sub f_sub                    # f64 version
 {
   my($a, $b) = @_;
+
+  &dbg1("f.sub $a - $b", 32);
 
   return ($a - $b);
 # return &f_add($a, &f_neg($b));
@@ -1819,32 +2046,32 @@ sub f_exp                    # f64 version
   my($x) = @_;
   my($v);
 
-  &dbg1("$curprim f_exp $x", 1);
+  &dbg1("$curprim f.exp $x", 1);
 
   # Handle infinities first
   if (&isnan($x)) {
-    &dbg1("f_exp(nan) : nan\n", 32);
+    &dbg1("f.exp(nan) : nan", 32);
     return $g_nan;
   } elsif (&ispinf($x)) {
-    &dbg1("f_exp(inf) : inf\n", 32);
+    &dbg1("f.exp(inf) : inf", 32);
     return $g_inf;
   } elsif (&isninf($x)) {
-    &dbg1("f_exp(ninf) : 0\n", 32);
+    &dbg1("f.exp(ninf) : 0", 32);
     return $g_0;
   }
 
   # Handle the extreme overflow cases.
   if (&f_lt($x, $g_n2000)) {
-    &dbg1("f_exp(< -2000) : return $g_0", 32);
+    &dbg1("f.exp(< -2000) : return $g_0", 32);
     return $g_0;
   } elsif (&f_gt($x, $g_2000)) {
-    &dbg1("f_exp(> 2000) : return $g_inf", 32);
+    &dbg1("f.exp(> 2000) : return $g_inf", 32);
     return $g_inf;
   }
 
   $v = exp($x);
   return $v;
-} # End of f_exp
+} # End of f.exp
 
 # Our ln routine is strange -- it accepts negative arguments and returns
 # the magnitude of the answer. It also special-cases infinities and zero.
@@ -1853,17 +2080,17 @@ sub f_ln                    # f64 version
   my($x) = @_;
   my($v);
 
-  &dbg1("$curprim f_ln $x", 1);
+  &dbg1("$curprim f.ln $x", 1);
 
   # Handle 0 and infinities first
   if (&isnan($x)) {
-    &dbg1("f_ln(nan) : nan\n", 32);
+    &dbg1("f.ln(nan) : nan", 32);
     return $g_nan;
   } elsif (&f_eq($x, $g_0)) {
-    &dbg1("f_ln(0) : ninf\n", 32);
+    &dbg1("f.ln(0) : ninf", 32);
     return $g_ninf;
   } elsif (&isinf($x)) {
-    &dbg1("f_ln(inf) : inf\n", 32);
+    &dbg1("f.ln(inf) : inf", 32);
     return $g_inf;
   }
 
@@ -1883,16 +2110,16 @@ sub f_pow10                    # f64 version
 {
   my($n) = @_;
 
-  &dbg1("$curprim f_pow10 $n", 1);
+  &dbg1("$curprim f.pow10 $n", 1);
 
-  return &f_exp(&f_mul($g_ln_10, $n));
+  return &f_exp($g_ln_10 * $n);
 }
 
 sub f_log_n                    # f64 version
 {
   my($n, $b) = @_;
 
-  &dbg1("$curprim f_log_n v{ $b } $n", 1);
+  &dbg1("$curprim f.log_n v{ $b } $n", 1);
 
   return &f_div(&f_ln($n), &f_ln($b));
 }
@@ -1903,7 +2130,7 @@ sub f_log10                    # f64 version
 
   &dbg1("$curprim f_log10 $n", 1);
 
-  return &f_mul(&f_ln($n), $g_log10_e);
+  return (&f_ln($n) * $g_log10_e);
 }
 
 # sqrt(2 pi n) * n^n * e^(-n) * e^(1/12n)
@@ -1921,7 +2148,7 @@ sub f_gamma                    # f64 version
   &dbg1("$curprim f_gamma $n", 1);
 
   if (&isnan($n)) {
-    &dbg1("f_gamma(nan) : nan\n", 32);
+    &dbg1("f_gamma(nan) : nan", 32);
     return $g_nan;
   }
 
@@ -1930,7 +2157,7 @@ sub f_gamma                    # f64 version
   # integers it's infinite, so we handle that case explicitly.
   if (&f_lt($n, $g_n50)) {
     if (&f_eq($n, &f_int($n))) {
-      &dbg1("f_gamma(-N) : inf\n", 32);
+      &dbg1("f_gamma(-N) : inf", 32);
       return $g_inf;
     }
     return $g_0;
@@ -1940,7 +2167,7 @@ sub f_gamma                    # f64 version
   # we use the recurrence relation gamma(n+1) = n gamma(n).
   $scal1 = $g_1;
   while ($n < $g_10) {  # "10" depends on precision
-    $scal1 = &f_mul($scal1, $n);
+    $scal1 = $scal1 * $n;
     $n = &f_add($n, $g_1);
   }
 
@@ -1951,23 +2178,23 @@ sub f_gamma                    # f64 version
   $l = $g_05_ln_2pi;
   $l = &f_add($l, &f_add($n, $g_0_5) * &f_ln($n));
   $l = &f_sub($l, $n);
-  $n2 = &f_mul($n, $n);
+  $n2 = $n * $n;
   $np = $n;
-  $l = &f_add($l, &f_div($g_1, &f_mul($g_12, $np)));
-  $np = &f_mul($np, $n2);
-  $l = &f_sub($l, &f_div($g_1, &f_mul($g_360, $np)));
-  $np = &f_mul($np, $n2);
-  $l = &f_add($l, &f_div($g_1, &f_mul($g_1260, $np)));
-  $np = &f_mul($np, $n2);
-  $l = &f_sub($l, &f_div($g_1, &f_mul($g_1680, $np)));
-  $np = &f_mul($np, $n2);
-  $l = &f_add($l, &f_div($g_1, &f_mul($g_1188, $np)));
-  $np = &f_mul($np, $n2);
-  $l = &f_sub($l, &f_div($g_691, &f_mul($g_360360, $np)));
-  $np = &f_mul($np, $n2);
-  $l = &f_add($l, &f_div($g_7, &f_mul($g_1092, $np)));
-  $np = &f_mul($np, $n2);
-  $l = &f_sub($l, &f_div($g_3617, &f_mul($g_122400, $np)));
+  $l = &f_add($l, &f_div($g_1, $g_12 * $np));
+  $np = $np * $n2;
+  $l = &f_sub($l, &f_div($g_1, $g_360 * $np));
+  $np = $np * $n2;
+  $l = &f_add($l, &f_div($g_1, $g_1260 * $np));
+  $np = $np * $n2;
+  $l = &f_sub($l, &f_div($g_1, $g_1680 * $np));
+  $np = $np * $n2;
+  $l = &f_add($l, &f_div($g_1, $g_1188 * $np));
+  $np = $np * $n2;
+  $l = &f_sub($l, &f_div($g_691, $g_360360 * $np));
+  $np = $np * $n2;
+  $l = &f_add($l, &f_div($g_7, $g_1092 * $np));
+  $np = $np * $n2;
+  $l = &f_sub($l, &f_div($g_3617, $g_122400 * $np));
 
   return (&f_div(&f_exp($l), $scal1));
 }
@@ -1980,17 +2207,17 @@ sub f_sqrt                    # f64 version
   &dbg1("$curprim f_sqrt $x", 1);
 
   if (&isnan($x)) {
-    &dbg1("f_sqrt(nan) : nan\n", 32);
+    &dbg1("f_sqrt(nan) : nan", 32);
     return $g_nan;
   }
 
   # If the argument is negative we return 0, because 0 is
   # the real component of the square root of a negative number.
   if (&f_lt($x, $g_0)) {
-    &dbg1("f_sqrt(-X) : 0\n", 32);
+    &dbg1("f_sqrt(-X) : 0", 32);
     return $g_0;
   } elsif (&isinf($x)) {
-    &dbg1("f_sqrt(inf) : inf\n", 32);
+    &dbg1("f_sqrt(inf) : inf", 32);
     return $g_inf;
   }
 
@@ -2010,7 +2237,7 @@ sub f_sin                    # f64 version
   &dbg1("$curprim f_sin $x", 1);
 
   if (&isnan($x)) {
-    &dbg1("f_sin(nan) : nan\n", 32);
+    &dbg1("f_sin(nan) : nan", 32);
     return $g_nan;
   }
 
@@ -2050,7 +2277,7 @@ sub f_cos                    # f64 version
   &dbg1("$curprim f_cos $x", 1);
 
   if (&isnan($x)) {
-    &dbg1("f_cos(nan) : nan\n", 32);
+    &dbg1("f_cos(nan) : nan", 32);
     return $g_nan;
   }
 
@@ -2071,7 +2298,7 @@ sub f_tan                    # f64 version
   &dbg1("$curprim f_tan $x", 1);
 
   if (&isnan($x)) {
-    &dbg1("f_tan(nan) : nan\n", 32);
+    &dbg1("f_tan(nan) : nan", 32);
     return $g_nan;
   }
 
@@ -2099,7 +2326,7 @@ sub f_arctan                    # f64 version
   &dbg1("$curprim f_arctan $x", 1);
 
   if (&isnan($x)) {
-    &dbg1("f_arctan(nan) : nan\n", 32);
+    &dbg1("f_arctan(nan) : nan", 32);
     return $g_nan;
   }
 
@@ -2107,14 +2334,14 @@ sub f_arctan                    # f64 version
   if (&f_eq($x, $g_0)) {
     return $g_0;
   } elsif (&ispinf($x)) {
-    &dbg1("f_arctan(inf) : pi/2\n", 32);
+    &dbg1("f_arctan(inf) : pi/2", 32);
     return &f_div($g_pi, $g_2);
   } elsif (&isninf($x)) {
-    &dbg1("f_arctan(-inf) : -pi/2\n", 32);
+    &dbg1("f_arctan(-inf) : -pi/2", 32);
     return &f_div($g_pi, $g_n2);
   }
 
-  $a0 = &f_div($g_1, &f_sqrt(&f_add($g_1, &f_mul($x, $x))));
+  $a0 = &f_div($g_1, &f_sqrt(&f_add($g_1, $x * $x)));
   $a = $a0;
   $b = $g_1;
 
@@ -2123,9 +2350,9 @@ sub f_arctan                    # f64 version
   for($i=0; ($i<25) && (&f_ne($a, $ao)); $i++) {
     $ao = $a;
     $a = &f_div(&f_add($a, $b), $g_2);
-    $b = &f_sqrt(&f_mul($a, $b));
+    $b = &f_sqrt($a * $b);
   }
-  return &f_div(&f_mul($x, $a0), $a);
+  return &f_div($x * $a0, $a);
 }
 
 # arcsin(x) = arctan(x / sqrt(1 - x*x))
@@ -2137,11 +2364,11 @@ sub f_arcsin                    # f64 version
   &dbg1("$curprim f_arcsin $x", 1);
 
   if (&isnan($x)) {
-    &dbg1("f_arcsin(nan) : nan\n", 32);
+    &dbg1("f_arcsin(nan) : nan", 32);
     return $g_nan;
   }
 
-  $a = &f_mul($x, $x);
+  $a = $x * $x;
   if (&f_gt($a, $g_1)) {
     return $g_0;
   }
@@ -2157,11 +2384,11 @@ sub f_arccos                    # f64 version
   &dbg1("$curprim f_arccos $x", 1);
 
   if (&isnan($x)) {
-    &dbg1("f_arccos(nan) : nan\n", 32);
+    &dbg1("f_arccos(nan) : nan", 32);
     return $g_nan;
   }
 
-  $a = &f_mul($x, $x);
+  $a = $x * $x;
   if (&f_gt($a, $g_1)) {
     return $g_0;
   }
@@ -2181,7 +2408,7 @@ sub f_pow                    # f64 version
   &dbg1("$curprim f_pow $b $e", 1);
 
   if (&isnan($b) || &isnan($e)) {
-    &dbg1("f_pow(nan) : nan\n", 32);
+    &dbg1("f_pow(nan) : nan", 32);
     return $g_nan;
   }
 
@@ -2192,14 +2419,14 @@ sub f_pow                    # f64 version
     # determine how much of the answer will be in the
     # real component.
     $b = &f_neg($b);
-    $scal2 = &f_cos(&f_mul($g_pi, $e));
+    $scal2 = &f_cos($g_pi * $e);
   } else {
     $scal2 = $g_1;
   }
 
   # Compute magnitude of answer
   &dbg1("f_pow : mag = exp(mul(ln($b), $e)", 32);
-  $mag = &f_exp(&f_mul(&f_ln($b), $e));
+  $mag = &f_exp(&f_ln($b) * $e);
 
   # If we got an overflow, we might be able to salvage
   # the computation by using logarithms. This happens when we compute
@@ -2211,11 +2438,11 @@ sub f_pow                    # f64 version
   if (&ispinf($mag) || &f_gt($mag, $g_ovr1)) {
     &dbg1("  : true", 32);
     if (&f_gt($scal2, $g_0)) {
-      $mag = &f_add(&f_mul(&f_ln($b), $e), &f_ln($scal2));
+      $mag = &f_add(&f_ln($b) * $e, &f_ln($scal2));
       &dbg1("f_pow : return exp($mag)", 32);
       return &f_exp($mag);
     } else {
-      $mag = &f_add(&f_mul(&f_ln($b), $e), &f_ln(&f_neg($scal2)));
+      $mag = &f_add(&f_ln($b) * $e, &f_ln(&f_neg($scal2)));
       &dbg1("f_pow : return neg(exp($mag))", 32);
       return &f_neg(&f_exp($mag));
     }
@@ -2223,7 +2450,7 @@ sub f_pow                    # f64 version
     &dbg1("  : false", 32);
     # Return real component of answer
     &dbg1("f_pow : return mul($scal2, $mag)", 32);
-    return &f_mul($scal2, $mag);
+    return ($scal2 * $mag);
   }
 } # End of f_pow
 
@@ -2237,7 +2464,7 @@ sub f_root                    # f64 version
   &dbg1("$curprim f_root $r v/ $b", 1);
 
   if (&isnan($b) || &isnan($r)) {
-    &dbg1("f_root(nan) : nan\n", 32);
+    &dbg1("f_root(nan) : nan", 32);
     return $g_nan;
   }
 
@@ -2255,7 +2482,7 @@ sub f_root                    # f64 version
 
   $mag = &f_exp(&f_div(&f_ln($b), $r));
 
-  return &f_mul($scal3, $mag);
+  return ($scal3 * $mag);
 }
 endquote
 
@@ -2331,7 +2558,7 @@ sub bce
   return $result;
 }
 
-# fbc_norm normalizes a number in scientific format. For example, it converts
+# fbc.norm normalises a number in scientific format. For example, it converts
 # "0.02e3" to "2.0e1", and "23e45" to "2.3e46".
 # It does not use &bce, so it can be used by non-bc routines as well.
 sub fbc_norm
@@ -2383,7 +2610,7 @@ sub fbc_norm
     print "fbc_norm illegal mantissa |$x|\n";
   }
 
-  # handle cases where mantissa was less than 1 (normalize by decreasing
+  # handle cases where mantissa was less than 1 (normalise by decreasing
   # exponent)
   if ($xi == 0) {
     $x = $xi . $xf;
@@ -2418,7 +2645,7 @@ sub fbc_norm
   $x = $xs . $x . "E" . $e;
   &dbg1("fbc_norm c: $x", 1);
   return $x;
-}
+} # End of fbc.norm
 
 # fix2sci converts from fixed-point to scientific notation. It's very simple
 # because all the hard work is done by fbc_norm
@@ -2449,10 +2676,10 @@ sub fbc_fix2sci
   &dbg1("fbc_fix2sci b: $x", 1);
 
   return $x;
-}
+} # End of fbc.fix2sci
 
-# fbc_split takes a number in any format and returns the sign, mantissa and
-# exponent that it would have if expressed in normalized scientific notation.
+# fbc.split takes a number in any format and returns the sign, mantissa and
+# exponent that it would have if expressed in normalised scientific notation.
 # It is used by most of the nontrivial #bc# primitives.
 # It does not use &bce, so it can be used by non-bc routines as well.
 sub fbc_split
@@ -2491,25 +2718,25 @@ sub fbc_split
   if ($x =~ m|^([+-])([0-9.]+)E([-+0-9]+)$|) {
     $s = $1; $m = $2; $e = $3;
   } else {
-    &dbg1("fbc_split illegal input |$x|", 1);
+    &dbg1("fbc.split illegal input |$x|", 1);
   }
 
-  &dbg1("fbc_split c: ( $s , $m , $e )", 1);
-
+  &dbg1("fbc.split -> ( $s , $m , $e )", 1);
   return($s, $m, $e);
-} # End of fbc_split
+} # End of fbc.split
 
 # sci2fix converts from 1.23e10 format to something like
 # 12300000000.0
 #
-# It takes scientific or fixed input.
+# Despite the name, it takes input with or without an 'e' and exponent.
+# It doubles as an int function, pass nonzero in the 2nd parameter.
 sub fbc_sci2fix
 {
   my($x, $intonly) = @_;
   my($s, $m, $mi, $mf, $e);
   my($ri, $rf, $rv);
 
-  &dbg1("fbc_sci2fix $x $intonly", 1);
+  &dbg1("fbc.sci2fix $x $intonly", 1);
 
   # get sign, mantissa and exponent
   if ($x =~ m|^([+-]?)([.0-9]+)[eE]([+-][0-9]+)$|) {
@@ -2521,7 +2748,7 @@ sub fbc_sci2fix
   } elsif ($x =~ m|^([.0-9]+)$|) {
     $s = "+"; $m = $1; $e = 0;
   } else {
-    print "fbc_sci2fix illegal input |$x|\n";
+    print "fbc.sci2fix illegal input |$x|\n";
   }
   if ($s eq '') {
     $s = '+';
@@ -2572,9 +2799,9 @@ sub fbc_sci2fix
     $rv = $s . $ri . "." . $rf;
   }
 
-  &dbg1("fbc_sci2fix: $rv", 1);
+  &dbg1("fbc.sci2fix: $rv", 1);
   return $rv;
-}
+} # End of fbc.sci2fix
 
 # fbc_prim defines the primitives for BC-based floating point.
 $fbc_prim = <<'endquote';
@@ -2594,7 +2821,7 @@ sub f_cmp                    # fbc version
   my($a, $b) = @_;
   my($as, $am, $ae, $bs, $bm, $be);
 
-  &dbg1("$curprim f_cmp $a <=> $b", 1);
+  &dbg1("$curprim f.cmp $a <=> $b", 1);
 
   ($as, $am, $ae) = &fbc_split($a);
   ($bs, $bm, $be) = &fbc_split($b);
@@ -2602,22 +2829,22 @@ sub f_cmp                    # fbc version
 
   # handle the easy cases
   if ($as < $bs) {
-    &dbg1("$curprim f_cmp a: -1", 1);
+    &dbg1("$curprim f.cmp a: -1", 1);
     return -1;
   } elsif ($as > $bs) {
-    &dbg1("$curprim f_cmp b: 1", 1);
+    &dbg1("$curprim f.cmp b: 1", 1);
     return 1;
   }
 
   # zero has to be handled as a special case
   if (($am == 0) && ($bm == 0)) {
-    &dbg1("$curprim f_cmp h: 0", 1);
+    &dbg1("$curprim f.cmp h: 0", 1);
     return 0;
   } elsif ($am == 0) {
-    &dbg1("$curprim f_cmp f: " . (-1 * $bs), 1);
+    &dbg1("$curprim f.cmp f: " . (-1 * $bs), 1);
     return (-1 * $bs);
   } elsif ($bm == 0) {
-    &dbg1("$curprim f_cmp g: $as", 1);
+    &dbg1("$curprim f.cmp g: $as", 1);
     return ($as);
   }
 
@@ -2626,22 +2853,22 @@ sub f_cmp                    # fbc version
 
   # Infinity is the simplest case at this point
   if (&isinf($ae) && &isinf($be)) {
-    &dbg1("$curprim f_cmp i: 0", 1);
+    &dbg1("$curprim f.cmp i: 0", 1);
     return 0;
   } elsif (&isinf($ae)) {
-    &dbg1("$curprim f_cmp j: $as", 1);
+    &dbg1("$curprim f.cmp j: $as", 1);
     return ($as);
   } elsif (&isinf($be)) {
-    &dbg1("$curprim f_cmp k: " . (-1 * $as), 1);
+    &dbg1("$curprim f.cmp k: " . (-1 * $as), 1);
     return (-1 * $as);
   }
 
   # Exponents are another easy compare
   if ($ae < $be) {
-    &dbg1("$curprim f_cmp c: " . (-1 * $as), 1);
+    &dbg1("$curprim f.cmp c: " . (-1 * $as), 1);
     return (-1 * $as);
   } elsif ($ae > $be) {
-    &dbg1("$curprim f_cmp d: " . $as, 1);
+    &dbg1("$curprim f.cmp d: " . $as, 1);
     return $as;
   }
 
@@ -2654,7 +2881,7 @@ sub f_cmp                    # fbc version
 
   $as = $as * ($am cmp $bm);
 
-  &dbg1("$curprim f_cmp e: " . $as, 1);
+  &dbg1("$curprim f.cmp e: " . $as, 1);
   return $as;
 }
 
@@ -2662,7 +2889,7 @@ sub f_lt                    # fbc version
 {
   my($a, $b) = @_;
 
-  &dbg1("$curprim f_lt $a < $b", 1);
+  &dbg1("$curprim f.lt $a < $b", 1);
 
   return (&f_cmp($a, $b) < 0);
 }
@@ -2721,13 +2948,13 @@ sub f_neg                    # fbc version
   &dbg1("$curprim f_neg $a", 1);
 
   if (&isninf($a)) {
-    &dbg1("$curprim f_neg(ninf) : inf\n", 32);
+    &dbg1("$curprim f_neg(ninf) : inf", 32);
     $a = $g_inf;
   } elsif (&isinf($a)) {
-    &dbg1("$curprim f_neg(inf) : ninf\n", 32);
+    &dbg1("$curprim f_neg(inf) : ninf", 32);
     $a = $g_ninf;
   } elsif (&isnan($a)) {
-    &dbg1("$curprim f_neg(nan) : nan\n", 32);
+    &dbg1("$curprim f_neg(nan) : nan", 32);
     $a = $g_nan;
   } elsif ($a =~ m/^-/) {
     $a =~ s/^-//;
@@ -2737,7 +2964,7 @@ sub f_neg                    # fbc version
   }
   &dbg1("$curprim f_neg a: $a", 1);
   return ($a);
-} # End of f_neg
+} # End of f.neg
 
 # me_magcompare
 sub me_magcompare                    # fbc version
@@ -2782,6 +3009,7 @@ sub me_addpos                    # fbc version
     $bm = "0." . ("0" x ($ed - 1)) . $bm;
     $be = $ae;
   }
+  &dbg1("me_addpos using $be", 1);
 
   # time to add
   $am = &bce("$am + $bm", 1);
@@ -2789,7 +3017,7 @@ sub me_addpos                    # fbc version
   # truncate and round
   $am = &m_truncround($am);
 
-  # append exponent and normalize
+  # append exponent and normalise
   $am = $am . "E" . $ae;
   $am = &fbc_norm($am);
 
@@ -2818,7 +3046,7 @@ sub me_subpos                    # fbc version
   # truncate and round
   $am = &m_truncround($am);
 
-  # append exponent and normalize
+  # append exponent and normalise
   $am = $am . "E" . $ae;
   $am = &fbc_norm($am);
 
@@ -2833,12 +3061,17 @@ sub f_add                    # fbc version
 
   &dbg1("$curprim f_add $a + $b", 1);
 
+  if (&simple_nint($a, $curscale-1) && &simple_nint($b, $curscale-1)) {
+    &dbg1("$curprim simple.nint true", 1);
+    return &bce("$a + $b", 1);
+  }
+
   ($as, $am, $ae) = &fbc_split($a);
   ($bs, $bm, $be) = &fbc_split($b);
   $as .= "1"; $bs .= "1";
 
   if (&isnan($ae) || &isnan($be)) {
-    &dbg1("$curprim f_add(nan+nan) : nan\n", 32);
+    &dbg1("$curprim f_add(nan+nan) : nan", 32);
     return $g_nan;
   }
 
@@ -2875,35 +3108,41 @@ sub f_add                    # fbc version
   }
 }
 
-# fbc version of f_mul.
+# fbc version of f.mul.
 sub f_mul                    # fbc version
 {
   my($a, $b) = @_;
   my($as, $am, $ae, $bs, $bm, $be);
 
-  &dbg1("$curprim f_mul $a * $b", 1);
+  &dbg1("$curprim f.mul $a * $b", 1);
+
+  if (($as=&simple_nint($a, $curscale))
+   && ($bs=&simple_nint($b, $curscale))
+   && ($as+$bs <= $curscale)) {
+    return &bce("$a * $b", 1);
+  }
 
   ($as, $am, $ae) = &fbc_split($a);
   ($bs, $bm, $be) = &fbc_split($b);
   $as .= "1"; $bs .= "1";
 
   if (&isnan($ae) || &isnan($be)) {
-    &dbg1("$curprim f_mul(nan) : nan\n", 32);
+    &dbg1("$curprim f.mul(nan) : nan", 32);
     return $g_nan;
   }
 
   if (($am == 0) || ($bm == 0)) {
-    &dbg1("$curprim f_mul a: $g_0", 1);
+    &dbg1("$curprim f.mul a: $g_0", 1);
     return $g_0;
   }
 
   # handle infinities
   if (($ae > 300) || ($be > 300)) {
     if ($as * $bs > 0) {
-      &dbg1("$curprim f_mul b: inf", 1);
+      &dbg1("$curprim f.mul b: inf", 1);
       return "inf";
     }
-    &dbg1("$curprim f_mul c: Ninf", 1);
+    &dbg1("$curprim f.mul c: Ninf", 1);
     return "Ninf";
   }
 
@@ -2917,10 +3156,10 @@ sub f_mul                    # fbc version
   $a = $as . $am . "E" . $ae;
   $a = &fbc_norm($a);
 
-  &dbg1("$curprim f_mul d: " . $a, 1);
+  &dbg1("$curprim f.mul d: " . $a, 1);
 
   return $a;
-} # End of f_mul
+} # End of f.mul
 
 # This divide routine catches the divide by zero case.
 sub f_div                    # fbc version
@@ -2930,33 +3169,39 @@ sub f_div                    # fbc version
 
   &dbg1("$curprim f_div $a / $b", 1);
 
+  if ( ($as=&simple_nint($a, $curscale))
+    && ($bs=&simple_nint($b, $curscale))
+    && ($as>=$bs) ) {
+    return &bce("$a / $b", 1);
+  }
+
   if (&isnan($a) || &isnan($b)) {
-    &dbg1("$curprim f_div(nan) : nan\n", 32);
+    &dbg1("$curprim f_div(nan) : nan", 32);
     return $g_nan;
   }
   if (&finite($a)) {
     # finite numerator
     if (&f_eq($b, $g_0)) {
       # Anything/0 = NAN
-      &dbg1("$curprim f_div(X/0) : nan\n", 32);
+      &dbg1("$curprim f_div(X/0) : nan", 32);
       return $g_nan;
     } elsif (&isinf($b)) {
       # Anything/infinity = 0
-      &dbg1("$curprim f_div(X/inf) : 0\n", 32);
+      &dbg1("$curprim f_div(X/inf) : 0", 32);
       return $g_0;
     }
   } else {
     # infinite numerator
     if (&finite($b)) {
       if (&f_lt($b, $g_0)) {
-        &dbg1("$curprim f_div(inf/-X) : ninf\n", 32);
+        &dbg1("$curprim f_div(inf/-X) : ninf", 32);
         return &f_neg($a);
       }
-      &dbg1("$curprim f_div(inf/X) : inf\n", 32);
+      &dbg1("$curprim f_div(inf/X) : inf", 32);
       return $a;
     } else {
       # inf/inf
-      &dbg1("$curprim f_div(inf/inf) : nan\n", 32);
+      &dbg1("$curprim f_div(inf/inf) : nan", 32);
       return $g_nan;
     }
   }
@@ -2991,13 +3236,13 @@ sub f_exp                    # fbc version
 
   # Handle infinities first
   if (&isninf($x)) {
-    &dbg1("$curprim f_exp(ninf) : 0\n", 32);
+    &dbg1("$curprim f_exp(ninf) : 0", 32);
     return $g_0;
   } elsif (&isinf($x)) {
-    &dbg1("$curprim f_exp(inf) : inf\n", 32);
+    &dbg1("$curprim f_exp(inf) : inf", 32);
     return $g_inf;
   } elsif (&isnan($x)) {
-    &dbg1("$curprim f_exp(nan) : nan\n", 32);
+    &dbg1("$curprim f_exp(nan) : nan", 32);
     return $g_nan;
   }
 
@@ -3026,7 +3271,7 @@ sub f_exp                    # fbc version
 
   &dbg1("$curprim f_exp e: " . $x, 1);
   return $x;
-}
+} # End of f.exp
 
 # Our ln routine is strange -- it accepts negative arguments and returns
 # the magnitude of the answer. It also special-cases infinities and zero.
@@ -3040,7 +3285,7 @@ sub f_ln                    # fbc version
   ($xs, $xm, $xe) = &fbc_split($x); $xs .= "1";
 
   if (&isnan($xe)) {
-    &dbg1("$curprim f_ln(nan) : nan\n", 32);
+    &dbg1("$curprim f_ln(nan) : nan", 32);
     return $g_nan;
   }
 
@@ -3090,10 +3335,10 @@ sub f_pow10                    # fbc version
 {
   my($n) = @_;
 
-  &dbg1("$curprim f_pow10 $n", 1);
+  &dbg1("$curprim f.pow10 $n", 1);
 
   $n = &f_exp(&f_mul($g_ln_10, $n));
-  &dbg1("$curprim f_pow10: " . $n, 1);
+  &dbg1("$curprim f.pow10: " . $n, 1);
   return $n;
 }
 
@@ -3101,7 +3346,7 @@ sub f_log_n                    # fbc version
 {
   my($n, $b) = @_;
 
-  &dbg1("$curprim f_log_n v{ $b } $n", 1);
+  &dbg1("$curprim f.log_n v{ $b } $n", 1);
 
   return &f_div(&f_ln($n), &f_ln($b));
 }
@@ -3132,7 +3377,7 @@ sub f_gamma                    # fbc version
   &dbg1("$curprim f_gamma $n", 2);
 
   if (&isnan($n)) {
-    &dbg1("$curprim f_gamma(nan) : nan\n", 32);
+    &dbg1("$curprim f_gamma(nan) : nan", 32);
     return $g_nan;
   }
 
@@ -3141,8 +3386,11 @@ sub f_gamma                    # fbc version
   # integers it's an infinite jump discontinuity, so we handle that case
   # explicitly.
   if (&f_lt($n, $g_n50)) {
-    if (&f_eq($n, &f_int($n))) {
-      &dbg1("$curprim f_gamma(-N) : nan\n", 32);
+    if (&simple_nint($n, $curscale)) {
+      &dbg1("$curprim f_gamma(-int) : nan", 32);
+      return $g_nan;
+    } elsif (&f_eq($n, &f_int($n))) {
+      &dbg1("$curprim f_gamma(-N) : nan", 32);
       return $g_nan;
     }
     return $g_0;
@@ -3159,7 +3407,7 @@ sub f_gamma                    # fbc version
 
   if ($dbg1flag & 2) {
     my ($est1) = &f_div("657931.0", &f_mul("300.0", &f_pow($n, "25.0")));
-    &dbg1("           with new n, residual = $est1\n", 2);
+    &dbg1("           with new n, residual = $est1", 2);
   }
 
   # Since we're using Stirling's series for factorials, we have
@@ -3221,16 +3469,16 @@ sub f_sqrt                    # fbc version
   # If the argument is negative we return 0, because 0 is
   # the real component of the square root of a negative number.
   if ($xs < 0) {
-    &dbg1("$curprim f_sqrt(-X) : 0\n", 32);
+    &dbg1("$curprim f_sqrt(-X) : 0", 32);
     return $g_0;
   } elsif (&isninf($x)) {
-    &dbg1("$curprim f_sqrt(ninf) : 0\n", 32);
+    &dbg1("$curprim f_sqrt(ninf) : 0", 32);
     return $g_0;
   } elsif (&isinf($x)) {
-    &dbg1("$curprim f_sqrt(inf) : inf\n", 32);
+    &dbg1("$curprim f_sqrt(inf) : inf", 32);
     return $g_inf;
   } elsif (&isnan($x)) {
-    &dbg1("$curprim f_sqrt(nan) : nan\n", 32);
+    &dbg1("$curprim f_sqrt(nan) : nan", 32);
     return $g_nan;
   } elsif ($xm == 0.0) {
     &dbg1("$curprim f_sqrt a: " . $g_0, 1);
@@ -3259,7 +3507,7 @@ sub f_sin                    # fbc version
   &dbg1("$curprim f_sin $x", 1);
 
   if (&isnan($x)) {
-    &dbg1("$curprim f_sin(nan) : nan\n", 32);
+    &dbg1("$curprim f_sin(nan) : nan", 32);
     return $g_nan;
   }
 
@@ -3306,7 +3554,7 @@ sub f_cos                    # fbc version
   &dbg1("$curprim f_cos $x", 1);
 
   if (&isnan($x)) {
-    &dbg1("$curprim f_cos(nan) : nan\n", 32);
+    &dbg1("$curprim f_cos(nan) : nan", 32);
     return $g_nan;
   }
 
@@ -3334,7 +3582,7 @@ sub f_tan                    # fbc version
   &dbg1("$curprim f_tan $x", 1);
 
   if (&isnan($x)) {
-    &dbg1("$curprim f_tan(nan) : nan\n", 32);
+    &dbg1("$curprim f_tan(nan) : nan", 32);
     return $g_nan;
   }
 
@@ -3364,7 +3612,7 @@ sub f_arctan                    # fbc version
   my($a, $b, $a0, $ao, $i);
 
   if (&isnan($x)) {
-    &dbg1("$curprim f_arctan(nan) : nan\n", 32);
+    &dbg1("$curprim f_arctan(nan) : nan", 32);
     return $g_nan;
   }
 
@@ -3372,10 +3620,10 @@ sub f_arctan                    # fbc version
   if (&f_eq($x, $g_0)) {
     return $g_0;
   } elsif (&ispinf($x)) {
-    &dbg1("$curprim f_arctan(inf) : pi/2\n", 32);
+    &dbg1("$curprim f_arctan(inf) : pi/2", 32);
     return &f_div($g_pi, $g_2);
   } elsif (&isninf($x)) {
-    &dbg1("$curprim f_arctan(ninf) : -pi/2\n", 32);
+    &dbg1("$curprim f_arctan(ninf) : -pi/2", 32);
     return &f_div($g_pi, $g_n2);
   }
 
@@ -3400,7 +3648,7 @@ sub f_arcsin                    # fbc version
   my($a);
 
   if (&isnan($x)) {
-    &dbg1("$curprim f_arcsin(nan) : nan\n", 32);
+    &dbg1("$curprim f_arcsin(nan) : nan", 32);
     return $g_nan;
   }
 
@@ -3418,7 +3666,7 @@ sub f_arccos                    # fbc version
   my($a);
 
   if (&isnan($x)) {
-    &dbg1("$curprim f_arccos(nan) : nan\n", 32);
+    &dbg1("$curprim f_arccos(nan) : nan", 32);
     return $g_nan;
   }
 
@@ -3442,7 +3690,7 @@ sub f_pow                    # fbc version
   &dbg1("$curprim f_pow $b $e", 1);
 
   if (&isnan($b) || &isnan($e)) {
-    &dbg1("$curprim f_pow(nan) : nan\n", 32);
+    &dbg1("$curprim f_pow(nan) : nan", 32);
     return $g_nan;
   }
 
@@ -3489,7 +3737,7 @@ sub f_root                    # fbc version
   my($mag, $scal6);
 
   if (&isnan($b) || &isnan($r)) {
-    &dbg1("$curprim f_root(nan) : nan\n", 32);
+    &dbg1("$curprim f_root(nan) : nan", 32);
     return $g_nan;
   }
 
@@ -3508,7 +3756,7 @@ sub f_root                    # fbc version
   $mag = &f_exp(&f_div(&f_ln($b), $r));
 
   return &f_mul($scal6, $mag);
-}
+} # End of f.root
 
 # addfunc: new functions can go here
 endquote
@@ -3524,7 +3772,7 @@ sub fbc_init
     $BCOUT = new IO::File;
 
     # Before spawning, disable SIGINT so that a ^C won't kill the #bc#
-    # process (this also allows BASIC_run to catch ^C allowing the user
+    # process (this also allows BASIC.run to catch ^C allowing the user
     # to get out of infinite loops)
     $SIG{INT} = 'IGNORE';
 
@@ -3600,19 +3848,30 @@ sub fbc_close
 # These routines operate on top of both sets of primitives, but aren't
 # full PT routines. They're used for conversion and formatting.
 
+# pvu.sint is like simple.int but takes a PT and unc as well (it just makes
+# sure they are zero and calls simple.int)
+sub pvu_sint
+{
+  my($xp, $xv, $xu, $sc) = @_;
+  return (($xp == 0) && ($xu == 0) && (&simple_int($xv, $sc)));
+}
 
-# normalize works on string-format floating-point numbers of the form
+# normalise works on string-format floating-point numbers of the form
 # [+-]1.23e[+-]456 and [+-]1.234u12e[+-]456, and works over either type
 # of primitive operators.
 # Its main function is to promote values like "23e456" to a PT1, and as
-# such it returns a PT vector as a result.
-sub normalize
+# such it returns a PT tuple as a result.
+sub normalise
 {
   my($x) = @_;
   my($m, $m1, $m2, $m3, $e, $s, $t1, $t2, $t3);
   my($unc, $u1, $u2, $eu);
 
-  &dbg1("nrm01 x $x", 8);
+  &dbg1("nrm01 x '$x'", 8);
+
+  if (&simple_int($x, $curscale)) {
+    return (0, $x, 0);
+  }
 
   # Extract mantissa part (which includes uncertainty if any)
   if ($x =~ m|^([-+0-9.U]+)E([-+0-9]+)$|i) {
@@ -3787,32 +4046,41 @@ sub normalize
   # no promote necessary
   &dbg1("nrm21 :: 0 PT $x ($unc)", 8);
   return (0, $x, $unc);
-} # end of normalize
+} # end of norm.alise
 
-# split takes string numbers of the format "2P[+-]3.4E[+-]56", or simple
-# floating-point numbers like "[+-]3.4E[+-]56", or IR inlines like "I17",
-# performs the appropriate conversion or value retrieval and returns a PT
-# vector result.
-sub split
+# splt takes string numbers of the format "2P[+-]3.4E[+-]56", or simple
+# floating-point numbers like "[+-]3.4E[+-]56", plain numbers like "234.56",
+# or IR inlines like "I17", performs the appropriate conversion or
+# value retrieval and returns a PT tuple result.
+sub splt
 {
   my($x) = @_;
   my($i);
   my($xv_pt, $xv_val, $xv_unc);  # for normalizing, if string is for example
                                  # "1.2e345" or "2pt1.2e345"
   my($t1);
-  # Recognize '.' as a synonym for '%'
+
+  &dbg1("splt($x)", 32);
+
+  # Recognize '.' as a synonym for '%' ('.' is from #bc#, '%' is from #maxima#)
   if ($x eq '.') {
-    return ($a2_pt, $a2_val, $a2_unc);
+    return ($a2_pt, $a2_val, $a2_unc, '');
   }
 
   if ($x =~ m|^I([0-9]+)|) {
     # retrieve a stored intermediate result
     $i = $1;
-    return($ir_pt[$i], $ir_val[$i], $ir_unc[$i]);
+    &dbg1("  I -> ($ir_pt[$i], $ir_val[$i], $ir_unc[$i], $ir_lvk[$i])", 32);
+    return($ir_pt[$i], $ir_val[$i], $ir_unc[$i], $ir_lvk[$i]);
   } elsif ($x =~ m|^R([0-9]+)|) {
     # retrieve a stored history result
     $i = $1;
-    return($h_pt[$i], $h_val[$i], $h_unc[$i]);
+    &dbg1("  R -> ($h_pt[$i], $h_val[$i], $h_unc[$i], '')", 32);
+    return($h_pt[$i], $h_val[$i], $h_unc[$i], '');
+  } elsif ($x =~ m|^\%|) {
+    # retrieve last result
+    &dbg1("  % -> ($h_pt[$i], $h_val[$i], $h_unc[$i], '')", 32);
+    return($a2_pt, $a2_val, $a2_unc, '');
   } elsif ($x =~ m|^(.+)P(.+)$|) {
     my($x_pt, $x_val, $x_unc);
 
@@ -3820,15 +4088,15 @@ sub split
     # first, assume it's legal, i.e. the val part is within range
     $x_pt = $1;
     $x_val = $2;
-    print "split2 $x : " if ($format_debug);
+    print "splt 2 $x : " if ($format_debug);
     $x_val =~ s|N|-|g;
     # Now check if the val is out of range. If so, add additional levels
     # to the power-tower. This is where "1P1E310" gets turned into 2P310.
-    ($xv_pt, $xv_val, $xv_unc) = &normalize($x_val);
+    ($xv_pt, $xv_val, $xv_unc) = &normalise($x_val);
     if ($xv_pt > 0) {
       $x_pt += $xv_pt;
     } elsif (($x_pt > 0) && ($xv_val < 300)) {
-      # Handle the other kind of denormalized values, where the PT is
+      # Handle the other kind of denormalised values, where the PT is
       # too high. For example, '1p1.000(1)e2' is converted to '0p1.00(26)e100'
       $t1 = &f_pow10($xv_val);
       $xv_unc = &f_pow10($xv_val+$xv_unc) - $t1;
@@ -3836,17 +4104,17 @@ sub split
       $x_pt -= 1;
     }
     print "$x_pt $xv_val $xv_unc\n" if ($format_debug);
-    return ($x_pt, $xv_val, $xv_unc);
+    return ($x_pt, $xv_val, $xv_unc, '');
   }
 
   # else, this is a normal number "1.23" or "-23.45", or scientific notation
   # "1.23E45". This is where "1E5000" gets turned into 1P5000.
-  print "split1 $x : " if ($format_debug);
+  print "splt 1 $x : " if ($format_debug);
   $x =~ s|N|-|g;
-  ($xv_pt, $xv_val, $xv_unc) = &normalize($x);
+  ($xv_pt, $xv_val, $xv_unc) = &normalise($x);
   print "$xv_pt $xv_val $xv_unc\n" if ($format_debug);
-  return ($xv_pt, $xv_val, $xv_unc);
-} # End of split
+  return ($xv_pt, $xv_val, $xv_unc, '');
+} # End of splt
 
 #--------------------------------------------------- hcfloat.h
 #
@@ -3862,11 +4130,51 @@ sub split
 #   double      val;
 # } pt_real;
 
+my $unused2 = q`
+
+  Patashu break_eternity.js
+
+  README.md acknowledges "nathanisbored, for coming up with a short
+  and sweet formula for 10^a + 10^b == 10^c which has been used in add
+  and mul."
+
+  It is mostly equivalent to what we do in Hypercalc, except that the
+  nathanisbored version cleverly handles the signs as well (accomplishing
+  our addlog and sublog in a single routine)
+
+  add:
+    // "layer" is the level or "pt". In the code below, it has already
+    // been set up that "a" is the larger in magnitude. FC is a constructor
+    // that takes (sign, layer, mantissa) in that order
+    if (layera === 1 && layerb === 0) {
+      if (Math.abs(a.mag - Math.log10(b.mag)) > MAX_SIGNIFICANT_DIGITS) {
+        return a;
+      } else {
+        var _magdiff = Math.pow(10, a.mag - Math.log10(b.mag));
+        var _mantissa = b.sign + a.sign * _magdiff;
+        return FC(Math.sign(_mantissa), 1,
+          Math.log10(b.mag) + Math.log10(Math.abs(_mantissa)));
+      }
+    }
+
+    // only remaining case: layera === 1 && layerb === 1
+    if (Math.abs(a.mag - b.mag) > MAX_SIGNIFICANT_DIGITS) {
+      return a;
+    } else {                                        // pt_addmul steps:
+      var _magdiff2 = Math.pow(10, a.mag - b.mag);  // 1: subtract ; 2: antilog
+      var _mantissa2 = b.sign + a.sign * _magdiff2; // 3: add to 1
+      return FC(Math.sign(_mantissa2), 1,
+        b.mag + Math.log10(Math.abs(_mantissa2)));  // 4: log ; 5: add to A
+    }
+
+  (multiply just calls add)
+
+`;
 
 #------------------------------------------------------ hcpt.c
 #
-# These routines, originally from "hcpt.c", do all the calculation
-# functions and operate on "PT" format values.
+# These routines (from "hcpt.c" in my PalmPilot Hypercalc app) do all the
+# calculation functions and operate on "PT" format values.
 
 # Return the logarithm of the sum of the antilog of two numbers. For example,
 # If the inputs are 301.0 and 299.0, it returns 301.004321, because
@@ -3878,20 +4186,20 @@ sub split
 # antilog, add to 1 and take the log again:
 #
 #   To compute: 10^301 + 10^299
-#
-#       inputs:  301.0, 299.0
-#     subtract:  -2.0
-#      antilog:  0.01
-#     add to 1:  1.01
-#          log:  0.004321
-#          add:  301.004321
-#
-#       Answer:  10^301.004321... = 1.01e301
+#     Input mantissas: A=301.0, B=299.0
+#   1: subtract:  -2.0
+#   2: antilog:   0.01
+#   3: add to 1:  1.01
+#   4: logarithm: 0.004321
+#   5: add to A:  301.004321
+#     Answer:  10^301.004321... = 1.01e301
 #
 sub pt_addlog
 {
   my($lar, $sm) = @_;
   my($t);
+
+  &dbg1("pt.addlog $lar + $sm", 32);
 
   $t = &f_sub($sm, $lar);           # -2.0
   $t = &f_add($g_1, &f_pow10($t));  # 1.01
@@ -3905,6 +4213,8 @@ sub pt_sublog
 {
   my($lar, $sm) = @_;
   my($t);
+
+  &dbg1("pt.sublog $lar - $sm", 32);
 
   $t = &f_sub($sm, $lar);           # -2.0
   $t = &f_sub($g_1, &f_pow10($t));  # 0.99
@@ -4006,6 +4316,8 @@ sub pt_subpos
   my($xpt, $xv, $mpt, $mv, $s1, $u1);
   my($ans_pt, $ans_val, $ans_unc);
 
+  &dbg1("pt.subpos ($x_pt, $x_val, $x_unc) - ($m_pt, $m_val, $m_unc)", 32);
+
   $xpt = $x_pt; $mpt = $m_pt;
   $xv = $x_val; $mv = $m_val;
 
@@ -4079,7 +4391,7 @@ sub pt_subpos
   }
 }
 
-q@
+$unused1 = q@
 # Compare routine -- right now it isn't used anywhere.
 int pt_compare(pt_real x, pt_real y)
 {
@@ -4163,7 +4475,7 @@ sub pt_compare
 
 
 # Magnitude compare -- tells you which is "larger" as in further from 0.
-# Use pt_compare for standard compare.
+# Use pt.compare for standard compare.
 sub pt_magcompare
 {
   my($x_pt, $x_val, $y_pt, $y_val) = @_;
@@ -4209,22 +4521,22 @@ sub pt_add
 
   # Deal with infinities. If it's +inf and -inf, +inf wins.
   if (&isninf($x_val)) {
-    &dbg1("pt_add ninf + X: ninf\n", 32);
+    &dbg1("pt_add ninf + X: ninf", 32);
     return ($g_pt_inf, $g_ninf, 0);
   } elsif (&isninf($y_val)) {
-    &dbg1("pt_add X + ninf: ninf\n", 32);
+    &dbg1("pt_add X + ninf: ninf", 32);
     return ($g_pt_inf, $g_ninf, 0);
   } elsif (&isinf($x_val)) {
-    &dbg1("pt_add inf + X: inf\n", 32);
+    &dbg1("pt_add inf + X: inf", 32);
     return ($g_pt_inf, $g_inf, 0);
   } elsif (&isinf($y_val)) {
-    &dbg1("pt_add X + inf: inf\n", 32);
+    &dbg1("pt_add X + inf: inf", 32);
     return ($g_pt_inf, $g_inf, 0);
   } elsif (&isnan($x_val)) {
-    &dbg1("pt_add nan + X: nan\n", 32);
+    &dbg1("pt_add nan + X: nan", 32);
     return ($g_pt_nan, $g_nan, 0);
   } elsif (&isnan($y_val)) {
-    &dbg1("pt_add X + nan: nan\n", 32);
+    &dbg1("pt_add X + nan: nan", 32);
     return ($g_pt_nan, $g_nan, 0);
   }
 
@@ -4281,16 +4593,16 @@ sub pt_log10
 
   # Handle 0 and infinities first
   if (&f_eq($x_val, $g_0)) {
-    &dbg1("pt_log10(0): ninf\n", 32);
+    &dbg1("pt_log10(0): ninf", 32);
     return ($g_pt_inf, $g_ninf, 0);
   } elsif (&ispinf($x_val)) {
-    &dbg1("pt_log10(inf): inf\n", 32);
+    &dbg1("pt_log10(inf): inf", 32);
     return ($g_pt_inf, $g_inf, 0);
   } elsif (&isninf($x_val)) {
-    &dbg1("pt_log10(ninf): 0\n", 32);
+    &dbg1("pt_log10(ninf): 0", 32);
     return (0, $g_0, 0);
   } elsif (&isnan($x_val)) {
-    &dbg1("pt_log10(nan): nan\n", 32);
+    &dbg1("pt_log10(nan): nan", 32);
     return ($g_pt_nan, $g_nan, 0);
   }
 
@@ -4324,13 +4636,13 @@ sub pt_pow10
 
   # Handle infinities first
   if (&ispinf($x_val)) {
-    &dbg1("pt_pow10(inf): inf\n", 32);
+    &dbg1("pt_pow10(inf): inf", 32);
     return ($g_pt_inf, $g_inf, 0);
   } elsif (&isninf($x_val)) {
-    &dbg1("pt_pow10(ninf): 0\n", 32);
+    &dbg1("pt_pow10(ninf): 0", 32);
     return (0, $g_0, 0);
   } elsif (&isnan($x_val)) {
-    &dbg1("pt_pow10(nan): nan\n", 32);
+    &dbg1("pt_pow10(nan): nan", 32);
     return ($g_pt_nan, $g_nan, 0);
   }
 
@@ -4341,7 +4653,7 @@ sub pt_pow10
       $ans_pt = 0;
       $ans_val = &f_pow10($x_val);
       # d(10^u) = ln(10) 10^u du
-      $ans_unc = $k_ln_10 * $ans_val * $x_unc; # &f_mul(&f_mul($g_ln_10, $ans_val), $x_unc);
+      $ans_unc = $k_ln_10 * $ans_val * $x_unc;
       return ($ans_pt, $ans_val, $ans_unc);
     }
   }
@@ -4356,7 +4668,7 @@ sub pt_pow10
   $ans_pt = $x_pt + 1;
   $ans_val = $x_val;
   return ($ans_pt, $ans_val, 0);
-}
+} # End of pt.pow10
 
 # The multiply routine is implemented fully from primitives, with
 # 12 separate cases for all the combinations of PT class of the
@@ -4376,7 +4688,7 @@ sub pt_mul
   $x_unc = $px_unc; $y_unc = $py_unc;
 
   if (&isnan($x_val) || &isnan($y_val)) {
-    &dbg1("pt_mul(nan): nan\n", 32);
+    &dbg1("pt.mul(nan): nan", 32);
     return ($g_pt_nan, $g_nan, 0);
   }
 
@@ -4417,7 +4729,7 @@ sub pt_mul
     # %%% it would be good to avoid the overflow before it happens
     # Simple case: both are plain numbers
     $p1 = &f_mul($xv, $yv);
-    &dbg1("pt_mul got: " . $p1, 1);
+    &dbg1("pt.mul got: " . $p1, 1);
 
     if (&f_ge($p1, $g_ovr1)) {
       # Overflowed range of pt0: recompute product as a pt1
@@ -4490,7 +4802,7 @@ sub pt_mul
     # final answer:  {2, 312.000043}
     #
     $d1 = &f_sub($xv, $yv);
-    if (&f_lt($d1, $curscale)) {
+    if (&f_lt($d1, ($curscale+3))) {
       # x is a little bigger
       $ans_pt = 2;
       $ans_val = &f_pow10(&f_sub($yv, $xv));
@@ -4514,7 +4826,7 @@ sub pt_mul
 
   # default fall-through
   return (0, $g_0, 0);
-}
+} # End of pt.mul
 
 sub pt_div
 {
@@ -4528,13 +4840,13 @@ sub pt_div
   $n_unc = $an_unc; $d_unc = $ad_unc;
 
   if (&isnan($n_val) || &isnan($d_val)) {
-    &dbg1("pt_div(nan/nan) : nan\n", 32);
+    &dbg1("pt_div(nan/nan) : nan", 32);
     return ($g_pt_nan, $g_nan, 0);
   }
 
   # Handle divide by zero case first, it's easy
   if ($d_val == 0) {
-    &dbg1("pt_div(K/0) : nan\n", 32);
+    &dbg1("pt_div(K/0) : nan", 32);
     return ($g_pt_nan, $g_nan, 0);
   }
 
@@ -4552,10 +4864,10 @@ sub pt_div
   # Deal with infinities.
   if (&isinf($n_val)) {
     if (&f_gt($sign, $g_0)) {
-      &dbg1("pt_div(inf/K) : inf\n", 32);
+      &dbg1("pt_div(inf/K) : inf", 32);
       return ($g_pt_inf, $g_inf, 0);
     } else {
-      &dbg1("pt_div(inf/-K) : ninf\n", 32);
+      &dbg1("pt_div(inf/-K) : ninf", 32);
       return ($g_pt_inf, $g_ninf, 0);
     }
   }
@@ -4616,24 +4928,37 @@ sub pt_div
     # Both arguments are PT1. Subtract the logs and check for demote.
     $p1 = &f_sub($n_val, $d_val);
     if (&f_lt($p1, $g_log10_ovr1)) {
+      # We can demote. The new value should be 10 to the power of the
+      # difference p1. We handle two common integer cases to avoid doing an
+      # inexact pow10. %%% I'd rather do this inside f_pow10 but I want to
+      # think about it first.
       $ans_pt = 0;
-      $ans_val = &f_mul($sign, &f_pow10($p1));
-      return ($ans_pt, $ans_val, 0);
+      if (&simple_int($p1, $curscale)) {
+        if ($p1 < $curscale) {
+          $p1 = '1' . ('0' x $p1);
+        } else {
+          $p1 = '1e' . int($p1);
+        }
+      } else {
+        $p1 = &f_pow10($p1);
+      }
     } else {
       $ans_pt = 1;
-      $ans_val = &f_mul($sign, $p1);
-      return ($ans_pt, $ans_val, 0);
     }
+    $ans_val = &f_mul($sign, $p1);
+    return ($ans_pt, $ans_val, 0);
   } elsif ($n_pt < $d_pt) {
-    # In all the other cases, if the arguments are of dirrerent
+    # In all the other cases, if the arguments are of different
     # PT types the answer is simple.
     return (0, $g_0, 0);
   } elsif ($n_pt > $d_pt) {
     # In these cases the answer is the numerator.
+    # %%% not so - consider 10^10^301 / 10^10^299, should be 10^(9.9x10^300)
     $ans_pt = $n_pt;
     $ans_val = &f_mul($sign, $n_val);
     return ($ans_pt, $ans_val, 0);
   } else {
+    # %%% Here's where we need to handle (10^10^1000.2) / (10^10^1000.1)
     # Numerator and denominator of same PT type, PT2 or greater.
     # Ratio uncomputably differs from:
     #     0 if D is of greater magnitude,
@@ -4651,9 +4976,116 @@ sub pt_div
       return ($ans_pt, $ans_val, 0);
     }
   }
-} # End of pt_div
+} # End of pt.div
 
-q|
+sub pt_mod
+{
+  my($an_pt, $an_val, $an_unc, $ad_pt, $ad_val, $ad_unc) = @_;
+  my($n_pt, $n_val, $n_unc, $d_pt, $d_val, $d_unc);
+  my($sign, $p1, $p2, $p3, $p4, $p5, $p6);
+
+  &dbg1("pt.mod |$an_pt|$an_val|$an_unc| % |$ad_pt|$ad_val|$ad_unc|", 32);
+
+  $n_pt = $an_pt; $d_pt = $ad_pt;
+  $n_val = $an_val; $d_val = $ad_val;
+  $n_unc = $an_unc; $d_unc = $ad_unc;
+
+  if (&isnan($n_val) || &isnan($d_val)) {
+    &dbg1("pt.mod(nan/nan) : nan", 32);
+    return ($g_pt_nan, $g_nan, 0);
+  }
+
+  # Handle divide by zero case first, it's easy
+  if ($d_val == 0) {
+    &dbg1("pt.mod(K/0) : nan", 32);
+    return ($g_pt_nan, $g_nan, 0);
+  }
+
+  # Enforce positive arguments and remember sign.
+  $sign = $g_1;
+  if (&f_lt($n_val, $g_0)) {
+    $sign = &f_neg($sign);
+    $n_val = &f_neg($n_val);
+  }
+  if (&f_lt($d_val, $g_0)) {
+    &dbg1("pt.mod(n%-K) : 0", 32);
+    return (0, 0, 0);
+  }
+
+  # Deal with infinities.
+  if (&isinf($n_val)) {
+    &dbg1("pt.mod(inf%d) : 0", 32);
+    return (0, 0, 0);
+  } elsif (&isinf($d_val)) {
+    &dbg1("pt.mod(n%inf) : 0", 32);
+    return ($n_pt, $n_val, $n_unc);
+  }
+
+  if ($n_pt > 0) {
+    &dbg1("pt.mod(pt1%d) : 0", 32);
+    return (0, 0, 0);
+  }
+
+  if ($d_pt > 0) {
+    &dbg1("pt.mod(n%pt1) : 0", 32);
+    return (0, 0, 0);
+  }
+
+  if (!(&simple_int($n_val, $curscale))) {
+    &dbg1("pt.mod(nonint%d) : 0", 32);
+    return (0, 0, 0);
+  }
+
+  if (!(&simple_int($d_val, $curscale))) {
+    &dbg1("pt.mod(n%nonint) : 0", 32);
+    return (0, 0, 0);
+  }
+
+  $p1 = &f_div($n_val, $d_val);
+  &dbg1("pt.mod p1 = $p1", 32);
+  if ($p1 =~ m/^(\d+)/) {
+    $p2 = $1;
+    &dbg1("pt.mod p2a = $p2", 32);
+  } elsif ($p1 =~ m/^\+(\d+)\.\d+E0$/) {
+    $p2 = $1;
+    &dbg1("pt.mod p2b = $p2", 32);
+  } else {
+    &dbg1("pt.mod(n/d) got '$p1' : 0", 32);
+    return (0, 0, 0);
+  }
+  $p3 = &f_mul($p2, $d_val);
+  &dbg1("pt.mod p3 = $p3", 32);
+  if (!(&simple_int($p3, $curscale))) {
+    &dbg1("pt.mod(n/d) n/d*d not int : 0", 32);
+    return (0, 0, 0);
+  }
+  $p4 = &f_sub($n_val, $p3);
+  &dbg1("pt.mod p4 = $p4", 32);
+  if (&simple_int($p4, $curscale)) {
+    &dbg1("pt.mod(n/d) easy case : $p4", 32);
+    $p6 = &f_mul($sign, $p4);
+    return (0, $p6, 0);
+  }
+
+  $p5 = &f_add($p4, 0.5);
+  &dbg1("pt.mod p5 = $p5", 32);
+  if ($p5 =~ m/^\+?(\d)\.\d*E-1/) {
+    # Common case when we're using fbc_* routines, if the mod answer should
+    # be zero then at this point we have +4.999E-1 or +5.E-1
+    $p5 = 0;
+  } elsif ($p5 =~ m/^\+?(\d+)\.\d*$/) {
+    # Here we're hoping it is something like 142.49999
+    $p5 = $1;
+  } else {
+    &dbg1("pt.mod(n/d) n-(n/d*d) not int : 0", 32);
+    return (0, 0, 0);
+  }
+  $p6 = &f_mul($sign, $p5);
+  &dbg1("pt.mod -> $p6", 32);
+  return(0, $p6, 0);
+} # End of pt.mod
+
+$unused1 = q|
 # The Palm version of Hypercalc had a percent key, which multiplied an
 # argument by a given percentage. For example, with inputs (12,50) it
 # returns 6 because that's 50% of 12.
@@ -4680,13 +5112,13 @@ sub pt_exp
 
   # Handle infinities first
   if (&ispinf($x_val)) {
-    &dbg1("pt_exp(inf): inf\n", 32);
+    &dbg1("pt_exp(inf): inf", 32);
     return ($g_pt_inf, $g_inf, 0);
   } elsif (&isninf($x_val)) {
-    &dbg1("pt_exp(ninf): 0\n", 32);
+    &dbg1("pt_exp(ninf): 0", 32);
     return (0, $g_0, 0);
   } elsif (&isnan($x_val)) {
-    &dbg1("pt_exp(nan): nan\n", 32);
+    &dbg1("pt_exp(nan): nan", 32);
     return ($g_pt_nan, $g_nan, 0);
   }
 
@@ -4744,7 +5176,7 @@ sub pt_exp
 
   # default fall-through (never reached)
   return (0, $g_0, 0);
-}
+} # End of pt.exp
 
 sub pt_ln
 {
@@ -4754,16 +5186,16 @@ sub pt_ln
 
   # Handle 0 and infinities first
   if (&isnan($x_val)) {
-    &dbg1("pt_ln(nan): nan\n", 32);
+    &dbg1("pt_ln(nan): nan", 32);
     return ($g_pt_nan, $g_nan, 0);
   } elsif (&f_eq($x_val, $g_0)) {
-    &dbg1("pt_ln(0): ninf\n", 32);
+    &dbg1("pt_ln(0): ninf", 32);
     return ($g_pt_inf, $g_ninf, 0);
   } elsif (&ispinf($x_val)) {
-    &dbg1("pt_ln(inf): inf\n", 32);
+    &dbg1("pt_ln(inf): inf", 32);
     return ($g_pt_inf, $g_inf, 0);
   } elsif (&isninf($x_val)) {
-    &dbg1("pt_ln(ninf): 0\n", 32);
+    &dbg1("pt_ln(ninf): 0", 32);
     return (0, $g_0, 0);
   }
 
@@ -4806,7 +5238,7 @@ sub pt_ln
     $ans_val = $x_val;
     return ($ans_pt, $ans_val, 0);
   }
-}
+} # End of pt.ln
 
 # A routine that breaks out all the cases explicitly would be a little
 # more accurate and a little faster -- but it's not enough to be of
@@ -5011,7 +5443,7 @@ sub pt_pow
                                           $b_pt, $b_val, 0);
 
   return ($ans_pt, $ans_val, $ans_unc);
-} # End of pt_pow
+} # End of pt.pow
 
 # There is a lot of similarity with the pt_pow routine because pt.root
 # is just dividing the log by the exponent rather than multiplying.
@@ -5030,7 +5462,7 @@ sub pt_root
                        = ($ab_pt, $ab_val, $ab_unc, $ar_pt, $ar_val, $ar_unc);
 
   if (&isnan($b_val) || &isnan($r_val)) {
-    &dbg1("pt_root(nan): nan\n", 32);
+    &dbg1("pt_root(nan): nan", 32);
     return ($g_pt_nan, $g_nan, 0);
   }
 
@@ -5038,14 +5470,14 @@ sub pt_root
   if (&f_eq($r_val, $g_0)) {
     if (&f_eq($b_val, $g_0)) {
       # 0th root of 0 is 0
-      &dbg1("pt_root(0, 0): 0\n", 32);
+      &dbg1("pt_root(0, 0): 0", 32);
       return (0, $g_0, 0);
     } elsif (&f_gt($b_val, $g_n1) && &f_lt($b_val, $g_1)) {
       # 0th root of a number less than 1
-      &dbg1("pt_root((x<1), 0): 1\n", 32);
+      &dbg1("pt_root((x<1), 0): 1", 32);
       return (0, $g_1, 0);
     } else {
-      &dbg1("pt_root((x>1), 0): inf\n", 32);
+      &dbg1("pt_root((x>1), 0): inf", 32);
       return ($g_pt_inf, $g_inf, 0);
     }
   }
@@ -5124,7 +5556,7 @@ sub pt_root
                                           0, $scal8, 0);
 
   return ($ans_pt, $ans_val, $ans_unc);
-} # end of pt_root
+} # end of pt.root
 
 # log base b of n = log(n) / log(b)
 #    == pow10(log(log(n)) - log(log(b)))
@@ -5138,16 +5570,16 @@ sub pt_log_n
 
   # Handle 0 and infinities first
   if (&f_eq($n_val, $g_0)) {
-    &dbg1("pt_log_n(0): ninf\n", 32);
+    &dbg1("pt_log_n(0): ninf", 32);
     return ($g_pt_inf, $g_ninf, 0);
   } elsif (&ispinf($n_val)) {
-    &dbg1("pt_log_n(inf): inf\n", 32);
+    &dbg1("pt_log_n(inf): inf", 32);
     return ($g_pt_inf, $g_inf, 0);
   } elsif (&isninf($n_val)) {
-    &dbg1("pt_log_n(ninf): 0\n", 32);
+    &dbg1("pt_log_n(ninf): 0", 32);
     return (0, $g_0, 0);
   } elsif (&isnan($n_val) || &isnan($b_val)) {
-    &dbg1("pt_log_n(nan): nan\n", 32);
+    &dbg1("pt_log_n(nan): nan", 32);
     return ($g_pt_nan, $g_nan, 0);
   }
 
@@ -5176,7 +5608,30 @@ sub pt_log_n
   # than 0
   return &pt_div(&pt_log10($n_pt, $n_val, $n_unc),
                  &pt_log10($b_pt, $b_val, $b_unc));
-}
+} # End of pt.log_n
+
+sub intgam
+{
+  my($n) = @_;
+  my($i, $rv);
+
+  if (!($n =~ m/^\d+$/)) {
+    return 0;
+  }
+  if (($n <= 0) || ($n >= 168)) {
+    return 0;
+  }
+  if ($igv[$n] ne '') {
+    return $igv[$n];
+  }
+  $igv[1] = 1;
+  for ($i=2; $i<=$n; $i++) {
+    if ($igv[$i] eq '') {
+      $igv[$i] = &f_mul($i-1, $igv[$i-1]);
+    }
+  }
+  return $igv[$n];
+} # End of int.gam
 
 # t = n - 1
 # l = 1/2 ln(2 pi) + (t + 1/2) ln(t) - t + 1/(12 t) - 1/(360 t^3) + ...
@@ -5188,22 +5643,27 @@ sub pt_gamma
   my($n_pt, $n_val, $n_unc) = @_;
   my($ans_pt, $ans_val, $ans_unc, $t, $l, $l2, $adj, $n2, $np, $u1);
 
+  &dbg1("pt.gamma($n_pt|$n_val|$u_unc)", 32);
+
   # Handle infinities first
   if (&ispinf($n_val)) {
-    &dbg1("pt_gamma(inf): inf\n", 32);
+    &dbg1("pt.gamma(inf): inf", 32);
     return ($g_pt_inf, $g_inf, 0);
   } elsif (&isninf($n_val)) {
-    &dbg1("pt_gamma(ninf): 0\n", 32);
+    &dbg1("pt.gamma(ninf): 0", 32);
     return (0, $g_0, 0);
   } elsif (&isnan($n_val)) {
-    &dbg1("pt_gamma(nan): nan\n", 32);
+    &dbg1("pt.gamma(nan): nan", 32);
     return ($g_pt_nan, $g_nan, 0);
   }
 
   # Now handle negatives
   if (&f_lt($n_val, $g_0)) {
     if ($n_pt > 0) {
-      &dbg1("pt_gamma(-X): inf\n", 32);
+      &dbg1("pt.gamma(-X): inf", 32);
+      return ($g_pt_inf, $g_inf, 0);
+    } elsif (&simple_nint($n_val, $curscale)) {
+      &dbg1("pt.gamma(-int): inf", 32);
       return ($g_pt_inf, $g_inf, 0);
     } else {
       $ans_pt = 0;
@@ -5221,8 +5681,17 @@ sub pt_gamma
   }
 
   if ($n_pt == 0) {
-    # NOTE: All the following commented-out debugging print's are computing
-    # the same things that are now in the setscale code inside hi_init.
+   # # Handle integer argument
+   # if (&simple_int($n_val, $curscale) && ($n_val >= 0) && ($n_val < 167)) {
+   #   $ans_pt = 0;
+   #   $ans_val = &intgam($n_val);
+   #   &dbg1("pt.gamma($n_val): intgam -> $ans_val", 32);
+   #   $ans_unc = $g_0;
+   #   return ($ans_pt, $ans_val, $ans_unc);
+   # }
+
+    # NOTE: All the following commented-out debugging prints are computing
+    # the same things that are now in the set.scale code inside hi.init.
     if (0) {
       my($est1, $nvm1);
       $nvm1 = &f_sub($n_val, "1.0");
@@ -5257,7 +5726,7 @@ sub pt_gamma
 
     # Dispatch sufficiently small values to f_gamma
     if (&f_lt($n_val, $g_gammalim)) {
-      &dbg1("pt_gamma using f_gamma\n", 2);
+      &dbg1("pt.gamma using f_gamma", 2);
       $ans_pt = 0;
       $ans_val = &f_gamma($n_val);
       # As noted above, finite differential because derivative is too hard
@@ -5269,7 +5738,7 @@ sub pt_gamma
       return ($ans_pt, $ans_val, $ans_unc);
     }
 
-    &dbg1("pt_gamma using shorter Stirling\n", 2);
+    &dbg1("pt.gamma using shorter Stirling", 2);
 
     # Start computing terms of log(gamma)
     # The "lower" and "upper" show the range of values we are likely to have
@@ -5278,21 +5747,21 @@ sub pt_gamma
     $t = &f_sub($n_val, $g_1);  # 166.0           1.0e300
     $l = $g_05_ln_2pi;          #       0.918938533...
 
-    &dbg1("pt_gamma: 1  $l\n", 2);
+    &dbg1("pt.gamma: 1  $l", 2);
 
     $l = &f_add($l, &f_mul(&f_add($t, $g_0_5), &f_ln($t)));
                                 # 852.0649...     6.907e302
 
-    &dbg1("pt_gamma: 2  $l\n", 2);
+    &dbg1("pt.gamma: 2  $l", 2);
 
     $l = &f_sub($l, $t);        # 686.0649...     6.897e302
 
-    &dbg1("pt_gamma: 3  $l\n", 2);
+    &dbg1("pt.gamma: 3  $l", 2);
 
     $n2 = &f_mul($t, $t);
     $np = $t;
     $lm = &f_mul($g_12, $np);
-    &dbg1("pt_gamma: term 4 lm = $lm\n", 2);
+    &dbg1("pt.gamma: term 4 lm = $lm", 2);
     $adj = &f_div($g_1, $lm);
                                 # 5.02e-4         0.0
     $l2 = &f_add($l, $adj);
@@ -5302,15 +5771,15 @@ sub pt_gamma
       return &pt_exp(0, $l, 0);
     }
 
-    &dbg1("pt_gamma more Stirling\n", 2);
+    &dbg1("pt.gamma more Stirling", 2);
 
     # No, keep going for a while...
     $l = $l2;
-    &dbg1("pt_gamma: 4  $l\n", 2);
+    &dbg1("pt.gamma: 4  $l", 2);
 
     $np = &f_mul($np, $n2);
     $lm = &f_mul($g_360, $np);
-    &dbg1("pt_gamma: term 5 lm = $lm\n", 2);
+    &dbg1("pt.gamma: term 5 lm = $lm", 2);
     $adj = &f_div($g_1, $lm);
                                 # 6.0e-10         0.0
     $l2 = &f_sub($l, $adj);
@@ -5320,27 +5789,27 @@ sub pt_gamma
       return &pt_exp(0, $l, 0);
     }
 
-    &dbg1("pt_gamma 3 more Stirling\n", 2);
+    &dbg1("pt.gamma 3 more Stirling", 2);
 
     # Alright, add in 3 more terms (the most it would ever take)
     # and then call exp.
     $l = $l2;
-    &dbg1("pt_gamma: 5  $l\n", 2);
+    &dbg1("pt.gamma: 5  $l", 2);
 
     $np = &f_mul($np, $n2);
     $lm = &f_mul($g_1260, $np);
-    &dbg1("pt_gamma: term 6 lm = $lm\n", 2);
+    &dbg1("pt.gamma: term 6 lm = $lm", 2);
     $lt = &f_div($g_1, $lm);
-    &dbg1("pt_gamma: term 6 = $lt\n", 2);
+    &dbg1("pt.gamma: term 6 = $lt", 2);
     $l = &f_add($l, $lt);
-    &dbg1("pt_gamma: 6  $l\n", 2);
+    &dbg1("pt.gamma: 6  $l", 2);
     $np = &f_mul($np, $n2);
     $lm = &f_mul($g_1680, $np);
-    &dbg1("pt_gamma: term 6 lm = $lm\n", 2);
+    &dbg1("pt.gamma: term 6 lm = $lm", 2);
     $lt = &f_div($g_1, $lm);
-    &dbg1("pt_gamma: term 7 = $lt\n", 2);
+    &dbg1("pt.gamma: term 7 = $lt", 2);
     $l = &f_sub($l, $lt);
-    &dbg1("pt_gamma: 7  $l\n", 2);
+    &dbg1("pt.gamma: 7  $l", 2);
 
     return &pt_exp(0, $l, 0);
   } elsif ($n_pt == 1) {
@@ -5378,7 +5847,7 @@ sub pt_gamma
     # for sufficiently large values gamma(n) reduces to pt.exp(n).
     return &pt_exp($n_pt, $n_val, 0);
   }
-} # End of pt_gamma
+} # End of pt.gamma
 
 # sqrt is done differently from pow(x, 0.5) because there is a builtin
 # sqrt routine (which is faster) and because sqrt of a negative number
@@ -5389,7 +5858,7 @@ sub pt_sqrt
   my($ans_pt, $ans_val, $ans_unc, $v1);
 
   if (&isnan($x_val)) {
-    &dbg1("pt_sqrt(nan): nan\n", 32);
+    &dbg1("pt_sqrt(nan): nan", 32);
     return ($g_pt_nan, $g_nan, 0);
   }
 
@@ -5402,7 +5871,7 @@ sub pt_sqrt
 
   # Handle infinity
   if (&ispinf($x_val)) {
-    &dbg1("pt_sqrt(inf): inf\n", 32);
+    &dbg1("pt_sqrt(inf): inf", 32);
     return ($g_pt_inf, $g_inf, 0);
   }
 
@@ -5446,7 +5915,7 @@ sub pt_sin
   my($ans_unc);
 
   if (&isnan($x_val)) {
-    &dbg1("pt_sin(nan): nan\n", 32);
+    &dbg1("pt_sin(nan): nan", 32);
     return ($g_pt_nan, $g_nan, 0);
   }
 
@@ -5465,7 +5934,7 @@ sub pt_cos
   my($ans_unc);
 
   if (&isnan($x_val)) {
-    &dbg1("pt_cos(nan): nan\n", 32);
+    &dbg1("pt_cos(nan): nan", 32);
     return ($g_pt_nan, $g_nan, 0);
   }
 
@@ -5484,7 +5953,7 @@ sub pt_tan
   my($ans_unc, $v1);
 
   if (&isnan($x_val)) {
-    &dbg1("pt_tan(nan): nan\n", 32);
+    &dbg1("pt_tan(nan): nan", 32);
     return ($g_pt_nan, $g_nan, 0);
   }
 
@@ -5497,9 +5966,9 @@ sub pt_tan
   }
   # else, X is too big, just return 0
   return (0, 0, 0);
-}
+} # End of pt.tan
 
-q|
+$unused1 = q|
 # sinh(x) = (e^x - e^-x) / 2
 # outside [-40..40] this reduces to - e^-x / 2 or e^x / 2
 # and for PT1 and higher arguments it's just - e^-x (negative argument) or e^x
@@ -5623,7 +6092,7 @@ sub pt_arctan
   my($ans_pt, $ans_val);
 
   if (&isnan($x_val)) {
-    &dbg1("pt_arctan(nan): nan\n", 32);
+    &dbg1("pt_arctan(nan): nan", 32);
     return ($g_pt_nan, $g_nan, 0);
   }
 
@@ -5643,15 +6112,27 @@ sub pt_arctan
   $ans_val = &f_arctan($x_val);
 
   return ($ans_pt, $ans_val);
-}
+} # End of pt.arctan
 
+# Perform rounding of e.g. "234.999992742" or "235.000007232" to "235",
+# by adding an amount that is bug enough to make the 999's turn to 000's,
+# but small enough so the resulting erroneous digits all get truncated.
+# %%% This routine is only used by prnt1(), which only does the truncation
+# in one place, so perhaps the code should be moved there.
 sub pt_roundup
 {
   my($x_pt, $x_val) = @_;
   my($a_val, $ptsave, $u1);
 
+  &dbg1("pt.roundup($x_pt, $x_val)", 32);
+
   if (&isnan($x_val) || &isinf($x_val)) {
-    &dbg1("pt_roundup(nan): nan\n", 32);
+    &dbg1("pt.roundup(nan): nan", 32);
+    return ($x_pt, $x_val);
+  }
+
+  if (&simple_int($x_val, $curscale)) {
+    &dbg1("pt.roundup(integer)", 32);
     return ($x_pt, $x_val);
   }
 
@@ -5673,7 +6154,7 @@ sub pt_roundup
   }
 
   return($x_pt, $x_val);
-}
+} # End of pt.roundup
 
 # addfunc: new functions can go here
 
@@ -5689,7 +6170,7 @@ sub pt_roundup
 # used for output formatting.
 
 # test patterns
-q@
+$unused1 = q@
 
 -20 ^ 238.4999999999    -- currently gives 6.2e300 as a PT1. Don't know
 what it *should* give, there's a lot of error because the complex
@@ -5863,15 +6344,16 @@ to check promotion of inlines:
 
 sub define_ir
 {
-  my($pt, $val, $unc) = @_;
+  my($pt, $val, $unc, $lvalue_key) = @_;
 
   $ir_n++;
   $ir_pt[$ir_n] = $pt; $ir_val[$ir_n] = $val; $ir_unc[$ir_n] = $unc;
+  $ir_lvk[$ir_n] = $lvalue_key;
 
   &dbg1("I$ir_n := $pt PT $val($unc)", 2);
 
   return "I$ir_n";
-}
+} # End of define.ir
 
 sub define_R_hist
 {
@@ -5890,14 +6372,14 @@ sub p_add
   my($x, $y) = @_;
   my($x_pt, $x_val, $x_unc, $y_pt, $y_val, $y_unc);
 
-  ($x_pt, $x_val, $x_unc) = &split($x);
-  ($y_pt, $y_val, $y_unc) = &split($y);
+  ($x_pt, $x_val, $x_unc) = &splt($x);
+  ($y_pt, $y_val, $y_unc) = &splt($y);
 
   ($x_pt, $x_val, $x_unc) = &pt_add($x_pt, $x_val, $x_unc,
                                     $y_pt, $y_val, $y_unc);
 
-  return &define_ir($x_pt, $x_val, $x_unc);
-}
+  return &define_ir($x_pt, $x_val, $x_unc, '');
+} # End of p.add
 
 sub p_sub
 {
@@ -5906,36 +6388,40 @@ sub p_sub
 
 # print "p_sub $x $y\n";
 
-  ($x_pt, $x_val, $x_unc) = &split($x);
-  ($y_pt, $y_val, $y_unc) = &split($y);
+  ($x_pt, $x_val, $x_unc) = &splt($x);
+  ($y_pt, $y_val, $y_unc) = &splt($y);
 
   ($x_pt, $x_val, $x_unc) = &pt_sub($x_pt, $x_val, $x_unc,
                                     $y_pt, $y_val, $y_unc);
 
-  return &define_ir($x_pt, $x_val, $x_unc);
-}
+  return &define_ir($x_pt, $x_val, $x_unc, '');
+} # End of p.sub
 
 # This currently ignores uncertainty; if we wanted to handle uncertainty
 # we would have to decide what to do when the result of a comparison is
-# inconclusive. We could either return false or add an 'inconclusive' return
-# value.
+# inconclusive (when comparing overlapping ranges). Alternatively, <= could
+# be defined as in: Bohlender, Gerd, and Ulrich Kulisch. "Definition of
+# the Arithmetic Operations and Comparison Relations for an Interval
+# Arithmetic Standard." Reliable Computing 15 (2011): 37. which effectively
+# considers either of a>=b and a<=b to be true unless one interval is a
+# proper subset of the other.
 sub p_op_compare
 {
   my($op, $x, $y) = @_;
   my($x_pt, $x_val, $x_unc, $y_pt, $y_val, $y_unc);
-  my($rv);
+  my($rv, $x_lvk, $y_lvk);
 
-  # print "p_op_compare $x $op $y\n";
-  ($x_pt, $x_val, $x_unc) = &split($x);
-  ($y_pt, $y_val, $y_unc) = &split($y);
+  &dbg1("p.op_compare $x $op $y", 32);
+  ($x_pt, $x_val, $x_unc, $x_lvk) = &splt($x);
+  ($y_pt, $y_val, $y_unc) = &splt($y);
 
   $rv = &pt_compare($x_pt, $x_val,  $y_pt, $y_val);
   # print "$x <=> $y == $rv\n";
 
   if ( (($op eq '<') && ($rv < 0))
-    || (($op eq '<=') && ($rv <= 0))
+    || (($op eq '<=') && ($rv <= 0)) # less or equal
     || (($op eq '>') && ($rv > 0))
-    || (($op eq '>=') && ($rv >= 0))
+    || (($op eq '>=') && ($rv >= 0)) # greater or equal
     || (($op eq '<>') && ($rv != 0)) # less or greater, i.e. not equal
     || (($op eq '==') && ($rv == 0)) # equal (official Hypercalc syntax)
     || (($op eq '=') && ($rv == 0))  # equal (BASIC compatibility syntax)
@@ -5945,111 +6431,231 @@ sub p_op_compare
     $rv = 0;
   }
 
-  return &define_ir(0, $rv, 0);
-}
+  # Set globals to indicate lvalue and assignment values, to be used by
+  # eval.2
+  $poc_isassign = 0;
+  if ($op eq '=') {
+    # possible assignment (if left side is an lvalue)
+    if ($x_lvk ne '') {
+      # This comparison could be interpreted as an assignment operator.
+      # We'll remember the lvalue's variable name (key) and the right
+      # side's pt/val/unc tuple
+      $poc_isassign = 1;
+      $poc_lvk = $x_lvk;
+      $poc_rv_pt = $y_pt;
+      $poc_rv_val = $y_val;
+      $poc_rv_unc = $y_unc;
+&dbg1("p_oc1 vars[$poc_lvk] := ($poc_rv_pt, $poc_rv_val, $poc_rv_unc)", 2);
+    }
+  }
 
+  return &define_ir(0, $rv, 0, '');
+} # End of p.op_compare
 
+# Boolean AND. This is really a bitwise operation that only works on
+# integer arguments, but meant to be used only on results from
+# p.op_compare.
+sub p_and
+{
+  my($x, $y) = @_;
+  my($x_pt, $x_val, $x_unc, $y_pt, $y_val, $y_unc, $r);
+
+  ($x_pt, $x_val, $x_unc) = &splt($x);
+  ($y_pt, $y_val, $y_unc) = &splt($y);
+  $r = ($x_val + 0) & ($y_val + 0);
+  return &define_ir(0, $r, 0, '');
+} # End of p.and
+
+# Boolean OR, just as limited as p.and
+sub p_or
+{
+  my($x, $y) = @_;
+  my($x_pt, $x_val, $x_unc, $y_pt, $y_val, $y_unc, $r);
+
+  ($x_pt, $x_val, $x_unc) = &splt($x);
+  ($y_pt, $y_val, $y_unc) = &splt($y);
+  $r = ($x_val + 0) | ($y_val + 0);
+  return &define_ir(0, $r, 0, '');
+} # End of p.or
+
+# Boolean NOT. The same limitations apply as for p.and; also the result
+# is always 0 or 1 so it is not useful as a bitwise (1's complement)
+# operation.
+sub p_not
+{
+  my($x) = @_;
+  my($x_pt, $x_val, $x_unc, $r);
+
+  ($x_pt, $x_val, $x_unc) = &splt($x);
+  $r = ($x_val + 0) ? 0 : 1;
+  return &define_ir(0, $r, 0, '');
+} # End of p.not
+
+# Integer-argument random number function. For compatibility with old BASICS
+# if the argument is 0, it gives a real number in the range [0,1). Larger
+# arguments give an integer result, for example rnd(6) picks an integer in
+# [0..5].
+sub p_rnd
+{
+  my($x) = @_;
+  my($x_pt, $x_val, $x_unc, $r);
+
+  ($x_pt, $x_val, $x_unc) = &splt($x);
+  $r = int($x_val + 0);
+  if ($r <= 0) {
+    $r = rand(1.0);
+  } else {
+    $r = int(rand($r));
+  }
+  return &define_ir(0, $r, 0, '');
+} # End of p.rnd
+
+# Entry point for modulo
+sub p_mod
+{
+  my($x, $y) = @_;
+  my($x_pt, $x_val, $x_unc, $y_pt, $y_val, $y_unc);
+
+  &dbg1("p_mod1 '$x' % '$y'", 32);
+
+  ($x_pt, $x_val, $x_unc) = &splt($x);
+  ($y_pt, $y_val, $y_unc) = &splt($y);
+
+  &dbg1("p_mod2 ($x_pt, $x_val, $x_unc) % ($y_pt, $y_val, $y_unc)", 32);
+
+  ($x_pt, $x_val, $x_unc) = &pt_mod($x_pt, $x_val, $x_unc,
+                                    $y_pt, $y_val, $y_unc);
+
+  return &define_ir($x_pt, $x_val, $x_unc, '');
+} # End of p.mod
+
+# Integer (round towards zero) function. Larger arguments are considered to
+# be already integers; negatives are treated such that f(-x)=-f(x).
+sub p_int
+{
+  my($x) = @_;
+  my($x_pt, $x_val, $x_unc, $r);
+
+  ($x_pt, $x_val, $x_unc) = &splt($x);
+  if ($x_pt > 0) {
+    return $x;
+  }
+  if ($x_val < 0) {
+    # Perl's int() function actually does what we want, but this code does
+    # not assume that: it would work if int() were a floor function
+    $r = &f_neg(&f_int(&f_neg($x_val)));
+  } else {
+    $r = &f_int($x_val);
+  }
+  return &define_ir(0, $r, 0, '');
+} # End of p.int
+
+# Entry point for multiply
 sub p_mul
 {
   my($x, $y) = @_;
   my($x_pt, $x_val, $x_unc, $y_pt, $y_val, $y_unc);
 
-  ($x_pt, $x_val, $x_unc) = &split($x);
-  ($y_pt, $y_val, $y_unc) = &split($y);
+  &dbg1("p_mul1 '$x' * '$y'", 32);
+
+  ($x_pt, $x_val, $x_unc) = &splt($x);
+  ($y_pt, $y_val, $y_unc) = &splt($y);
+
+  &dbg1("p_mul2 ($x_pt, $x_val, $x_unc) * ($y_pt, $y_val, $y_unc)", 32);
 
   ($x_pt, $x_val, $x_unc) = &pt_mul($x_pt, $x_val, $x_unc,
                                     $y_pt, $y_val, $y_unc);
 
-  return &define_ir($x_pt, $x_val, $x_unc);
-}
+  return &define_ir($x_pt, $x_val, $x_unc, '');
+} # End of p.mul
 
 sub p_div
 {
   my($x, $y) = @_;
   my($x_pt, $x_val, $x_unc, $y_pt, $y_val, $y_unc);
 
-  ($x_pt, $x_val, $x_unc) = &split($x);
-  ($y_pt, $y_val, $y_unc) = &split($y);
+  ($x_pt, $x_val, $x_unc) = &splt($x);
+  ($y_pt, $y_val, $y_unc) = &splt($y);
 
   ($x_pt, $x_val, $x_unc) = &pt_div($x_pt, $x_val, $x_unc,
                                     $y_pt, $y_val, $y_unc);
 
-  return &define_ir($x_pt, $x_val, $x_unc);
-}
+  return &define_ir($x_pt, $x_val, $x_unc, '');
+} # End of p.div
 
 sub p_negate
 {
   my($x) = @_;
   my($x_pt, $x_val, $x_unc);
 
-  ($x_pt, $x_val, $x_unc) = &split($x);
+  ($x_pt, $x_val, $x_unc) = &splt($x);
 
   ($x_pt, $x_val) = &pt_negate($x_pt, $x_val, $x_unc);
 
-  return &define_ir($x_pt, $x_val, $x_unc);
-}
+  return &define_ir($x_pt, $x_val, $x_unc, '');
+} # End of p.negate
 
 sub p_exp
 {
   my($x) = @_;
   my($x_pt, $x_val, $x_unc);
 
-  ($x_pt, $x_val, $x_unc) = &split($x);
+  ($x_pt, $x_val, $x_unc) = &splt($x);
 
   ($x_pt, $x_val, $x_unc) = &pt_exp($x_pt, $x_val, $x_unc);
 
-  return &define_ir($x_pt, $x_val, $x_unc);
-}
+  return &define_ir($x_pt, $x_val, $x_unc, '');
+} # End of p.exp
 
 sub p_ln
 {
   my($x) = @_;
   my($x_pt, $x_val, $x_unc);
 
-  ($x_pt, $x_val, $x_unc) = &split($x);
+  ($x_pt, $x_val, $x_unc) = &splt($x);
 
   ($x_pt, $x_val, $x_unc) = &pt_ln($x_pt, $x_val, $x_unc);
 
-  return &define_ir($x_pt, $x_val, $x_unc);
-}
+  return &define_ir($x_pt, $x_val, $x_unc, '');
+} # End of p.ln
 
 sub p_arctan
 {
   my($x) = @_;
   my($x_pt, $x_val, $x_unc);
 
-  ($x_pt, $x_val, $x_unc) = &split($x);
+  ($x_pt, $x_val, $x_unc) = &splt($x);
 
   ($x_pt, $x_val) = &pt_arctan($x_pt, $x_val);
 
-  return &define_ir($x_pt, $x_val, $x_unc);
-}
+  return &define_ir($x_pt, $x_val, $x_unc, '');
+} # End of p.arctan
 
 sub p_log10
 {
   my($x) = @_;
   my($x_pt, $x_val, $x_unc);
 
-  ($x_pt, $x_val, $x_unc) = &split($x);
+  ($x_pt, $x_val, $x_unc) = &splt($x);
 
   ($x_pt, $x_val, $x_unc) = &pt_log10($x_pt, $x_val, $x_unc);
 
-  return &define_ir($x_pt, $x_val, $x_unc);
-}
+  return &define_ir($x_pt, $x_val, $x_unc, '');
+} # End of p.log10
 
 sub p_pow
 {
   my($x, $y) = @_;
   my($x_pt, $x_val, $x_unc, $y_pt, $y_val, $y_unc);
 
-  ($x_pt, $x_val, $x_unc) = &split($x);
-  ($y_pt, $y_val, $y_unc) = &split($y);
+  ($x_pt, $x_val, $x_unc) = &splt($x);
+  ($y_pt, $y_val, $y_unc) = &splt($y);
 
   ($x_pt, $x_val, $x_unc) = &pt_pow($x_pt, $x_val, $x_unc,
                                     $y_pt, $y_val, $y_unc);
 
-  return &define_ir($x_pt, $x_val, $x_unc);
-}
+  return &define_ir($x_pt, $x_val, $x_unc, '');
+} # End of p.pow
 
 # %%% Accuracy is not good enough for scale>20. See notes in header.
 sub p_fact
@@ -6057,89 +6663,164 @@ sub p_fact
   my($x) = @_;
   my($x_pt, $x_val, $x_unc);
 
-  ($x_pt, $x_val, $x_unc) = &split($x);
-
-  ($x_pt, $x_val, $x_unc) = &pt_gamma(&pt_add($x_pt, $x_val, $x_unc,
+  # Handle integer argument
+  if (&simple_int($x, $curscale) && ($x >= 0) && ($x < 167)) {
+    $x_pt = 0;
+    $x_val = &intgam($x+1);
+    &dbg1("p.fact($x): intgam -> $x_val", 32);
+    $x_unc = $g_0;
+  } else {
+    ($x_pt, $x_val, $x_unc) = &splt($x);
+    ($x_pt, $x_val, $x_unc) = &pt_gamma(&pt_add($x_pt, $x_val, $x_unc,
                                               0, $g_1, 0));
-
-  return &define_ir($x_pt, $x_val, $x_unc);
-}
+  }
+  return &define_ir($x_pt, $x_val, $x_unc, '');
+} # End of p.fact
 
 sub p_sqrt
 {
   my($n) = @_;
   my($n_pt, $n_val, $n_unc);
 
-  ($n_pt, $n_val, $n_unc) = &split($n);
+  ($n_pt, $n_val, $n_unc) = &splt($n);
 
   ($n_pt, $n_val, $n_unc) = &pt_sqrt($n_pt, $n_val, $n_unc);
 
-  return &define_ir($n_pt, $n_val, $n_unc);
-}
+  return &define_ir($n_pt, $n_val, $n_unc, '');
+} # End of p.sqrt
 
 sub p_sin
 {
   my($n) = @_;
   my($n_pt, $n_val, $n_unc);
 
-  ($n_pt, $n_val, $n_unc) = &split($n);
+  ($n_pt, $n_val, $n_unc) = &splt($n);
 
   ($n_pt, $n_val, $n_unc) = &pt_sin($n_pt, $n_val, $n_unc);
 
-  return &define_ir($n_pt, $n_val, $n_unc);
-}
+  return &define_ir($n_pt, $n_val, $n_unc, '');
+} # End of p.sin
 
 sub p_cos
 {
   my($n) = @_;
   my($n_pt, $n_val, $n_unc);
 
-  ($n_pt, $n_val, $n_unc) = &split($n);
+  ($n_pt, $n_val, $n_unc) = &splt($n);
 
   ($n_pt, $n_val, $n_unc) = &pt_cos($n_pt, $n_val, $n_unc);
 
-  return &define_ir($n_pt, $n_val, $n_unc);
-}
+  return &define_ir($n_pt, $n_val, $n_unc, '');
+} # End of p.cos
 
 sub p_tan
 {
   my($n) = @_;
   my($n_pt, $n_val, $n_unc);
 
-  ($n_pt, $n_val, $n_unc) = &split($n);
+  ($n_pt, $n_val, $n_unc) = &splt($n);
 
   ($n_pt, $n_val, $n_unc) = &pt_tan($n_pt, $n_val, $n_unc);
 
-  return &define_ir($n_pt, $n_val, $n_unc);
-}
+  return &define_ir($n_pt, $n_val, $n_unc, '');
+} # End of p.tan
 
 sub p_root
 {
   my($r, $n) = @_;
   my($r_pt, $r_val, $r_unc, $n_pt, $n_val, $n_unc);
 
-  ($r_pt, $r_val, $r_unc) = &split($r);
-  ($n_pt, $n_val, $n_unc) = &split($n);
+  ($r_pt, $r_val, $r_unc) = &splt($r);
+  ($n_pt, $n_val, $n_unc) = &splt($n);
 
   ($r_pt, $r_val, $r_unc) = &pt_root($n_pt, $n_val, $n_unc,
                                      $r_pt, $r_val, $r_unc);
 
-  return &define_ir($r_pt, $r_val, $r_unc);
-}
+  return &define_ir($r_pt, $r_val, $r_unc, '');
+} # End of p.root
+
+sub p_1d_lookup
+{
+  my($op, $a) = @_;
+  my($a_pt, $a_val, $a_unc);
+  my($rv, $lvk);
+
+  &dbg1("pal1 $op($a)", 32);
+
+  ($a_pt, $a_val, $a_unc) = &splt($a);
+  # &dbg1("pal ($a_pt, $a_val, $a_unc)", 32);
+
+  $rv = '0';
+  if (&pvu_sint($a_pt, $a_val, $a_unc, 14)) {
+    # Create lvalue key
+    $lvk = "$op($a_val)";
+    if ($vars_pt{$lvk} ne "") {
+      $rv = &define_ir($vars_pt{$lvk}, $vars_val{$lvk},
+                                          $vars_unc{$lvk}, $lvk);
+    } else {
+      # not defined (yet) so we'll just use 0.
+      $rv = &define_ir(0, 0, 0, $lvk);
+    }
+  } else {
+    print STDERR ("*** Illegal array index '$a' in $op($a)"
+               . ( ($BASIC_running) ? " in line $g_BASIC_pc" : "")
+               . "\n");
+  }
+
+  return $rv;
+} # End of p.1d.lookup
+
+sub p_2d_lookup
+{
+  my($op, $a, $b) = @_;
+  my($a_pt, $a_val, $a_unc, $b_pt, $b_val, $b_unc);
+  my($rv, $lvk);
+
+  &dbg1("pal $op($a,$b)", 32);
+
+  ($a_pt, $a_val, $a_unc) = &splt($a);
+  ($b_pt, $b_val, $b_unc) = &splt($b);
+  # &dbg1("pal ($a_pt, $a_val, $a_unc), ($b_pt, $b_val, $b_unc)", 32);
+
+  $rv = '0';
+  if (&pvu_sint($a_pt, $a_val, $a_unc, 14)) {
+    if (&pvu_sint($b_pt, $b_val, $b_unc, 14)) {
+      # Create lvalue key
+      $lvk = "$op($a_val,$b_val)";
+      if ($vars_pt{$lvk} ne "") {
+        $rv = &define_ir($vars_pt{$lvk}, $vars_val{$lvk},
+                                          $vars_unc{$lvk}, $lvk);
+      } else {
+        # not defined (yet) so we'll just use 0.
+        $rv = &define_ir(0, 0, 0, $lvk);
+      }
+    } else {
+      print STDERR ("*** Illegal array index '$b'"
+               . ( ($BASIC_running) ? " in line $g_BASIC_pc" : "")
+               . "\n");
+    }
+  } else {
+    print STDERR ("*** Illegal array index '$a'"
+               . ( ($BASIC_running) ? " in line $g_BASIC_pc" : "")
+               . "\n");
+  }
+
+  return $rv;
+} # End of p.2d.lookup
 
 sub p_logn
 {
   my($b, $n) = @_;
   my($b_pt, $b_val, $b_unc, $n_pt, $n_val, $n_unc);
 
-  ($b_pt, $b_val, $b_unc) = &split($b);
-  ($n_pt, $n_val, $n_unc) = &split($n);
+  ($b_pt, $b_val, $b_unc) = &splt($b);
+  ($n_pt, $n_val, $n_unc) = &splt($n);
 
   ($n_pt, $n_val, $n_unc) = &pt_log_n($n_pt, $n_val, $n_unc,
                                       $b_pt, $b_val, $b_unc);
 
-  return &define_ir($n_pt, $n_val, $n_unc);
-}
+  return &define_ir($n_pt, $n_val, $n_unc, '');
+} # End of p.logn
 
 # addfunc: new functions can go here
 
@@ -6167,28 +6848,30 @@ endquote
 #----------------------------------------- parsing and evaluation
 #
 # These routines do all the parsing to calculate values of complex
-# expressions. It's all done with regular expressions and works
-# remarkably well.
-
+# expressions. It's all done with regular expressions, checking for all
+# possible operation in precedence order, and taking advantage if the
+# number-string duality in Perl. It works remarkably well.
+#
 sub eval_2
 {
   my($e) = @_;
   my($going);
   my($pre, $a, $op, $b, $post);
-  my($holdleft, $holdright, $hf);
+  my($holdleft, $holdright, $hf, $lvk);
 
-  &dbg1("ev2j $e", 2);
+  &dbg1("ev2a $e", 2);
 
   # expand.ihist sometimes leaves an expression that has an extra
   # set of parens around it
   $e =~ s|^\((.*)\)$|$1|;
 
-  &dbg1("ev2k $e", 2);
+  &dbg1("ev2b $e", 2);
 
   # beginning of parenthesis loop
   $going = 1; $hf = 0;
+  $g_possible_assign = 0;
   while($going) {
-    &dbg1("ev2a $e", 2);
+    &dbg1("ev2c $e", 2);
     # Evaluate inside parentheses
     if ($e =~ m|^(.+)\(([^\(\)]+)\)(.+)$|) {
       # The middle part is a subexpression inside parenthesis, which itself
@@ -6199,121 +6882,250 @@ sub eval_2
       # on
       $holdleft = $1; $e = "'" . $2 . "'"; $holdright = $3;
       $hf = 1;
-      &dbg1("ev2b hold: $holdleft   ( $e )   $holdright", 2);
+      &dbg1("ev2d hold: $holdleft   ( $e )   $holdright", 2);
     } elsif
     # operator ! (factorial)
     ($e =~ m|^(.*$p_nonarg)($p_arg)([!])($p_nonarg.*)$|) {
       $pre = $1; $a = $2; $op = $3; $post = $4;
-      &dbg1("ev2c $pre $a ! $post", 2);
+      &dbg1("ev2e $pre $a ! $post", 2);
       if ($op eq "!") {
         $e = $pre . &p_fact($a) . $post;
       }
       $e =~ s| ||g;
+      $g_possible_assign = 0;
+
     } elsif
-    # operator - (N, unary minus)
-    ($e =~ m|^(.*$p_nonarg)([N])($p_arg)($p_nonarg.*)$|) {
+    # operator - (N, unary minus) without parentheses
+    ($e =~ m|^(.*$p_na2)([N])($p_arg)($p_nonarg.*)$|) {
       $pre = $1; $op = $2; $a = $3; $post = $4;
-      &dbg1("ev2c $pre N $a $post", 2);
+      &dbg1("ev2f $pre N $a $post", 2);
       if ($op eq "N") {
         $e = $pre . &p_negate($a) . $post;
       }
       $e =~ s| ||g;
+      $g_possible_assign = 0;
+
     } elsif
     # single-parameter functions: arctan, cosine, ...
       # addfunc: add a symbol here
-    ($e =~ m|^(.*$p_nonarg)([ACKLQSTX])\{($p_arg)\}($p_nonarg.*)$|) {
+    ($e =~ m|^(.*$p_na2)([CKNQTX])\{($p_arg)\}($p_nonarg.*)$|) {
       $pre = $1; $op = $2; $a = $3; $post = $4;
-      &dbg1("ev2d $pre $op" . "{ $a } $post", 2);
+      &dbg1("ev2g $pre $op" . "{ $a } $post", 2);
       if ($op eq "X") {
         $e = $pre . &p_exp($a) . $post;
-      } elsif ($op eq "A") {
-        $e = $pre . &p_arctan($a) . $post;
       } elsif ($op eq "C") {
         $e = $pre . &p_cos($a) . $post;
       } elsif ($op eq "K") {
         $e = $pre . &p_ln($a) . $post;
-      } elsif ($op eq "L") {
-        $e = $pre . &p_log10($a,$b) . $post;
+      } elsif ($op eq "N") {
+        # Unary negate with parentheses (without parens is handled above)
+        $e = $pre . &p_negate($a) . $post;
       } elsif ($op eq "Q") {
         $e = $pre . &p_sqrt($a) . $post;
-      } elsif ($op eq "S") {
-        $e = $pre . &p_sin($a) . $post;
       } elsif ($op eq "T") {
         $e = $pre . &p_tan($a) . $post;
 
       # addfunc: new functions can go here
       } else {
-        print "eval_2 unrecog single-param symbol '$op', replacing with 0\n";
+        print "eval.2 unrecog single-param symbol '$op', replacing with 0\n";
         $e = $pre . "0" . $post;
       }
       $e =~ s| ||g;
+      $g_possible_assign = 0;
+
+    } elsif
+    ($e =~ m|^(.*$p_na2)([A-Z]+)\{($p_arg)\}($p_nonarg.*)$|) {
+      $pre = $1; $op = $2; $a = $3; $post = $4;
+      &dbg1("ev2h $pre $op" . "{ $a } $post", 2);
+      if (0) {
+      # addfunc: 1-argument functions go here
+      } elsif ($op eq "ARCTAN") {
+        $e = $pre . &p_arctan($a) . $post;
+      } elsif ($op eq "INT") {
+        $e = $pre . &p_int($a) . $post;
+      } elsif ($op eq "LOG") {
+        $e = $pre . &p_log10($a) . $post;
+      } elsif ($op eq "RND") {
+        $e = $pre . &p_rnd($a) . $post;
+      } elsif ($op eq "SIN") {
+        $e = $pre . &p_sin($a) . $post;
+      } else {
+        # Treat it as a 1-D array access
+        # %%% user-defined multiletter functions would also go here
+        &dbg1("ev2j $pre $op( $a ) $post", 2);
+        $e = $pre . &p_1d_lookup($op, $a) . $post;
+
+      # %%% addfunc: rest of standarrd multi-letter functions go here
+
+      }
+      $e =~ s| ||g;
+      $g_possible_assign = 0;
+
     } elsif
     # two-argument functions root and log_n
     ($e =~ m|^(.*$p_nonarg)([MV])\{($p_arg),($p_arg)\}($p_nonarg.*)$|) {
       $pre = $1; $op = $2; $a = $3; $b = $4; $post = $5;
-      &dbg1("ev2e $pre $op( $a , $b ) $post", 2);
+      &dbg1("ev2i $pre $op( $a , $b ) $post", 2);
       if ($op eq "V") {
         $e = $pre . &p_root($a, $b) . $post;
       } elsif ($op eq "M") {
         $e = $pre . &p_logn($a, $b) . $post;
       }
       $e =~ s| ||g;
+      $g_possible_assign = 0;
+
+    } elsif
+    ($e =~ m|^(.*$p_nonarg)($p_fname)\{($p_arg),($p_arg)\}($p_nonarg.*)$|) {
+      # try to treat it as a 2-D array read
+      $pre = $1; $op = $2; $a = $3; $b = $4; $post = $5;
+      &dbg1("ev2j $pre $op( $a , $b ) $post", 2);
+      $e = $pre . &p_2d_lookup($op, $a, $b) . $post;
+      $g_possible_assign = 0;
+
+#      if (&simple_int($a, 14) && &simple_int($b, 14)) {
+#        # Create lvalue key
+#        $lvk = "$op($a,$b)";
+#        if ($vars_pt{$lvk} ne "") {
+#          $e = $pre . &define_ir($vars_pt{$lvk}, $vars_val{$lvk},
+#                                            $vars_unc{$lvk}, $lvk) . $post;
+#          $e =~ s| ||g;
+#        } else {
+#          # not defined (yet) so we'll just use 0.
+#          $e = $pre . &define_ir(0, 0, 0, $lvk) . $post;
+#        }
+#      } elsif (&simple_int($a, 14)) {
+#        print STDERR ("*** Illegal array index '$b'"
+#                   . ( ($BASIC_running) ? " in line $g_BASIC_pc" : "")
+#                   . "\n");
+#        $e = $pre . '0' . $post;
+#      } else {
+#        print STDERR ("*** Illegal array index '$a'"
+#                   . ( ($BASIC_running) ? " in line $g_BASIC_pc" : "")
+#                   . "\n");
+#        $e = $pre . '0' . $post;
+#      }
+
     } elsif
     # exponents
     ($e =~ m/^(.*$p_nonarg)($p_arg)(\^|\*\*)($p_arg)($p_nonarg.*)$/) {
       $pre = $1; $a = $2; $op = $3; $b = $4; $post = $5;
-      &dbg1("ev2f $pre $a $op $b $post", 2);
+      &dbg1("ev2k $pre $a $op $b $post", 2);
       if (($op eq '^') || ($op eq '**')) {
         $e = $pre . &p_pow($a,$b) . $post;
       } else {
-        # Unrecognized op
-        print STDERR ("*** Unrecognized operator '$op'"
+        # Unrecognised op
+        print STDERR ("*** Unrecognised operator '$op'"
                    . ( ($BASIC_running) ? " in line $g_BASIC_pc" : "")
                    . "\n");
         $e = $pre . $a . $post;
       }
       $e =~ s| ||g;
+      $g_possible_assign = 0;
+
     } elsif
-    # multiplication and division
-    ($e =~ m|^(.*[-+><=\(\'])($p_arg)([x*/])($p_arg)($p_nonarg.*)$|) {
+    # multiplication, division, modulo
+    ($e =~ m|^(.*[-+><=~&\|\(\',])($p_arg)([\%x*/])($p_arg)($p_nonarg.*)$|) {
       $pre = $1; $a = $2; $op = $3; $b = $4; $post = $5;
-      &dbg1("ev2g $pre $a $op $b $post", 2);
+      &dbg1("ev2l $pre $a $op $b $post", 2);
       if (($op eq "*") || ($op eq "x")) {
         $e = $pre . &p_mul($a,$b) . $post;
-      } else {
+      } elsif ($op eq '/') {
         $e = $pre . &p_div($a,$b) . $post;
+      } else {
+        $e = $pre . &p_mod($a,$b) . $post;
       }
       $e =~ s| ||g;
+      $g_possible_assign = 0;
+
+    # %%% integer divide (quotient) to be added here
+    # for bc_xxx see trunc() function in ~/bin/calc-in (I need to set
+    # scale to 0, then restore it)
+
     } elsif
     # addition and subtraction
-    ($e =~ m|^(.*[><=\(\'])($p_arg)([-+])($p_arg)($p_nonarg.*)$|) {
+    ($e =~ m|^(.*[><=~&\|\(\',])($p_arg)([-+])($p_arg)($p_nonarg.*)$|) {
       $pre = $1; $a = $2; $op = $3; $b = $4; $post = $5;
-      &dbg1("ev2h $pre $a $op $b $post", 2);
+      &dbg1("ev2m $pre $a $op $b $post", 2);
       if ($op eq "+") {
         $e = $pre . &p_add($a,$b) . $post;
       } else {
         $e = $pre . &p_sub($a,$b) . $post;
       }
       $e =~ s| ||g;
+      $g_possible_assign = 0;
+
+    # %%% >> and << (bit shifts) would go here. Conveniently they go right
+    # before the other uses of '<' and '>' in precenence order.
+    # Their implementation in 300-digit precision is equivalent to multiply
+    # and quotient with an integer power of 2 as argument; and the right
+    # argument of a bit-shift operator needs to be converted to
+    # int(x) == x\1; so I should probably implement quotient n\d and
+    # integer exponent first.
+
     } elsif
-    # comparison
-    ($e =~ m|^(.*[\(\'])($p_arg)([><=][>=]?)($p_arg)($p_nonarg.*)$|) {
+    # comparison operators. Note that '=' and '==' both represent equality
+    ($e =~ m/^(.*[~&\|\(\',])($p_arg)(<|>|<=|>=|<>|=|==)($p_arg)($p_nonarg.*)$/) {
       $pre = $1; $a = $2; $op = $3; $b = $4; $post = $5;
-      &dbg1("ev2m $pre $a $op $b $post", 2);
+      &dbg1("ev2n $pre $a $op $b $post", 2);
       $e = $pre . &p_op_compare($op, $a, $b) . $post;
       $e =~ s| ||g;
 
-    # %%% boolean operators to be added here
+      $g_possible_assign = $poc_isassign;
+      $g_assign_lvk = $poc_lvk;
+      $g_assign_pt = $poc_rv_pt;
+      $g_assign_val = $poc_rv_val;
+      $g_assign_unc = $poc_rv_unc;
+
+    } elsif
+    # Boolean NOT
+    ($e =~ m/^(.*$p_nonarg)([~!])($p_arg)($p_nonarg.*)$/) {
+      $pre = $1; $op = $2; $b = $3; $post = $4;
+      &dbg1("ev2o $pre $op $b $post", 2);
+      $e = $pre . &p_not($b) . $post;
+      $e =~ s| ||g;
+      $g_possible_assign = 0;
+
+    } elsif
+    # Boolean (and sort of bitwise) AND
+    ($e =~ m/^(.*[\|\(\',])($p_arg)([&])($p_arg)($p_nonarg.*)$/) {
+      $pre = $1; $a = $2; $op = $3; $b = $4; $post = $5;
+      &dbg1("ev2p $pre $a $op $b $post", 2);
+      $e = $pre . &p_and($a, $b) . $post;
+      $e =~ s| ||g;
+      $g_possible_assign = 0;
+
+    } elsif
+    # Boolean (and sort of bitwise) OR
+    ($e =~ m/^(.*[\(\',])($p_arg)(\|)($p_arg)($p_nonarg.*)$/) {
+      $pre = $1; $a = $2; $op = $3; $b = $4; $post = $5;
+      &dbg1("ev2q $pre $a $op $b $post", 2);
+      $e = $pre . &p_or($a, $b) . $post;
+      $e =~ s| ||g;
+      $g_possible_assign = 0;
+
+    # %%% all of the boolean operators (bitwise and logical) to be
+    # added here. Bitwise could be used for logical (as in Visual
+    # BASIC); but if I decide to make those separate there need to be
+    # more levels of precedence.
+    #  ~ bitwise complement
+    #  & bitwise AND
+    #  | bitwise OR
+    #  !/~~/NOT logical NOT
+    #  &&/AND logical AND
+    #  ||/OR logical OR
+    # Also note that 300-digit precision bitwise is nontrivial to implement;
+    # nothing useful is provided by #bc# so I'd have to do a series of
+    # operations in base 2^40 or something like that.
 
     } elsif
     # then reduce parentheses
     ($hf) {
-      &dbg1("ev2i restore: $holdleft $e $holdright", 2);
+      &dbg1("ev2r restore: $holdleft $e $holdright", 2);
       $e =~ s/\'//g;
       # addfunc: add a symbol here
-      if ($holdleft =~ m|[ACKLMQSTVX]$|) {
-        # The parentheses contained a function's argument(s); make parens
-        # into {} for subsequent matching above
+      if ($holdleft =~ m|[_a-zA-Z0-9]$|) {
+        # The parentheses contained a function or array argument(s); make
+        # parens into {} for subsequent matching above
         $e = $holdleft . "{" . $e . "}" . $holdright;
       } else {
         # The parentheses were to override precedence
@@ -6325,21 +7137,24 @@ sub eval_2
     }
   }
 
-  &dbg1("ev2r $e", 2);
+  &dbg1("ev2s $e", 2);
+  if ($g_possible_assign) {
+    &dbg1("ev2t vars[$g_assign_lvk] := ($g_assign_pt, $g_assign_val, $g_assign_unc)", 2);
+  }
 
   return $e;
-} # End of eval_2
+} # End of eval.2
 
 # addfunc: modify this string
-$g_function_symbols = ":arctan.A:cos.C:inf.I:ln.K:log.L:logn.M:"
-                     . "pt.P:sqrt.Q:sqr.Q:sin.S:tan.T:root.V:exp.X:";
+$g_function_symbols = ":cos.C:inf.I:ln.K:logn.M:"
+                     . "pt.P:sqrt.Q:sqr.Q:tan.T:root.V:exp.X:";
 
 # eval.1 was the original main function for evaluating an input expression,
 # before command history substitution was added.
 sub eval_1
 {
   my($e) = @_;
-  my($s);
+  my($s, $pct, $pre, $v, $post, $p1);
 
   # init intermediate-result counter
   $ir_n = $ir_in;
@@ -6354,99 +7169,131 @@ sub eval_1
   # and in do.cmd6, so it shouldn't be necessary here
   if ($e =~ m/[A-Z]/) {
     $e = lc($e);
-    &dbg1("e1.01 -> $e", 8);
+    &dbg1("e1.02 -> $e", 8);
   }
 
   # Substitute "%" with previous answer
+  # %%% to allow % as an operator (modulo) we'll need to not do this mapping
+  # here and instead allow '%' to be recognised as a variable name
   if ($e =~ m|\%|) {
     # (a2_pt, a2_val, a2_unc) hold result of last call to this eval.1 routine
-    $s = &define_ir($a2_pt, $a2_val, $a2_unc);
-    $e =~ s|\%|$s|g;
-    &dbg1("e1.02 -> $e", 8);
+    $pct = &define_ir($a2_pt, $a2_val, $a2_unc, '');
+    &dbg1("e1.04 define pct = $pct", 1);
   }
 
   # Encode uncertainties in number literals using the reserved character 'U'.
   # This needs to be done before variable substution because the
   # parentheses around the uncertainty are too hard to deal with in
   # the rest of the parser.
-  #   Fortunately, the pattern we need to match looks like "3(7)", i.e.
-  # a digit followed by digit(s) in parentheses, and this pattern never
-  # occurs for any other reason (because we do not yet have user-defined
-  # functions: when we do then "f3(7)" would be a problem) and thus can be
-  # matched without regard for whatever symbols are adjacent.
-  #   Similarly, the resulting pattern "3U7" will not occur because of the
-  # uppercase U (it is similar to part of a variable name like "v3U7", but
-  # that will have been mapped onto lowercase "v3u7" b now).
-  #   %%% A function call like "avg3(7)" would get turned into "avg3U7"
-  # here, so this code will have to change. Probably we should do a first
-  # pass catching the numbers like "1p1000" and "1p1e100" first, then
-  # handle letterless numbers.
-  if ($e =~ m|([.0-9])\(([0-9]+)\)|) {
-    $e =~ s|([.0-9])\(([0-9]+)\)|$1."U".$2|ge;
-    &dbg1("e1.03 -> $e", 8);
+  #   The resulting pattern "3U7" will not occur because of the uppercase U
+  # (it is similar to part of a variable name like "v3U7", but that will
+  # have been mapped onto lowercase "v3u7" by now).
+  if ($e =~ m|([^_a-z0-9][0-9]*p?[.0-9]+)\(([0-9]+)\)|) {
+    $e =~ s|([^_a-z0-9][0-9]*p?[.0-9]+)\(([0-9]+)\)|$1."U".$2|ge;
+    &dbg1("e1.06 -> $e", 8);
   }
+
+  &dbg1("e1.07 $e", 8);
 
   # Substitute function names, variables and predefined constants
   # e, pi and phi
-  # Variables $s_e, $s_pi, etc. were created by &init_ir
-  while ($e =~ m|^(.*$p_nonvar)($p_var)($p_nonvar.*)$|) {
+  while ($e =~ m|^(.*$p_nonvar)($p_vr2)($p_nonvar.*)$|) {
     $pre = $1; $v = $2; $post = $3;
-    &dbg1("e1.04 |$pre|$v|$post|", 1);
-    if ($v eq "e") {
-      $s = $s_e;
-    } elsif ($v eq "pi") {
-      $s = $s_pi;
-    } elsif ($v eq "phi") {
-      $s = $s_phi;
-    } elsif ($g_function_symbols =~ m|\:$v\.(.)\:|)
-    {
+    "$post'" =~ m/^ *([^ ])/; $p1 = $1;
+    &dbg1("e1.08 |$pre|$v|$post|", 1);
+    if (0) {
+
+    # function and array names must be followed by '('
+
+    } elsif (($p1 eq '(') && ($g_function_symbols =~ m|\:$v\.(.)\:|)) {
       $s = $1;
-    } elsif ($v =~ m|^r([0-9]+)$|) {
+    } elsif (($p1 eq '(') && ($v eq 'rnd')) {
+      # random function - leave alone
+      $s = uc($v);
+    } elsif ($p1 eq '(') {
+
+      # Other newer functions like int end up being caught here
+
+#      # %%% any user-defined arrays and functions would fall here
+#      print STDERR ("*** Unrecognised function name $v"
+#                 . ( ($BASIC_running) ? " in line $g_BASIC_pc" : "")
+#                 . "\n");
+#      $s = " "; # Replace with something that won't match $p_var
+      $s = uc($v);
+
+    # variable-like tokens cannot be followed by '('
+    # Variables $s_e, $s_pi, etc. were created by &init_ir
+
+    } elsif (($p1 ne '(') && ($v eq "e")) {
+      $s = $s_e;
+    } elsif (($p1 ne '(') && ($v eq "false")) {
+      $s = 0;
+    } elsif (($p1 ne '(') && ($v eq "pi")) {
+      $s = $s_pi;
+    } elsif (($p1 ne '(') && ($v eq "phi")) {
+      $s = $s_phi;
+    } elsif (($p1 ne '(') && ($v eq "true")) {
+      $s = 1;
+    } elsif (($p1 ne '(') && ($v =~ m|^r([0-9]+)$|)) {
       # result history item -- leave it alone
       $s = "R" . $1;
-    } elsif ($vars_pt{$v} ne "") {
-      $s = &define_ir($vars_pt{$v}, $vars_val{$v}, $vars_unc{$v});
+    } elsif (($p1 ne '(') && ($v eq '%')) {
+      $s = $pct;
+
+#    } elsif (($p1 ne '(') && ($vars_pt{$v} ne "")) {
+    } elsif ($p1 ne '(') {
+      $s = &define_ir($vars_pt{$v}, $vars_val{$v}, $vars_unc{$v}, $v);
+
+    # operators made of letters have already been converted to non-letter
+    # equivalents (this is done in expand.ih2() )
+
     } else {
-      print STDERR ("*** Unrecognized variable/function name $v"
+      print STDERR ("*** Unrecognised name $v"
                  . ( ($BASIC_running) ? " in line $g_BASIC_pc" : "")
                  . "\n");
-      $s = " 0 "
+      $s = " 0 "; # Replace with something that won't match $p_var
+#      $s = uc($v);
     }
     $e = $pre . $s . $post;
-  }
+    &dbg1("e1.09 -> |$e|", 1);
+  } # end of while (match special vars)
 
-  &dbg1("e1.05 $e", 1);
+  &dbg1("e1.10 $e", 1);
 
   # now it's safe to eliminate spaces
   if ($e =~ m| |) {
     $e =~ s| ||g;
-    &dbg1("e1.06 -> $e", 8);
+    &dbg1("e1.12 -> $e", 8);
   }
 
   # put numbers in standard form
-  if ($e =~ m|([-\(\'\/*xe+,^<>=])-|) { # ) balance
-    $e =~ s|([-\(\'\/*xe+,^<>=])-|$1N|g; # ) balance
-    &dbg1("e1.07 -> $e", 8);
+  if ($e =~ m|([-\(\'\/%*xe+,^<>=])-|) { # ) balance
+    $e =~ s|([-\(\'\/%*xe+,^<>=])-|$1N|g; # ) balance
+    &dbg1("e1.14 -> $e", 8);
   }
   if ($e =~ m|([0-9.])e([N+0-9.])|) {
     $e =~ s|([0-9.])e([N+0-9.])|$1E$2|g;
-    &dbg1("e1.08 -> $e", 8);
+    &dbg1("e1.15 -> $e", 8);
   }
   if ($e =~ m|([0-9])p([N+0-9.])|) {
     $e =~ s|([0-9])p([N+0-9.])|$1P$2|g;
-    &dbg1("e1.09 -> $e", 8);
+    &dbg1("e1.16 -> $e", 8);
+  }
+  if ($e =~ m|([0-9])u([0-9])|) {
+    $e =~ s|([0-9])u([0-9])|$1U$2|g;
+    &dbg1("e1.17 -> $e", 8);
   }
 
-  &dbg1("e1.10 $e", 1);
+  &dbg1("e1.20 $e", 1);
 
   # do the actual parsing and evaluation
   $e = &eval_2($e);
 
-  &dbg1("e1.11 $e", 1);
+  &dbg1("e1.22 $e", 1);
 
   $e =~ s/\'//g;
 
-  &dbg1("e1.12 $e", 1);
+  &dbg1("e1.24 $e", 1);
 
   if ($e =~ m|^I([0-9]+)$|) {
     # result is a single IR
@@ -6454,17 +7301,17 @@ sub eval_1
     $a2_pt = $ir_pt[$e];
     $a2_val = $ir_val[$e];
     $a2_unc = $ir_unc[$e];
-    dbg1("e1.13 res I$e = $a2_pt" . "P$a2_val", 2);
+    dbg1("e1.26 res I$e = $a2_pt" . "P$a2_val", 2);
   } elsif ($e =~ m|^I[0-9]|) {
     # We have an IR followed by other unevaluated stuff
     print STDERR ("*** Invalid syntax; I was left with '$e' (ev1)\n");
   } else {
     # result is a literal
-    ($a2_pt, $a2_val, $a2_unc) = &split($e);
-    dbg1("e1.14 lit $a2_pt" . "P$a2_val", 2);
+    ($a2_pt, $a2_val, $a2_unc) = &splt($e);
+    dbg1("e1.28 lit $a2_pt" . "P$a2_val", 2);
   }
 
-  dbg1("e1.15 $a2_pt" . "P$a2_val", 2);
+  dbg1("e1.30 $a2_pt" . "P$a2_val", 2);
 
   return ($a2_pt, $a2_val, $a2_unc);
 } # End of eval.1
@@ -6473,208 +7320,12 @@ sub eval_1
 #
 # initialization, main command loop, help, etc.
 
-# Compute pi using the Baily-Plouffe hexadecimal series, which
-# converges quite quickly
-sub init_pi_1
-{
-  my($f1, $i, $d);
-
-  &dbg1("init_pi_1", 2);
-  $g_pi = $g_0;
-  $f1 = $g_1;
-  $i = $g_0;
-  $d = $g_1;
-  while (&f_gt($f1, $prec)) {
-    $i_f = $i; $i_f = &f_mul($g_8, $i_f);
-    $f1 =             &f_div($g_4, &f_add($i_f, $g_1));
-    $f1 = &f_sub($f1, &f_div($g_2, &f_add($i_f, $g_4)));
-    $f1 = &f_sub($f1, &f_div($g_1, &f_add($i_f, $g_5)));
-    $f1 = &f_sub($f1, &f_div($g_1, &f_add($i_f, $g_6)));
-    $f1 = &f_div($f1, $d);
-    $d = &f_mul($d, $g_16);
-    &dbg1("hi_init g_pi term", 1);
-    $g_pi = &f_add($g_pi, $f1);
-    $i = &f_add($i, $g_1);
-  }
-  &dbg1("init_pi_1 done: " . &prnt2($g_pi, 0, 0, 0), 2);
-} # End of init_pi_1
-
-# Compute pi using a formula based on the Gauss arithmetic-geometric mean
-# method. Number of digits doubles with each loop.
-sub init_pi_2
-{
-  my($x, $y, $a, $b, $c, $ct, $i);
-
-  &dbg1("init_pi_2", 2);
-
-  $a = $x = $g_1; $b = &f_div($g_1, &f_sqrt($g_2)); $c = &f_div($g_1, $g_4);
-  for($i=1; $i<$curscale; $i*=2) {
-    $y = $a;
-    $a = &f_div(&f_add($a, $b), $g_2);
-    $b = &f_sqrt(&f_mul($b, $y));
-    $ct = &f_sub($a, $y);
-    $c = &f_sub($c, &f_mul($x, &f_mul($ct, $ct)));
-    $x = &f_mul($x, $g_2);
-  }
-  $ct = &f_add($a, $b);
-  $g_pi = &f_div(&f_mul($ct, $ct), &f_mul($g_4, $c));
-
-  &dbg1("init_pi_2 done: " . &prnt2($g_pi, 0, 0, 0), 2);
-} # End of init_pi_2
-
-# Define intermediate results for predefined constants e, pi and phi
-sub init_ir
-{
-  $ir_n = 0;
-
-  $s_e = &define_ir(0, $g_e, 0);
-  $s_pi = &define_ir(0, $g_pi, 0);
-  $s_phi = &define_ir(0, $g_phi, 0);
-
-  $ir_in = $ir_n;
-}
-
-sub set_var
-{
-  my ($setvar, $lv_pt, $lv_val, $lv_unc) = @_;
-
-  $vars_pt{$setvar} = $lv_pt;
-  $vars_val{$setvar} = $lv_val;
-  $vars_unc{$setvar} = $lv_unc;
-}
-
-# This part of initialization is the same for both types of primitives.
-sub hi_init
-{
-  my($i, $f);
-  my($prec);
-  my($f1, $i_f, $d);
-
-  $g_ln_10 = &f_ln($g_10);
-  $g_log10_e = &f_div($g_1, $g_ln_10);
-
-  &dbg1("hi_init prec", 1);
-  $prec = &f_div($g_1, &f_pow10(&f_add($curscale, $g_2)));
-  $roundprec = &f_div($g_0_5, &f_pow10($curscale));
-  # Constants used for handling roundoff, overflow, boundary
-  # conditions, etc.
-  $g_ovr1 = "+1.0E300";
-  $g_log10_ovr1 = "300.0";
-
-  # ln(10^300) = ln(10) * 300
-  $g_ln_ovr1 = &f_mul($g_ln_10, $g_log10_ovr1);
-
-  # Compute how big the argument of Gamma needs to be in order to guarantee
-  # that we get the requested precision. The first neglected term in the
-  # Stirling series is "+ 657931/(300 N^25)". For D digits of precision, we
-  # want this to be smaller than 10^-D (this is a bit conservative, because
-  # the largest term in the series is the initial "N ln(N)" and N will always
-  # be at least as big as the value we're about to compute). Setting
-  # 657931/(300 N^25) equal to 10^-D, we get:
-  #   2193.10333.../N^25 = 1/10^D
-  #   2193.10333... = N^25/10^D
-  #   2193.10333... * 10^D = N^25
-  #   N = (2193.10333... * 10^D)^(1/25)
-  #     = 2193.10333...^(1/25) * 10^(D/25)
-  #     = 1.360324... * 10^(D/25)
-  $gamma_minarg = &f_mul("1.360324", &f_pow10(&f_div($curscale, "25.0")));
-
-  # However, we don't want to be looping too many times in the iteration that
-  # makes N bigger than gamma_minarg. So, if it's bigger than a "tolerable"
-  # level, we report it.
-  # %%% For possible fixes to the Gamma precision issue, see notes in header.
-  $g_gammalim = "24.0";
-  if (&f_gt($gamma_minarg, $g_gammalim)) {
-    # We will set $gamma_minarg to $g_gammalim
-
-    # So now we compute that first neglected term explicitly from the
-    # minarg value we will actually use...
-    $gammadig = &f_int(&f_neg(&f_log10(
-                  &f_div("2193.10333", &f_pow($g_gammalim, "25.0"))
-                )));
-    # And if this turns out to be less precise than they asked for, we
-    # can complain about it...
-    if ($gammadig < $curscale) {
-      if ($warned_gdsc != $curscale) {
-        $msg1 = "Note: For all values less than " . ($g_gammalim-1)
-              . ", factorial will give only " . &prnt2($gammadig, 0, 0, 0)
-              . " digits\n"
-              . "      of accuracy; and for values less than "
-              . sprintf("%.3f", $gamma_minarg + 0)
-              . ", it will give fewer\n"
-              . "      than the requested $curscale digits.\n";
-        print $msg1;
-        $warned_gdsc = $curscale;
-      }
-    }
-
-    $gamma_minarg = $g_gammalim;
-  }
-
-  # high-level constants
-
-  # compute constant e
-  $g_e = $g_1; $f = 1;
-  for($i=1; ($i < 172) && (&f_gt($f, $prec)); $i++) {
-    $f = &f_div($f, $i); $g_e = &f_add($g_e, $f);
-  }
-
-  # Compute pi using the Baily-Plouffe hexadecimal series, which
-  # converges quite quickly
-  &init_pi_2();
-  $g_sin_limit = &f_mul($g_2p32m1, $g_pi);
-
-  $g_phi = &f_div(&f_add(&f_sqrt($g_5), $g_1), $g_2);
-
-  &dbg1("hi_init g_05_ln_2pi", 1);
-  $g_05_ln_2pi = &f_mul($g_0_5, &f_ln(&f_mul($g_2, $g_pi)));
-
-  $g_log10_log10_e = &f_log10($g_log10_e);
-  $g_log10_2 = &f_log10($g_2);
-
-  # recreate the native floating point infinities usinf f_mul. These count
-  # on f_mul generating the infinite values.
-  $g_inf = inf;
-  $g_ninf = -inf;
-
-  # PT Infinities have a native (double) infinity in the PT field
-  $g_pt_inf = inf;
-  $g_pt_nan = nan;
-
-  # constants used for output formatting
-  $g_ee_b4 =  &f_pow10($curscale - $g_min_mant_digits);
-
-  &init_ir();
-
-  # A few of the popular big numbers are pre-defined as variables.
-  # These PT-Val tuples should work in all scales because the most
-  # complex mantissa is the "3.000003" for milli-millillion.
-  &set_var("million", 0, "1.0E6", 0);
-  &set_var("billion", 0, "1.0E9", 0);
-  &set_var("trillion", 0, "1.0E12", 0);
-  &set_var("quadrillion", 0, "1.0E15", 0);
-  &set_var("quintillion", 0, "1.0E18", 0);
-  &set_var("sextillion", 0, "1.0E21", 0);
-  &set_var("septillion", 0, "1.0E24", 0);
-  &set_var("octillion", 0, "1.0E27", 0);
-  &set_var("nonillion", 0, "1.0E30", 0);
-  &set_var("decillion", 0, "1.0E33", 0);
-  &set_var("vigintillion", 0, "1.0E63", 0);
-  &set_var("googol", 0, "1.0E100", 0);
-  &set_var("centillion", 1, "3.03E2", 0);
-  &set_var("millillion", 1, "3.003E3", 0); # Conway-Wechsler's "millinillion"
-  &set_var("milli_millillion", 1, "3.000003E6", 0);
-  &set_var("sand_reckoner", 1, "1.0E16", 0);
-  &set_var("googolplex", 1, "1.0E100", 0);
-  &set_var("skewes", 2, "1.0E34", 0);
-} # End of hi_init
-
 # Print a value that is in floating-point or scientific notation, converting
 # if necessary to floating-point and adding or truncating mantissa digits
 # to match the current scale.
 sub prnt3
 {
-  my($x, $paren, $force_ee) = @_;
+  my($x, $paren, $force_ee, $suppress_1) = @_;
   my($m1, $e, $s, $m2, $m3, $s2, $output, $e1, $e2);
 
   print "prnt3 01($x, $paren)\n" if ($format_debug);
@@ -6793,7 +7444,10 @@ sub prnt3
       $x =~ s|0+$||;
       $x =~ s|\.$||;
       print "prnt3 07c: '$x'\n" if ($format_debug);
-      $output .= "$x$multstr$k10$powstr$e_lstr$e$e_rstr";
+      if (($suppress_1 == 0) || ($x ne '1')) {
+        $output .= "$x$multstr";
+      }
+      $output .= "$k10$powstr$e_lstr$e$e_rstr";
     }
     $output .= $p1_rstr if ($paren);
   } else {
@@ -6838,6 +7492,241 @@ sub prnt3
   print "prnt3: $output\n" if ($format_debug);
   return $output;
 } # End of prnt3
+
+# Convert a floating-point value to the properly formatted form (for the
+# current print format), then insert the uncertainty digits if needed.
+sub prnt2
+{
+  my($x_val, $x_unc, $paren, $force_ee, $suppress_1) = @_;
+  my($rv);
+
+  print "prnt2($x_val, $x_unc, $paren, $force_ee, $suppress_1)\n" if ($format_debug);
+
+  if ($x_unc != 0) {
+    $suppress_1 = 0;
+  }
+  $rv = &prnt3($x_val, $paren, $force_ee, $suppress_1);
+
+  if ($x_unc != 0) {
+    $rv = &insert_uncertainty($rv, $x_val, $x_unc);
+  }
+
+  return $rv;
+}
+
+# Compute pi using the Baily-Plouffe hexadecimal series, which
+# converges quite quickly
+sub init_pi_1
+{
+  my($f1, $i, $d);
+
+  &dbg1("init_pi_1", 2);
+  $g_pi = $g_0;
+  $f1 = $g_1;
+  $i = $g_0;
+  $d = $g_1;
+  while (&f_gt($f1, $prec)) {
+    $i_f = $i; $i_f = &f_mul($g_8, $i_f);
+    $f1 =             &f_div($g_4, &f_add($i_f, $g_1));
+    $f1 = &f_sub($f1, &f_div($g_2, &f_add($i_f, $g_4)));
+    $f1 = &f_sub($f1, &f_div($g_1, &f_add($i_f, $g_5)));
+    $f1 = &f_sub($f1, &f_div($g_1, &f_add($i_f, $g_6)));
+    $f1 = &f_div($f1, $d);
+    $d = &f_mul($d, $g_16);
+    &dbg1("init.pi_1 g_pi term", 1);
+    $g_pi = &f_add($g_pi, $f1);
+    $i = &f_add($i, $g_1);
+  }
+  print "init_pi_1 pr $g_pi\n" if ($format_debug);
+  $d = &prnt2($g_pi, 0, 0, 0, 0);
+  &dbg1("init_pi_1 done: $d", 2);
+} # End of init_pi_1
+
+# Compute pi using a formula based on the Gauss arithmetic-geometric mean
+# method. Number of digits doubles with each loop.
+sub init_pi_2
+{
+  my($x, $y, $a, $b, $c, $ct, $i);
+
+  &dbg1("init_pi_2", 2);
+
+  $a = $x = $g_1; $b = &f_div($g_1, &f_sqrt($g_2)); $c = &f_div($g_1, $g_4);
+  &dbg1("init_pi_2 a=$a, b=$b, c=$c", 2);
+  for($i=1; $i<($curscale+2); $i*=2) {
+    $y = $a;
+    &dbg1("init_pi_2   y=$y", 2);
+    $a = &f_div(&f_add($a, $b), $g_2);
+    &dbg1("init_pi_2   a=$a", 2);
+    $b = &f_sqrt(&f_mul($b, $y));
+    &dbg1("init_pi_2   b=$b", 2);
+    $ct = &f_sub($a, $y);
+    &dbg1("init_pi_2   ct=$ct", 2);
+    $c = &f_sub($c, &f_mul($x, &f_mul($ct, $ct)));
+    &dbg1("init_pi_2   c=$c", 2);
+    $x = &f_mul($x, $g_2);
+    &dbg1("init_pi_2   x=$x", 2);
+  }
+  $ct = &f_add($a, $b);
+  &dbg1("init_pi_2 ct=$ct", 2);
+  $a = &f_mul($ct, $ct);
+  &dbg1("init_pi_2 a=$a", 2);
+  $b = &f_mul($g_4, $c);
+  &dbg1("init_pi_2 b=$b", 2);
+  $g_pi = &f_div($a, $b);
+  &dbg1("init_pi_2 g_pi=$g_pi", 2);
+  print "init_pi_2 pr $g_pi\n" if ($format_debug);
+  $c = &prnt2($g_pi, 0, 0, 0, 0);
+  &dbg1("init_pi_2 done: $c", 2);
+} # End of init_pi_2
+
+# Define intermediate results for predefined constants e, pi and phi
+sub init_ir
+{
+  $ir_n = 0;
+
+  $s_e = &define_ir(0, $g_e, 0, '');
+  $s_pi = &define_ir(0, $g_pi, 0, '');
+  $s_phi = &define_ir(0, $g_phi, 0, '');
+
+  $ir_in = $ir_n;
+}
+
+sub set_var
+{
+  my ($vname, $lv_pt, $lv_val, $lv_unc) = @_;
+
+  $vars_pt{$vname} = $lv_pt;
+  $vars_val{$vname} = $lv_val;
+  $vars_unc{$vname} = $lv_unc;
+} # End of set.var
+
+# This part of initialization is the same for both types of primitives.
+sub hi_init
+{
+  my($prflag) = @_;
+  my($i, $f);
+  my($prec);
+  my($f1, $i_f, $d);
+
+  $g_ln_10 = &f_ln($g_10);
+  $g_log10_e = &f_div($g_1, $g_ln_10);
+
+  &dbg1("hi.init prec", 1);
+  $prec = &f_div($g_1, &f_pow10($curscale + 2));
+  $roundprec = &f_div($g_0_5, &f_pow10($curscale));
+  # Constants used for handling roundoff, overflow, boundary
+  # conditions, etc.
+  $g_ovr1 = "+1.0E300";
+  $g_log10_ovr1 = "300.0";
+
+  # ln(10^300) = ln(10) * 300
+  $g_ln_ovr1 = &f_mul($g_ln_10, $g_log10_ovr1);
+
+  # Compute how big the argument of Gamma needs to be in order to guarantee
+  # that we get the requested precision. The first neglected term in the
+  # Stirling series is "+ 657931/(300 N^25)". For D digits of precision, we
+  # want this to be smaller than 10^-D (this is a bit conservative, because
+  # the largest term in the series is the initial "N ln(N)" and N will always
+  # be at least as big as the value we're about to compute). Setting
+  # 657931/(300 N^25) equal to 10^-D, we get:
+  #   2193.10333.../N^25 = 1/10^D
+  #   2193.10333... = N^25/10^D
+  #   2193.10333... * 10^D = N^25
+  #   N = (2193.10333... * 10^D)^(1/25)
+  #     = 2193.10333...^(1/25) * 10^(D/25)
+  #     = 1.360324... * 10^(D/25)
+  $gamma_minarg = &f_mul("1.360324", &f_pow10(&f_div($curscale, "25.0")));
+  &dbg1("hi.init gamma_minarg=" . sprintf("%f", $gamma_minarg), 32);
+
+  # However, we don't want to be looping too many times in the iteration that
+  # makes N bigger than gamma_minarg. So, if it's bigger than a "tolerable"
+  # level, we report it.
+  # %%% For possible fixes to the Gamma precision issue, see notes in header.
+  $g_gammalim = "101.0";
+  if (&f_gt($gamma_minarg, $g_gammalim)) {
+    # We will set $gamma_minarg to $g_gammalim
+
+    # So now we compute that first neglected term explicitly from the
+    # minarg value we will actually use...
+    $gammadig = &f_int(&f_neg(&f_log10(
+                  &f_div("2193.10333", &f_pow($g_gammalim, "25.0"))
+                )));
+    # And if this turns out to be less precise than they asked for, we
+    # can complain about it...
+    if ($gammadig < $curscale) {
+      if ($warned_gdsc != $curscale) {
+        $msg1 = "Note: For all values less than " . ($g_gammalim-1)
+              . ", factorial will give only " . &prnt2($gammadig, 0, 0, 0, 0)
+              . " digits\n"
+              . "      of accuracy; and for values less than "
+              . sprintf("%.0f", $gamma_minarg + 1.0)
+              . ", it will give fewer\n"
+              . "      than the requested $curscale digits.\n";
+        print $msg1 if ($prflag);
+        $warned_gdsc = $curscale;
+      }
+    }
+
+    $gamma_minarg = $g_gammalim;
+  }
+
+  # high-level constants
+
+  # compute constant e
+  $g_e = $g_1; $f = 1;
+  for($i=1; ($i < 172) && (&f_gt($f, $prec)); $i++) {
+    $f = &f_div($f, $i); $g_e = &f_add($g_e, $f);
+  }
+
+  # Compute pi using the Baily-Plouffe hexadecimal series, which
+  # converges quite quickly
+  &init_pi_2();
+  $g_sin_limit = &f_mul($g_2p32m1, $g_pi);
+
+  $g_phi = &f_div(&f_add(&f_sqrt($g_5), $g_1), $g_2);
+
+  &dbg1("hi.init g_05_ln_2pi", 1);
+  $g_05_ln_2pi = &f_mul($g_0_5, &f_ln(&f_mul($g_2, $g_pi)));
+
+  $g_log10_log10_e = &f_log10($g_log10_e);
+  $g_log10_2 = &f_log10($g_2);
+
+  # recreate the native floating point infinities usinf f_mul. These count
+  # on f_mul generating the infinite values.
+  $g_inf = inf;
+  $g_ninf = -inf;
+
+  # PT Infinities have a native (double) infinity in the PT field
+  $g_pt_inf = inf;
+  $g_pt_nan = nan;
+
+  # constants used for output formatting
+  $g_ee_b4 =  &f_pow10($curscale - $g_min_mant_digits);
+
+  &init_ir();
+
+  # A few of the popular big numbers are pre-defined as variables.
+  # These PT-Val tuples should work in all scales because the most
+  # complex mantissa is the "3.000003" for milli-millillion.
+  &set_var("million", 0, "1.0E6", 0);
+  &set_var("billion", 0, "1.0E9", 0);
+  &set_var("trillion", 0, "1.0E12", 0);
+  &set_var("quadrillion", 0, "1.0E15", 0);
+  &set_var("quintillion", 0, "1.0E18", 0);
+  &set_var("sextillion", 0, "1.0E21", 0);
+  &set_var("septillion", 0, "1.0E24", 0);
+  &set_var("octillion", 0, "1.0E27", 0);
+  &set_var("nonillion", 0, "1.0E30", 0);
+  &set_var("decillion", 0, "1.0E33", 0);
+  &set_var("vigintillion", 0, "1.0E63", 0);
+  &set_var("googol", 0, "1.0E100", 0);
+  &set_var("centillion", 1, "3.03E2", 0);
+  &set_var("millillion", 1, "3.003E3", 0); # Conway-Wechsler's "millinillion"
+  &set_var("milli_millillion", 1, "3.000003E6", 0);
+  &set_var("sand_reckoner", 1, "1.0E16", 0);
+  &set_var("googolplex", 1, "1.0E100", 0);
+  &set_var("skewes", 2, "1.0E34", 0);
+} # End of hi.init
 
 # This routine inserts the uncertainty digits into the proper point in the
 # mantissa portion of a text string representing a formatted value. The text
@@ -6945,23 +7834,7 @@ sub insert_uncertainty
   $rv =~ s/ +$//;
 
   return $rv;
-} # End of insert_uncertainty
-
-# Convert a floating-point value to the properly formatted form (for the
-# current print format), then insert the uncertainty digits if needed.
-sub prnt2
-{
-  my($x_val, $x_unc, $paren, $force_ee) = @_;
-  my($rv);
-
-  $rv = &prnt3($x_val, $paren, $force_ee);
-
-  if ($x_unc != 0) {
-    $rv = &insert_uncertainty($rv, $x_val, $x_unc);
-  }
-
-  return $rv;
-}
+} # End of insert.uncertainty
 
 # Constants and functions used by the label formatting routines
 $k_1e5 = 100000.0;
@@ -7213,7 +8086,7 @@ sub format5
     $rv = "le" . &canon_sci($ae, 3, $am, 5);
   } elsif ($av >= 0.1) {
     # l0_1, l9_34, la10_2, lb256, ld19683
-    $av = &prnt3($av, 0, 0);
+    $av = &prnt3($av, 0, 0, 0);
     $rv = "l" . &canon_real($av, 6);
   } else {
     # Smaller than 0.1 -- not handling alphabetization yet
@@ -7314,7 +8187,7 @@ sub format7
     $rv = &cv_10_60($av);
   } elsif ($au < 60) {
     $m = int($av / 60); $s = $av - (60 * $m);
-    $s = &prnt2(100+$s, $au, 0, 0);
+    $s = &prnt2(100+$s, $au, 0, 0, 0);
     if ($s =~ m/^1([0-9][0-9].*)$/) {
       $s = $1;
     } else {
@@ -7374,7 +8247,7 @@ sub prnt1
 {
   my($apt, $av, $au, $newline) = @_;
   my($avi, $avf, $avl, $avl2, $output);
-  my($f5_lbl);
+  my($f5_lbl, $afm);
 
   print "prnt1($apt, $av, $au, $newline)...\n" if ($format_debug);
 
@@ -7406,7 +8279,7 @@ sub prnt1
   } elsif ($apt == 0) {
     # Format a PT0.
     print "prnt1 case la-le\n" if ($format_debug);
-    $output = &prnt2($av, $au, 0, 0);
+    $output = &prnt2($av, $au, 0, 0, 1);
   } else {
     # We need to print either "$apt PT $av" or "($apt-1) PT (10^$av)"
     # depending on whether or not $av is less than 10^scale
@@ -7417,27 +8290,33 @@ sub prnt1
       # which will arrive here with the representation 1P2345.67 or
       # 1P2.34567e3. We have to subtract 1 from pt and compute mantissa
       # of 10 ^ val
+      # %%% 20190327: Note that this shares a lot of concepts with prnt3
+      # and duplicates some functions; it might be nice to figure out how
+      # to combine these.
 
       # get exponent
       $avi = &f_int($av);
 
       # figure out how many digits of mantissa we can print
-      $avl = &f_int(&f_log10($avi)) + 1;
+      # %%% formerly: &f_int(&f_log10($avi)) + 1;  - 20190408
+      $avl = int(log($avi)/log(10)) + 1;
       $avl = $curscale - $avl;
       $avl =~ s| ||g;
       $avl2 = $avl + 1; # 1 extra for decimal point (we'll remove sign)
       $avl2 =~ s| ||g;
 
       # compute mantissa
-      $avf = &f_sub($av, $avi);
-      $avf = &f_pow10($avf);
+      &dbg1("prnt1a mant $av - $avi", 32);
+      $avf = &f_pow10(&f_sub($av, $avi));
+      &dbg1("prnt1b        -> $avf", 32);
       # remove leading + sign if any (present if fbc_xxx maths is being used)
       $avf =~ s/^[+]//;
 
       print "prnt1 avf $avf avi $avi avl2 $avl2\n" if ($format_debug);
 
       # discard insignificant digits of mantissa. We know $avf is
-      # of the form D.DDDDDDDDD where D is a digit.
+      # of the form D.DDDDDDDDD where D is a digit; and pt.roundup was already
+      # used to deal with trailing "999"s so truncation is suitable here.
       if (length($avf) > $avl2) {
         $avf =~ m|^(.{$avl2})|;
         $avf = $1;
@@ -7450,37 +8329,47 @@ sub prnt1
       # Discard leading '+'
       $avf =~ s|^\+||;
 
+      # Handle the "suppress_1" option
+      $afm = "$avf$multstr";
+      if ($afm eq "1$multstr") {
+        $afm = "";
+      }
+
       # Handle first three PT classes separately.
       if ($apt == 1) {
+        # 10^1001
         print "prnt1 case p1_a\n" if ($format_debug);
-        $output .= &prnt2($avf, 0, 0, 0) . "$multstr$k10$powstr$e_lstr"
-                   . &prnt2($avi, 0, 0, 0) . $e_rstr;
+        $output .= "$afm$k10$powstr$e_lstr"
+                   . &prnt2($avi, 0, 0, 0, 0) . $e_rstr;
       } elsif ($apt == 2) {
+        # 10 ^ ( 10 ^ 1001 )
         print "prnt1 case p2_a\n" if ($format_debug);
-        $output .= "$k10$powstr$e_lstr$p1_lstr$avf$multstr$k10$powstr$e_lstr"
-                    . &prnt2($avi, 0, 0, 0) . "$e_rstr$p1_rstr$e_rstr";
+        $output .= "$k10$powstr$e_lstr$p1_lstr$afm$k10$powstr$e_lstr"
+                    . &prnt2($avi, 0, 0, 0, 0) . "$e_rstr$p1_rstr$e_rstr";
       } elsif ($apt == 3) {
         print "prnt1 case p3_a\n" if ($format_debug);
         $output .= "$k10$powstr$e_lstr$p2_lstr$k10$powstr$e_lstr$p1_lstr"
-                   . "$avf$multstr$k10$powstr$e_lstr" . &prnt2($avi, 0, 0, 0)
+                   . "$afm$k10$powstr$e_lstr" . &prnt2($avi, 0, 0, 0, 0)
                    . "$e_rstr$p1_rstr$e_rstr$p2_rstr$e_rstr";
       } else {
         print "prnt1 case p4_a\n" if ($format_debug);
         $apt -= 1;
-        $output .= "$apt$pt_str$p1_lstr$avf$multstr$k10$powstr$e_lstr"
-                   . &prnt2($avi, 0, 0, 0) . "$e_rstr$p1_rstr";
+        $output .= "$apt$pt_str$p1_lstr$afm$k10$powstr$e_lstr"
+                   . &prnt2($avi, 0, 0, 0, 0) . "$e_rstr$p1_rstr";
       }
     } else {
+      print "prnt1 case _e $av\n" if ($format_debug);
+      $afm = &prnt2($av, 0, 1, 1, 1);
       if ($apt == 1) {
         print "prnt1 case p1_e\n" if ($format_debug);
-        $output .= "$k10$powstr$e_lstr" . &prnt2($av, 0, 1, 1) . $e_rstr;
+        $output .= "$k10$powstr$e_lstr$afm$e_rstr";
       } elsif ($apt == 2) {
         print "prnt1 case p2_e\n" if ($format_debug);
         $output .= "$k10$powstr$e_lstr$p2_lstr$k10$powstr$e_lstr"
-                    . &prnt2($av, 0, 1, 1) . "$e_rstr$p2_rstr$e_rstr";
+                    . "$afm$e_rstr$p2_rstr$e_rstr";
       } else {
         print "prnt1 case p3_e\n" if ($format_debug);
-        $output .= "$apt$pt_str" . &prnt2($av, 0, 1, 1);
+        $output .= "$apt$pt_str$afm";
       }
     }
   }
@@ -7494,7 +8383,8 @@ sub prnt1
   }
   print $output;
   if ($fmt_callproc eq "format5") {
-    print("#\n  See also [$output|#$f5_lbl].");
+    print("# = $lastc6in\n");
+    print("  See also [$output|#$f5_lbl].");
   }
   if ($newline) {
     print "\n"; $lleft = 78;
@@ -7612,16 +8502,14 @@ sub expand_C_hist
   return $rv;
 } # End of expand.C_hist
 
-# expand_ih2 interpolates commands like "c3" into the input string,
+# expand.ih2 interpolates commands like "c3" into the input string,
 # and changes 'x' to '*' when appropriate.
 sub expand_ih2
 {
   my($e) = @_;
-  my($rv, $setvar);
+  my($rv);
 
   $rv = &expand_C_hist($e);
-
-  $setvar = "";
 
   # Pre-translate 'x' for multiplication when next to parentheses. These
   # are the cases where it is clearly not a variable 'x'.
@@ -7633,6 +8521,12 @@ sub expand_ih2
   # a variable.
   $rv =~ s|($p_var) x |$1 * |g;
   $rv =~ s| x ($p_var)| * $1|g;
+
+  # Any operator made of letters needs to be remapped now
+  $rv =~ s|\band\b|\&|g;
+  $rv =~ s|\bmod\b|\%|g;
+  $rv =~ s|\bnot\b|\~|g;
+  $rv =~ s|\bor\b|\||g;
 
   # Now remove all remaining spaces
   $rv =~ s| +||g;
@@ -7651,15 +8545,22 @@ sub define_Chist
   $ihnum++;
 }
 
+$pragma_any_next = 1;
+$g_BASIC_trace = 0;
+
 # do.cmd3 handles 'C[0-9]' substitution and '<var>=<expr>'; the rest
 # is done by eval.1
 #
-# If $BASIC_running $prflag controls printing: 0 for none, 1 for just the
-# number, 2 for surrounding formatting
+# If $BASIC.running is true, $prflag controls printing:
+#   0 for no printing and don't add to chist
+#   1 print just the number
+#   2 print the number and newline
+#   3 print surrounding formatting "Rn = val" or "V: val"
 sub docmd3
 {
   my($cmd, $prflag, $allow_assign) = @_;
   my($pr, $sverr);
+  my($lv_pt, $lv_val, $lv_unc);
 
   &dbg1("dc3.01 cmd '$cmd' $prflag $allow_assign", 16);
 
@@ -7671,7 +8572,7 @@ sub docmd3
   if ($BASIC_running) {
     $pr = $prflag;
   } else {
-    $pr = 2;
+    $pr = 3;
   }
 
   &dbg1("dc3.03 $cmd", 16);
@@ -7686,122 +8587,197 @@ sub docmd3
 
   &dbg1("dc3.05 $cmd", 16);
 
-  # Parse out variable assignment syntax, if any
-  $setvar = "";
-  if ($allow_assign == 0) {
-    # We're an rvalue expression, do not attempt to assign anything
-  } elsif ($cmd =~ m|^($p_var) *=([^=].*)$|) {
-    # var = expr
-    $setvar = $1;
-    $cmd = $2;
-    &dbg1("dc3.06 setvar2 $setvar $cmd", 16);
-  } elsif ($cmd =~ m|^\(($p_var) *=([^=].*)\)$|) {
-    # (var = expr)       (This form is seen after !! substitution)
-    $setvar = $1;
-    $cmd = $2;
-    &dbg1("dc3.07 setvar3 $setvar $cmd", 16);
-  }
-  $sverr = "";
-  if (($setvar eq 'pi') || ($setvar eq 'e') || ($setvar eq 'phi')) {
-    $sverr = "Attempt to set builtin constant";
-  } elsif ($setvar =~ m/^[cr][0-9]+$/) {
-    # %%% NOTE: command variables like "c1" have just been parsed out
-    # by the call to expand_ih2 above, so this currently only catches
-    # result vars like "r1"
-    $sverr = "Attempt to set history value";
-  }
-  if ($sverr ne "") {
-    if ($BASIC_running) {
-      print "*** ";
-    }
-    print "ERROR: $sverr '$setvar'\n";
-    $setvar = ""; $BASIC_running = 0;
-  }
+#  # Parse out variable assignment syntax, if any
+#  # %%% most of this can go away, and be replaced by looking at
+#  # $g_possible_assign and associated variables set by eval.2
+#  $setvar = "";
+#  if ($allow_assign == 0) {
+#    # We're an rvalue expression, do not attempt to assign anything
+#  } elsif ($cmd =~ m|^($p_var) *=([^=].*)$|) {
+#    # var = expr
+#    $setvar = $1;
+#    $cmd = $2;
+#    &dbg1("dc3.06 setvar2 $setvar $cmd", 16);
+#  } elsif ($cmd =~ m|^\(($p_var) *=([^=].*)\)$|) {
+#    # (var = expr)       (This form is seen after !! substitution)
+#    $setvar = $1;
+#    $cmd = $2;
+#    &dbg1("dc3.07 setvar3 $setvar $cmd", 16);
+#  }
+#  $sverr = "";
+#  if (($setvar eq 'pi') || ($setvar eq 'e') || ($setvar eq 'phi')) {
+#    $sverr = "Attempt to set builtin constant";
+#  } elsif ($setvar =~ m/^[cr][0-9]+$/) {
+#    # %%% NOTE: command variables like "c1" have just been parsed out
+#    # by the call to expand.ih2 above, so this currently only catches
+#    # result vars like "r1"
+#    $sverr = "Attempt to set history value";
+#  }
+#  if ($sverr ne "") {
+#    if ($BASIC_running) {
+#      print "*** ";
+#    }
+#    print "ERROR: $sverr '$setvar'\n";
+#    $setvar = ""; $BASIC_running = 0;
+#  }
 
   # Evaluate, and store result in LV (last value) registers.
   ($lv_pt, $lv_val, $lv_unc) = &eval_1($cmd);
 
-  if ($pr>1) {
+  if ($allow_assign && $g_possible_assign) {
+    # We just evaluated a valid assignment.
+    ($lv_pt, $lv_val, $lv_unc) = ($g_assign_pt, $g_assign_val, $g_assign_unc);
+    &set_var($g_assign_lvk, $lv_pt, $lv_val, $lv_unc);
+  }
+
+  if ($pr>2) {
     print "\n"; $lleft = 78;
   }
 
-  if ($pr>1) {
+  if ($pr>2) {
     $hname = &define_R_hist($lv_pt, $lv_val, $lv_unc);
     print "$hname = ";
     $lleft -= length("$hname = ");
   }
 
-  if ($setvar ne "") {
-    &set_var($setvar, $lv_pt, $lv_val, $lv_unc);
-    if ($pr>1) {
-      print "$setvar: ";
-      $lleft -= length("$setvar: ");
-    }
+#  if ($setvar ne "") {
+#    &set_var($setvar, $lv_pt, $lv_val, $lv_unc);
+#    if ($pr>2) {
+#      print "$setvar: ";
+#      $lleft -= length("$setvar: ");
+#    }
+#  }
+
+  if (($pr>2) && $allow_assign && $g_possible_assign) {
+    print "$g_assign_lvk: ";
+    $lleft -= length("$g_assign_lvk: ");
   }
 
   if ($pr) {
-    &prnt1($lv_pt, $lv_val, $lv_unc, ($pr>1));
+    &prnt1($lv_pt, $lv_val, $lv_unc, ($pr>2));
 
     # 20080204: The following seems to produce lots of superfluous
     # blank lines, so I removed it and added a newline just before
     # the command prompt in the main loop.
     # print "\n"; $lleft = 78;
   }
+  if ($pr == 2) { print "\n"; $lleft = 78; }
 } # End of do.cmd3
+
+# po.override provides a way for the 'tron' command and pragma settings
+# to alter how much gets printed out. It is used to remap the value of
+# $punc in relevant places.
+$g_por_from = ":;";
+$g_por_to   = ":;";
+
+sub pr_override
+{
+  my($p) = @_;
+  eval "\$p =~ tr/$g_por_from/$g_por_to/;";
+  return $p;
+} # End of pr.override
+
+sub cmd_pragma
+{
+  my($args) = @_;
+  my($arg, $rest, $pr);
+
+  $pr = !($BASIC_running);
+  $args =~ s/ //g;
+  $args .= ',';
+  while($args =~ m/^([^,]+),(.*)$/) {
+    $arg = $1; $rest = $2;
+    if (0) {
+    } elsif ($arg eq 'notrace') {
+      # Suppress printing line numbers and assignments (TROFF command)
+      $g_por_to   = ":;";
+      $g_BASIC_trace = 0;
+      print "pragma: trace disabled, g_por_to = '$g_por_to'\n" if($pr);
+    } elsif ($arg eq 'printassign') {
+      # Print assignments, (including from READ and FOR..NEXT) unless
+      # there is a ';'
+      $g_por_to = ':;';
+      print "pragma: normal mode, g_por_to = '$g_por_to'\n" if($pr);
+    } elsif ($arg eq 'quiet') {
+      # Never print assignments (normal behaviour for mose BASICs)
+      $g_por_to = ';;';
+      print "pragma: quiet mode, g_por_to = '$g_por_to'\n" if($pr);
+    } elsif ($arg eq 'trace') {
+      # Print all assignments (useful for a TRON command)
+      $g_por_to = '::';
+      $g_BASIC_trace = 1;
+      print "pragma: trace enabled, g_por_to = '$g_por_to'\n" if($pr);
+    }
+    $args = $rest;
+  }
+} # End of cmd.pragma
+
+sub setscale
+{
+  my($newscale, $prflag) = @_;
+
+  undef @igv;
+
+  if ($inunix) {
+    # Limit the scale. This is important -- lots of fundamental
+    # assumptions in the PT algorithms fail if the number of
+    # significant digits in the mantissa is greater than the
+    # exponent value at which promotion occurs. Since promotion
+    # happens at 1.0e300, we have to limit the scale to a bit less
+    # than this.
+    if ($newscale > 295) {
+      print "I am setting scale to 295, the maximum allowed.\n" if ($prflag);
+      $newscale = 295;
+    }
+    $newprim = ($newscale > 14) ? "bc" : "nat";
+    if ($newprim ne $curprim) {
+      # close old functions
+      if ($curprim eq "bc") {
+        &fbc_close();
+      } else {
+        &f64_close();
+      }
+
+      # and open new ones
+      if ($newprim eq "bc") {
+        &fbc_init($newscale);
+      } else {
+        &f64_init();
+      }
+    } elsif ($newprim eq "bc") {
+      # re-scale
+      &fbc_rescale($newscale);
+    }
+    $curprim = $newprim;
+    $curscale = $newscale;
+    &hi_init($prflag);
+  } else {
+    print "Sorry, precision (scale) can only be changed in Cygwin or UNIX.\n" if ($prflag);
+  }
+} # End of set.scale
 
 # do.cmd4 handles special-variable setting (scale, debug, format) and passes
 # everything else along to do.cmd3
 #
-# If $BASIC_running and $prflag is 0, printing is suppressed.
+# If $BASIC.running and $prflag is 0, printing is suppressed.
 sub docmd4
 {
   my($cmd, $prflag) = @_;
-  my($cmdre);
+  my($cmdre, $a);
 
   &dbg1("dc4a: $cmd", 16);
 
   $cmdre = $cmd;
   $cmdre =~ s|[^0-9a-zA-Z]||g;
 
-  if ($cmd =~ m|^scale *\= *([0-9]+)|) {
-    if ($inunix) {
-      $newscale = $1;
-
-      # Limit the scale. This is important -- lots of fundamental
-      # assumptions in the PT algorithms fail if the number of
-      # significant digits in the mantissa is greater than the
-      # exponent value at which promotion occurs. Since promotion
-      # happens at 1.0e300, we have to limit the scale to a bit less
-      # than this.
-      if ($newscale > 295) {
-        print "I am setting scale to 295, the maximum allowed.\n";
-        $newscale = 295;
-      }
-      $newprim = ($newscale > 14) ? "bc" : "nat";
-      if ($newprim ne $curprim) {
-        # close old functions
-        if ($curprim eq "bc") {
-          &fbc_close();
-        } else {
-          &f64_close();
-        }
-
-        # and open new ones
-        if ($newprim eq "bc") {
-          &fbc_init($newscale);
-        } else {
-          &f64_init();
-        }
-      } elsif ($newprim eq "bc") {
-        # re-scale
-        &fbc_rescale($newscale);
-      }
-      $curprim = $newprim;
-      $curscale = $newscale;
-      &hi_init();
-    } else {
-      print "Sorry precision (scale) can only be changed in UNIX.\n";
-    }
+  # Special commands like #pragma# and #scale# go here
+  if (0) {
+  } elsif ($cmd =~ m|^pragma +(.+)$|) {
+    $a = $1;
+    &cmd_pragma($a);
+  } elsif ($cmd =~ m|^scale *\= *([0-9]+)|) {
+    $newscale = $1;
+    &setscale($newscale, $prflag);
   } elsif ((length($cmdre) > 0) && ("quit" =~ m|^$cmdre|i)) {
     $g_mainl_going = 0;
   } else {
@@ -7824,13 +8800,18 @@ sub cv_60_10
     $e = $m * 60 + $s;
   }
   return $e;
-}
+} # End of cv.60_10
 
-# do.cmd6 handles '!!', '[ ]', and ';' and passes the rest to do.cmd4
+# do.cmd6 handles:
+#   '!!' (double exclamation point) repeat last typed input
+#   '[ ]' (square brackets) same as parentheses
+#   ':' (colon) command separator, or sexagesimal fraction
+#   ';' (semicolon) suppress printing the result
+# and passes the rest to do.cmd4
 sub docmd6
 {
   my($cmd) = @_;
-  my($c1, $c2, $c3, $showit, $sep, $prflag);
+  my($c1, $c2, $c3, $punc, $prflag);
 
   # Map [] onto () (Note: [] are used internally within the eval
   # routines)
@@ -7868,21 +8849,30 @@ sub docmd6
   &dbg1("dc6b: $cmd", 16);
 
   # Execute commands separated by ':' and/or ';'. A ';' separator prevents
-  # the value from being printed.
-  while($cmd =~ m|^([^:;]*)([:;])(.*)$|) {
+  # printing, but ";:' prints just the value
+  # (note that 'print' statements were already parsed out in do.cmd10)
+  while($cmd =~ m|^([^:;]*)([:;]+)(.*)$|) {
     $c1 = $1;
-    $sep = $2;
+    $punc = $2;
     $cmd = $3;
+    $punc = &pr_override($punc);
     if (!($c1 =~ m/^ *$/)) {
-      $showit = ($sep eq ':');
-      $prflag = $showit ? 2 : 0;
+      $prflag = ($punc eq ':') ? 3     # print "V: val \n"
+              : (($punc eq ';:') ? 2   # print "val \n"
+                                 : 0); # print nothing
       &docmd4($c1, $prflag);
     }
   }
   # Do the last one
   if (!($cmd =~ m/^ *$/)) {
-    $showit = (!($cmd =~ m|\;|));
-    $prflag = $showit ? 2 : 0;
+    $punc = ':';
+    if ($cmd =~ m|([;:]+)|) {
+      $punc = $1;
+    }
+    $punc = &pr_override($punc);
+    $prflag = ($punc eq ':') ? 3     # print "V: val \n"
+            : (($punc eq ';:') ? 2   # print "val \n"
+                               : 0); # print nothing
     &docmd4($cmd, $prflag);
   }
 } # End of do.cmd6
@@ -7910,10 +8900,35 @@ sub BASIC_print
       $f1 = $1; $f2 = $2; $c2 = $3;
       # print "Bpr2 f1 '$f1' f2 '$f2' c2 '$c2'\n";
       print $f1;
+      if ($f2 eq ',') {
+        print "\t";
+      } elsif ($f2 eq "'") {
+        # We're at the end of the arguments and we want a CRLF.
+        print "\n";
+      }
+    } elsif ($c2 =~ m|^($p_var\([^\)]+\))([,;'])(.*)$|i) {
+      # Function or array reference with one set of parentheses
+      $f1 = $1; $f2 = $2; $c2 = $3;
+      # print "Bpr3 f1 '$f1' f2 '$f2' c2 '$c2'\n";
+      $f1 =~ s|^ +||; $f1 =~ s| +$||;
+      if ($f1 ne "") {
+        # It's an expression
+
+        # Map to lower case so we can use uppercase for functions, etc.
+        $f1 = lc($f1);
+
+        &docmd3($f1, 1, 0);
+      }
+      if ($f2 eq ',') {
+        print "\t";
+      } elsif ($f2 eq "'") {
+        # We're at the end of the arguments and we want a CRLF.
+        print "\n";
+      }
     } elsif ($c2 =~ m|^([^,;']*)([,;'])(.*)$|) {
       # Something else, hopefully an expression
       $f1 = $1; $f2 = $2; $c2 = $3;
-      # print "Bpr3 f1 '$f1' f2 '$f2' c2 '$c2'\n";
+      # print "Bpr4 f1 '$f1' f2 '$f2' c2 '$c2'\n";
       $f1 =~ s|^ +||; $f1 =~ s| +$||;
       if ($f1 ne "") {
         # It's an expression
@@ -7950,7 +8965,7 @@ sub subst_var
     }
   }
   return $v;
-} # End of subst_var
+} # End of subst.var
 
 sub remove_comments
 {
@@ -7959,21 +8974,27 @@ sub remove_comments
 
   # print "remove_comments: '$in'\n";
   $out = '';
-  while($in ne '') {
+  while ($in ne '') {
     if ($in =~ m/^([^'"]+)(['"].*)$/) {
       # A piece, followed by ' or "
       $p1 = $1; $p2 = $2;
       # print "  rc1 '$p1'$p2'\n";
       $out .= $p1;
       $in = $p2;
+    } elsif ($in =~ m/^' *pragma (.*)$/i) {
+      # The rest is a pragma
+      $in = $1;
+      # print "  rc2 '$in\n";
+      &cmd_pragma($in);
+      $in = '';
     } elsif ($in =~ m/^'/) {
       # The rest is a comment
-      # print "  rc2 '$in\n";
+      # print "  rc3 '$in\n";
       $in = '';
     } elsif ($in =~ m/^("[^"]*")(.*)$/) {
       # Quoted string
       $p1 = $1; $p2 = $2;
-      # print "  rc3 '$p1'$p2'\n";
+      # print "  rc4 '$p1'$p2'\n";
       $out .= $p1; $in = $p2;
     } else {
       # Shouldn't happen, but we do this just in case
@@ -7983,7 +9004,25 @@ sub remove_comments
     }
   }
   return $out;
-}
+} # End of remove.comments
+
+# Get one data item from a DATA statement and execute the assignment
+# statement to put it into a variable
+sub get_datum
+{
+  my($v, $punc) = @_;
+  my($c2);
+
+  $punc = &pr_override($punc);
+  if ($BASIC_datum < $BASIC_ndat) {
+    $c2 = "$v = $BASIC_data[$BASIC_datum] $punc"; $BASIC_datum++;
+    &docmd6(lc($c2));
+  } else {
+    print "*** Out of data in line $g_BASIC_pc\n";
+    $BASIC_running = 0;
+    return -1;
+  }
+} # End of get.datum
 
 # This routine handles the runtime BASIC commands, e.g. the no-ops like
 # PRINT and LET and flow control ops like FOR..NEXT
@@ -8004,27 +9043,39 @@ sub docmd10
   } elsif ($cmd =~ m/^ *'/) {
     # remark -- ignore
 
-  } elsif ($cmd =~ m/^ *end *$/i) {
-    $BASIC_running = 0;
+  } elsif ($cmd =~ m/^ *data /i) {
+    # DATA statements are not directly executed
 
   } elsif ($cmd =~ m/^def +fn($p_var)\(($p_var)\) *= *(.*)$/i) {
     $f1 = $1; $v = $2; $f2 = $3;
     $v = lc($v);
+    # %%% for now this is simply ignored
 
-  } elsif ($cmd =~ m/^for +($p_var) *= *([0-9a-z]+) +to +([0-9a-z]+)(;?)/i) {
+  } elsif ($cmd =~ m/^dim +$p_var\( *[0-9]+ *\) *$/i) {
+    # %%% for now we ignore, but we could theoretically remember the limits
+    # and enforce
+  } elsif ($cmd =~ m/^dim +$p_var\( *[0-9]+ *, *[0-9]+ *\) *$/i) {
+
+  } elsif ($cmd =~ m/^ *end *$/i) {
+    $BASIC_running = 0;
+
+  } elsif ($cmd =~ m/^for +($p_var) *= *([0-9_a-z]+) +to +([0-9_a-z]+)(;?)/i) {
     $v = $1; $f1 = $2; $f2 = $3; $punc = $4;
     $v = lc($v);
+    if ($punc eq '') { $punc = ':'; }
+    $punc = &pr_override($punc);
     $prflag = ($punc eq ';') ? 0 : 2;
 
     $f1 = &subst_var($f1);
     $f2 = &subst_var($f2);
 
     # print "FOR $v $f1 $f2\n";
-    $next_indent++;
-    $next_var[$next_indent] = $v;
-    $next_limit[$next_indent] = $f2;
-    $next_loopto[$next_indent] = $pc;
-    $next_prflag[$next_indent] = $prflag;
+    $for_level++;
+    $next_var[$for_level] = $v;
+    # print "line $g_BASIC_pc next_var[$for_level] = '$v'\n";
+    $next_limit[$for_level] = $f2;        $for_var_limit{$v} = $f2;
+    $next_loopto[$for_level] = $pc;       $for_var_loopto{$v} = $pc;
+    $next_prflag[$for_level] = $prflag;   $for_var_prflag{$v} = $prflag;
 
     # convert to LET
     $c2 = "$v = $f1";
@@ -8040,27 +9091,98 @@ sub docmd10
       return 0;
     }
 
+  } elsif ($cmd =~ m/^gosub +([0-9]+) *$/i) {
+    $f1 = $1;
+    if ($BASIC{$f1} ne '') {
+      $substack[$gosub_level++] = $NEXT{$g_BASIC_pc};
+      return $f1;
+    } else {
+      print "*** Undefined line number in GOSUB in line $g_BASIC_pc\n";
+      $BASIC_running = 0;
+      return 0;
+    }
+
   } elsif ($cmd =~ m/^if +(.+) +then +([0-9]+) *$/i) {
     # Original IF..THEN format (one-line, implied GOTO)
     $f1 = $1; $f2 = $2;
     # Evaluate the expression
-    &docmd6("if_result = $f1 ;");
+    &docmd6("if_result = ($f1);");
     if (&subst_var("if_result")) {
       # Take the branch
       if ($BASIC{$f2} ne '') {
         return $f2;
       } else {
-        print "*** Undefined line number in IF..THEN\n";
+        print "*** Undefined line number in IF..THEN in line $g_BASIC_pc\n";
         $BASIC_running = 0;
         return 0;
       }
+    }
+
+  } elsif (($cmd =~ m/^(if) +(.+) +then *$/i)
+        || ($cmd =~ m/^(else) +if +(.+) +then *$/i)
+  ) {
+    # Structured multi-line IF
+    $f1 = $1; $f2 = $2;
+    if (lc($f1) eq 'if') {
+      # This is the first block
+      $IF_level++;
+      $IF_didit[$IF_level] = 0;
+    }
+    if ($IF_didit[$IF_level]) {
+      # We have already executed a section of this IF .. ELSE .. structure.
+      # jump to the next (we'll keep doing to until we reach the END IF)
+      $f1 = 0;
+    } else {
+      # Evaluate the expression
+      &docmd6("if_result = ($f2);");
+      $f1 = &subst_var("if_result");
+    }
+    if ($f1) {
+      # We want to execute this block. Treat this line as a comment and
+      # the caller (BASIC.run) goes to the following line.
+      $IF_didit[$IF_level] = 1;
+    } else {
+      # Jump to the next ELSE or to the END IF
+      $f2 = $IF_next{$pc};
+      if ($BASIC{$f2} ne '') {
+        return $f2;
+      } else {
+        print "*** IF clause at line $g_BASIC_pc lacks branch target (ELSE or END IF)\n";
+        $BASIC_running = 0;
+        return 0;
+      }
+    }
+
+  } elsif ($cmd =~ m/^ *else *$/i) {
+    # a bare ELSE clause always gets executed (unless we've already done a
+    # block of the current IF..THEN)
+    if ($IF_didit[$IF_level]) {
+      # Jump to the next condition, or to END IF
+      $f2 = $IF_next{$pc};
+      if ($BASIC{$f2} ne '') {
+        return $f2;
+      } else {
+        print "*** ELSE clause at line $g_BASIC_pc lacks END IF\n";
+        $BASIC_running = 0;
+        return 0;
+      }
+    }
+    # Else we'll just drop through and execute this block
+    $IF_didit[$IF_level] = 1;
+
+  } elsif ($cmd =~ m/^ *end +if *$/i) {
+    # END IF: If we got here we just treat it like a REM and the next line
+    # will get executed
+    if ($IF_level > 0) {
+      $IF_level--;
     }
 
   } elsif ($cmd =~ m/^ *input +($p_multvars)(;?) *$/i) {
     # Input number(s) from TTY into variable(s). All input must be
     # valid Hypercalc-format numbers
     $f1 = $1 . ", "; $punc = $2; $f2 = '';
-    while ($f1 =~ m/^ *($p_var),($p_multvars)$/) {
+    if ($punc eq '') { $punc = ':'; }
+    while ($f1 =~ m/^ *($p_var),($p_multvars)$/i) {
       $v = $1; $f1 = $2;
       if ($f2 eq '') {
         if ($punc ne ';') {
@@ -8094,31 +9216,55 @@ sub docmd10
 
   } elsif ($cmd =~ m/^ *let +(.*)([:;]?)$/i) {
     $c2 = $1; $punc = $2;
-    $punc = ';'; # LET always suppresses printing
+    if ($punc eq '') { $punc = ':'; }
+    $punc = &pr_override($punc);
     $c2 = lc($c2);
     &docmd6("$c2$punc");
 
   } elsif ($cmd =~ m/^ *next +($p_var) *([:;]?) *$/i) {
     # convert to LET
     $nv = $1; $punc = $2;
-    $v = $next_var[$next_indent];
-    if ($nv ne $v) {
-      print "*** NEXT using wrong variable in line $g_BASIC_pc\n";
+    $nv = lc($nv);
+    if ($punc eq '') { $punc = ':'; }
+    $punc = &pr_override($punc);
+    $v = $next_var[$for_level];
+    # print "   next $v (to $for_var_limit{$v})\n";
+    if (($nv ne $v) && $pragma_any_next) {
+      # We can do any NEXT that is currently pending...
+      $v = $nv;
+      if ($for_var_limit{$v} eq '') {
+        # ... but we can't use this $v either, no loop is defined!
+        print "*** NEXT without FOR in line $g_BASIC_pc\n";
+        $BASIC_running = 0;
+        return 0;
+      }
+    } elsif ($nv ne $v) {
+      print "*** NEXT using wrong variable ($nv but expected $v) in line $g_BASIC_pc\n";
       $BASIC_running = 0;
       return 0;
     }
-    # Override local punctuation with what was given in the FOR line
-    $prflag = $next_prflag[$next_indent]; $punc = $prflag ? ':' : ';';
+
+    # Check printing choice given in the FOR line
+    $prflag = $for_var_prflag{$v};
+    # %%% we now allow the NEXT's punctuation to govern. Formerly we
+    # had:     $punc = &pr_override($prflag ? ':' : ';');    - 20190505
     $c2 = "$v = $v + 1";
     &docmd6("$c2$punc");
 
+    # Evaluate the loop limit
+    # %%% this will require a PRAGMA, some BASICs only evaluate the loop
+    # limit once
+    &docmd6("next_limit = ($for_var_limit{$v});");
+    $f1 = &subst_var("next_limit");
+
     # test for overflow
-    if ($vars_val{$v} > $next_limit[$next_indent]) {
+    if ($vars_val{$v} > $f1) {
       # we're done
-      $next_indent--;
+      $for_level--;
+      $for_var_prflag{$v} = '';
     } else {
       # jump back to loop
-      return $NEXT{$next_loopto[$next_indent]};
+      return $NEXT{$for_var_loopto{$v}};
     }
 
   } elsif ($cmd =~ m/^ *next +/i) {
@@ -8130,27 +9276,51 @@ sub docmd10
     $c2 = $1;
     &BASIC_print($c2);
 
-  } elsif ($cmd =~ m/^ *read +($p_multvars)(;?) *$/i) {
-    $f1 = $1 . ", "; $punc = $2;
-    while($f1 =~ m/^ *($p_var),($p_multvars)$/) {
-      $v = $1; $f1 = $2;
-      if ($BASIC_datum < $BASIC_ndat) {
-        $c2 = "$v = $BASIC_data[$BASIC_datum] $punc"; $BASIC_datum++;
-        &docmd6(lc($c2));
-      } else {
-        print "*** Out of data in line $g_BASIC_pc\n";
-        $BASIC_running = 0;
-        return 0;
-      }
+  # %%% RANDOMIZE function
+
+  } elsif ($cmd =~ m/^ *read +(.+) *$/i) {
+    $f1 = $1;
+    if ($f1 =~ m/^(.+);$/) {
+      $f1 = $1; $punc = ';';
+    } else {
+      $punc = ':';
     }
-    $f1 =~ s/ +//;
+    $punc = &pr_override($punc);
+    $f1 = $1 . ", "; $gg = 1;
+    while($gg) {
+      $gg = 0;
+      if ($f1 =~ m/^ *([^,\(]+),(.+)$/i) {
+        $v = $1; $f1 = $2; $gg = 1;
+        if (&get_datum($v, $punc) < 0) { return 0; }
+      } elsif ($f1 =~ m/^ *($p_var\([^\)]+\)),(.+)$/i) {
+        $v = $1; $f1 = $2; $gg = 1;
+        if (&get_datum($v, $punc) < 0) { return 0; }
+      }
+      $f1 =~ s/ +//;
+    }
     if ($f1 ne '') {
       print "*** Syntax error in line $g_BASIC_pc\n";
       $BASIC_running = 0;
       return 0;
     }
 
-  } elsif ($cmd =~ m/^ *stop +/i) {
+  } elsif ($cmd =~ m/^ *restore *$/i) {
+    # Restore DATA pointer, next READ statement will get the first datum
+    $BASIC_datum = 0;
+
+    # %%% RESTORE also had a variant that accepted a line number parameter
+
+  } elsif ($cmd =~ m/^ *return *$/i) {
+    if ($gosub_level <= 0) {
+      print "*** RETURN without GOSUB\n";
+      $BASIC_running = 0;
+      return 0;
+    } else {
+      $f1 = $substack[--$gosub_level];
+      return $f1;
+    }
+
+  } elsif ($cmd =~ m/^ *stop */i) {
     # STOP is the same as END
     $BASIC_running = 0;
 
@@ -8161,13 +9331,13 @@ sub docmd10
   }
 
   return 0;
-} # End of docmd10
+} # End of do.cmd10
 
 # This routine scans through the BASIC program, setting up the pointers
 # used for the flow control operators, indenting for LIST command, and a
 # few simple error checks (like NEXT without FOR)
 #   %%% NOTE: We parse IF .. THEN and ELSE IF, but these are not yet
-# handled by docmd10
+# handled by do.cmd10
 sub BASIC_parse
 {
   my($ln, $prev, $cmd, $indent, $next_indent);
@@ -8234,17 +9404,23 @@ sub BASIC_parse
       $next_indent++;
 
       $IF_level++;
-      $IF_ln = $ln;
-    } elsif ($cmd =~ m/^else +/i) {
+      $IF_ln[$IF_level] = $ln;
+      $IF_matched[$IF_level] = 0;
+    } elsif (($cmd =~ m/^else +if /i) || ($cmd =~ m/^else *$/i)) {
       if ($IF_level > 0) {
-        $indent--;
+        $indent--; # Just this line will be unindented
       } else {
         print "*** ELSE without IF in line $ln\n";
         return $ln;
       }
 
-      $IF_next{$IF_ln} = $ln;
-      $IF_ln = $ln;
+      $IF_next{$IF_ln[$IF_level]} = $ln;
+      $IF_ln[$IF_level] = $ln;
+
+    } elsif ($cmd =~ m/^else/i) {
+      print "*** Syntax error in line $ln\n";
+      return $ln;
+
     } elsif ($cmd =~ m/^end +if *$/i) {
       if ($IF_level > 0) {
         $indent--;
@@ -8254,7 +9430,7 @@ sub BASIC_parse
       }
       $next_indent = $indent;
 
-      $IF_next{$IF_ln} = $ln;
+      $IF_next{$IF_ln[$IF_level]} = $ln;
       $IF_next{$ln} = 0;
       $IF_level--;
     } elsif ($cmd =~ m/^ *rem +/i) {
@@ -8266,16 +9442,46 @@ sub BASIC_parse
     $BASIC_indent{$ln} = $indent;
   }
 
-  return 0;
-} # End of BASIC_parse
+  if ($next_indent > 0) {
+    print "*** FOR without NEXT\n";
+    return $prev;
+  }
 
-use Time::HiRes qw(gettimeofday);
+  return 0;
+} # End of BASIC.parse
+
+my $use_hires = 0;
+$module = "Time::HiRes";
+eval {
+  eval "require Time::HiRes" or die;
+  Time::HiRes->import;
+  $use_hires = 1;
+};
+# $@ now contains error message text if any, e.g.
+# "Can't locate Time/HiRes.pm in @INC ..."
+if ($@ && $@ =~ /Time::HiRes/) {
+  $use_hires = 0;
+}
+# print "use_hires == $use_hires\n";
+sub gtod
+{
+  my($rv);
+  if ($use_hires) {
+    $rv = Time::HiRes::gettimeofday();
+  } else {
+    $rv = time;
+  }
+  # print "gtod->$rv\n";
+  return $rv;
+}
 
 sub BASIC_run
 {
   my($cmd, $err, $next);
   my($t_start, $t_end, $n_cmds);
 
+  # Scan through the program to establish line numbering, target jump
+  # addresses for IF..THEN blocks, etc.
   $err = &BASIC_parse();
   if ($err) {
     return;
@@ -8284,14 +9490,27 @@ sub BASIC_run
   # We'll trap ^C so the user can get out of an infinite loop
   # NOTE: This does not work when we're using the #bc# module
   $SIG{'INT'} = sub {
-    $BASIC_running = -1;
+    if ($BASIC_running) {
+      print "\n\n*** BREAK by user at line $g_BASIC_pc\n";
+      $BASIC_running = -1;
+    }
+    if ((time - $sigint_time) < 3) {
+      # They did it two times quickly, so we should exit
+      exit(-1);
+    } else {
+      print "(to force-quit Hypercalc, hit ^C again quickly)\n";
+    }
+    $sigint_time = time;
   };
 
   $g_BASIC_pc = $BASIC_first;
   $BASIC_running = 1;
-  $n_cmds = 0; $t_start = gettimeofday;
+  $n_cmds = 0; $t_start = &gtod();
   $BASIC_datum = 0;
   while($BASIC_running > 0) {
+    if ($g_BASIC_trace) {
+      print "BASIC line $g_BASIC_pc\n";
+    }
     # Fetch instruction
     $cmd = $BASIC{$g_BASIC_pc};
 
@@ -8313,7 +9532,7 @@ sub BASIC_run
       }
     }
   }
-  $t_end = gettimeofday;
+  $t_end = &gtod();
   if ($BASIC_running < 0) {
     print "*** Break by user at line $g_BASIC_pc\n";
     $BASIC_running = 0;
@@ -8347,7 +9566,7 @@ sub make_dir
   # At this point either the directory already exists or we just created it.
   # print "chdir '$dir'\n";
   chdir($dir);
-}
+} # End of make.dir
 
 # Strip leading and trailing spaces from $pn, and if it is empty, prompt
 # for a program name.
@@ -8372,7 +9591,7 @@ sub getprogname
     }
   }
   return $pn;
-}
+} # End of get.progname
 
 sub go_basic_dir
 {
@@ -8393,8 +9612,10 @@ sub go_basic_dir
       exit(1);
     }
   }
-}
+} # End of go.basic.dir
 
+# Save current BASIC program (prompt for filename if current file
+# doesn't have a name)
 sub BASIC_save
 {
   my($pn) = @_;
@@ -8421,24 +9642,60 @@ sub BASIC_save
   close SAVE;
   print "Saved $nl lines to $pn.basic\n";
   $g_BASIC_unsaved = 0;
-}
+} # End of BASIC.save
 
+# Catalog (list all saved BASIC programs)
 sub BASIC_cat
 {
   my($l);
+  my(@a);
+  my($i, $n, $ml, $cols, $ch, $c, $j);
 
   &go_basic_dir();
 
   open(CAT, "ls |");
+  $n = 0; $ml = 0;
   while ($l = <CAT>) {
     chop $l;
-    if ($l =~ m/\.basic$/) {
-      print "$l\n";
+    if ($l =~ m/^(.+)\.basic$/) {
+      $l = $1;
+      $a[$n++] = $l;
+      if (length($l) > $ml) { $ml = length($l); }
     }
   }
   close CAT;
+  for ($cols=1; ($ml+2)*($cols+1)<=80; $cols++) { }
+  $ch = int(($n+$cols+1)/$cols); # column height
+  # print " n=$n  ml=$ml  ch=$ch  cols=$cols  fmt:%-${ml}s\n";
+  for ($i=0; $i<$ch; $i++) {
+    for ($c=0; $c<$cols; $c++) {
+      $j = $c*$ch + $i;
+      if (($j+$ch) < $n) {
+        print sprintf("%-${ml}s  ", $a[$j]);
+      } elsif ($j<$n) {
+        print $a[$j];
+      }
+      if ($c+1 == $cols) {
+        print "\n";
+      }
+    }
+  }
+} # End of BASIC.cat
+
+# List the BASIC program
+sub BASIC_list
+{
+  my($err, $ln);
+
+  $err = &BASIC_parse();
+  foreach $ln (sort {$a <=> $b} (keys %BASIC)) {
+    print ( (($ln == $err) ? ">> " : "")
+             .  sprintf("%4d ", $ln) . ("  " x $BASIC_indent{$ln})
+                                                          . "$BASIC{$ln}\n");
+  }
 }
 
+# Load a BASIC program and set the current file name
 sub BASIC_old
 {
   my($pn) = @_;
@@ -8457,11 +9714,13 @@ sub BASIC_old
     print ".\n";
     return;
   }
-  $PROGNAME = $pn;
 
   &go_basic_dir();
 
-  if (-e "$pn.basic") {
+  if ((-e $pn) && ($pn =~ m/^(.+)\.basic$/)) {
+    $PROGNAME = $1;
+  } elsif (-e "$pn.basic") {
+    $PROGNAME = $pn;
     $pn = "$pn.basic";
   }
 
@@ -8476,6 +9735,7 @@ sub BASIC_old
       if ($l eq '') {
       } elsif ($l =~ m/^([0-9]+) (.*)$/) {
         $ln = $1; $cmd = $2;
+        $ln += 0;
         $BASIC{$ln} = $cmd; $nl++;
       } else {
         print "*** syntax error: '$l'\n";
@@ -8486,15 +9746,13 @@ sub BASIC_old
   } else {
     print "*** OLD: '$pn' not found.\n";
   }
-}
+} # End of BASIC.old
 
 sub mainloop
 {
-  my($lv_pt, $lv_val, $lv_unc);
   my($err);
 
   $lleft = 78;
-  $lv_pt = 0; $lv_val = 0; $lv_unc = 0;
 
   print "$GPLNOTICE$tagline\n";
   $a2_pt = 0; $a2_val = 0; $a2_unc = 0;
@@ -8536,6 +9794,9 @@ sub mainloop
       open(my $HELPOUT, "| more");
       print $HELPOUT $GPL_VERSION_3;
       close $HELPOUT;
+
+    } elsif ($cmd =~ m/^ *help +manpage/i) {
+      print $HC_MANPAGE;
 
     } elsif ($cmd =~ m/^ *help +syn/i) {
       print "
@@ -8643,10 +9904,14 @@ output, type 'format=7'.
     -           negation, as in 'sin(-x)'
   ** ^   right  exponent (** = ^)
   x * /  left   multiply (x = *) and divide
-  + -    left   add and subtract
+    %    left   modulo (remainder)
+   + -   left   add and subtract
   < <=   left   less than, less or equal
   > >=   left   greater than, greater or equal
   <> ==  left   unequal, equal
+   not          logical negation
+   and          logical conjunction
+   or           logical disjunction
     =           assign value to variable
 
   ^ is right-associative: a^b^c is equivalent to a^(b^c)
@@ -8655,8 +9920,8 @@ output, type 'format=7'.
   The comparison operators (<, <=, >, >=, <>, and ==) produce a value
   of 0 or 1 according as the comparison is false or true. For example,
   ''3>2'' gives the value 1 because 3 is greater than 2, and
-  ''1p1e3>1.0e200'' gives the value of 0 because 10^10^3 is not greater than
-  10^200.
+  ''1p1e3>1.0e2000'' gives the value of 0 because 10^10^3 is not greater than
+  10^2000.
 ";
       $default_command = "help fun";
 
@@ -8666,6 +9931,7 @@ output, type 'format=7'.
 
   sqrt(x)       square root of x
   exp(x)        e to the power of x
+  int(x)        integer part of x
   ln(x)         log base e of x
   log(x)        log base 10 of x
   logn(b,x)     log base b of x
@@ -8893,7 +10159,7 @@ output, type 'format=7'.
   1.2 x 10 ^ 3456  Entering a large number
   1.2e3456         Same number in scientific notation
   2P100            Googolplex (P = 'powers of 10', '2P' -> 10^10^)
-  6.022(1)e23      6.022x10^23 qith an uncertainty of 1 in the 4th digit
+  6.022(1)e23      6.022x10^23 with an uncertainty of 1 in the 4th digit
   c5               Repeat command C5 (as if you retyped it)
   c6;c7;c8         Repeat three typed commands in a row
   !!               Repeat last typed line
@@ -8956,17 +10222,20 @@ output, type 'format=7'.
       $ln = $1; $text = $2;
       $BASIC{$ln} = $text; $g_BASIC_unsaved++;
     } elsif ($cmd =~ m/^ *list *$/i) {
-      # List the BASIC program
-      $err = &BASIC_parse();
-      foreach $ln (sort {$a <=> $b} (keys %BASIC)) {
-        print ( (($ln == $err) ? ">> " : "")
-             .  sprintf("%4d ", $ln) . ("  " x $BASIC_indent{$ln})
-                                                          . " $BASIC{$ln}\n");
-        
-      }
+      &BASIC_list()
+
     } elsif ($cmd =~ m/^ *cat *$/i) {
       # Catalog
       &BASIC_cat();
+
+    } elsif ($cmd =~ m/^ *troff *$/i) {
+      # TRace OFF
+      &cmd_pragma("notrace");
+
+    } elsif ($cmd =~ m/^ *tron *$/i) {
+      # TRace ON
+      &cmd_pragma("trace");
+
     } elsif ($cmd =~ m/^ *new *$/i) {
       # NEW without name
       if (($g_BASIC_unsaved == 0) ||
@@ -8997,14 +10266,18 @@ output, type 'format=7'.
       &BASIC_save($1);
     } elsif ($cmd =~ m/^ *save *$/i) {
       &BASIC_save("");
-    } elsif ($cmd =~ m/^ *old (.*)$/i) {
-      $ln = $1;
+    } elsif ($cmd =~ m/^ *(old|run) ([^ ]*)$/i) {
+      $cmd = $1;
+      $ln = $2;
       if (($g_BASIC_unsaved == 0) ||
         &yorn("There are $g_BASIC_unsaved unsaved BASIC changes."
                 . " Confirm OLD command: ") )
       {
         &BASIC_old($ln);
         $g_BASIC_unsaved = 0;
+      }
+      if ((lc($cmd) eq 'run') && ($g_BASIC_unsaved == 0)) {
+        &BASIC_run();
       }
     } elsif ($cmd =~ m/^ *old *$/i) {
       if (($g_BASIC_unsaved == 0) ||
@@ -9019,23 +10292,32 @@ output, type 'format=7'.
       &docmd6($cmd);
     }
   }
-}
+} # End of main.loop
 
 $| = 1;
 $0 = "Hypercalc";
 
 $dbg1flag = 0;
 
+# Special case for -h or --help argument
+$a0 = $ARGV[0]; if ($a0 =~ m/^-[-]?h(elp)?$/) { print $HC_MANPAGE; exit(0); }
+
 $cmdline = "@ARGV";
 
 $inunix = (-d "/usr") + 0;
 $inwindows = (exists $ENV{"WINDIR"}) ? 1 : 0;
 $incygwin = (`uname` =~ m/CYGWIN/) + 0;
-if ($incygwin) { $inwindows = 0; } # Cygwin is UNIX-y enough for our needs.
-if ($inunix == $inwindows) {
+$invms = (lc($^O) eq "vms") + 0;
+if ($incygwin) {
+  # Cygwin is UNIX-y enough for our needs.
+  $inunix = 1; $inwindows = 0;
+}
+# Check to make sure that we detected exactly one operating system
+$osdetect_total = $inunix + $inwindows + $invms;
+if ($osdetect_total != 1) {
   print (
-"Warning: Cannot determine if this is Windows or UNIX-like (U=$inunix,W=$inwindows,C=$incygwin).\n"
-. "Please email the author, 'mrob at mrob.com' and he'll try to fix this.\n\n"
+"Warning: Hypercalc cannot determine operating system (U=$inunix,W=$inwindows,C=$incygwin,V=$invms).\n"
+. "Please email the author, 'mrob at mrob.com', include the full text of this\nmessage, and he'll try to fix this.\n\n"
   );
 }
 
@@ -9068,7 +10350,7 @@ $g_inf = 1.0e300; $g_inf=$g_inf*$g_inf; $g_inf=$g_inf*$g_inf;
   $g_inf=$g_inf*$g_inf; $g_inf=$g_inf*$g_inf; $g_inf=$g_inf*$g_inf;
 &f64_init();
 
-&hi_init();
+&hi_init(2);
 
 # Init the printing/formatting routines
 &format1(1);

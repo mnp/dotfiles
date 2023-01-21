@@ -1,5 +1,16 @@
 * Shared Incoming 
 
+** grade your product an app on its five revenue streams
+1. original sale
+2. cloud subscription
+3. ads
+4. user data stream
+5. forced obsolescence upgrades
+
+windows: 1-5
+
+
+** 
 https://www.sigstore.dev
 https://slsa.dev
 https://www.chainguard.dev/unchained/what-an-sbom-can-do-for-you
