@@ -6,6 +6,17 @@ Hacking the omron
 https://web.archive.org/web/20160630192311/https://www.moamindustries.com/blog/2016/4/20/hacking-a-uart-where-there-never-was-before
 https://github.com/ac-here/Project_Hack_Omron_BP_Monitor
 
+** grade your product an app on its five revenue streams
+1. original sale
+2. cloud subscription
+3. ads
+4. user data stream
+5. forced obsolescence upgrades
+
+windows: 1-5
+
+
+** 
 https://www.sigstore.dev
 https://slsa.dev
 https://www.chainguard.dev/unchained/what-an-sbom-can-do-for-you
