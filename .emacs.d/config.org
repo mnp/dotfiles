@@ -49,8 +49,9 @@ customize settings in [[file:init.el][init.el]].
 
 #+begin_src emacs-lisp
   (use-package spacemacs-theme
+    :defer t
     :ensure t
-    :init (load-theme 'spacemacs-dark))
+    :init (load-theme 'spacemacs-dark t))
 
   ;; (use-package nano-theme
   ;;   :ensure t)

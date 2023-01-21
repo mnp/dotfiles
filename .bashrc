@@ -1,8 +1,3 @@
-if [ $SHLVL -gt 1 ]; then
-    echo SUBSHELL DETECTED
-    PS1='subshell $ '
-fi
-
 # Noninteractive section
 echo bashrc noninteractive section
 
@@ -210,6 +205,10 @@ if $have_git; then
     # GIT_PROMPT_THEME_FILE=~/.git-prompt-colors.sh
     # GIT_PROMPT_THEME=Solarized # use theme optimized for solarized color scheme
  
+    if [ $SHLVL -gt 1 ]; then
+        GIT_PROMPT_END=" ${INVERSE}SUBSHELL${CLEAR} \$ "
+    fi
+
     if [ -f "$HOME/prj/bash-git-prompt/gitprompt.sh" ]; then
         __GIT_PROMPT_DIR="$HOME/prj/bash-git-prompt"
         source "$__GIT_PROMPT_DIR/gitprompt.sh"
@@ -359,6 +358,14 @@ mrt ()
     test -z "$1" && set .
     m "$1"/"$(ls -rt "$1"|tail -1)"
 }
+
+# move most recent file in directory ($1) to path or dir ($2)
+mvrt () 
+{
+    test -z "$1" && set .
+    mv "$1"/"$(ls -rt "$1"|tail -1)" $2
+}
+
 
 # edit the last "ls -lrt"
 ert ()
@@ -750,7 +757,7 @@ if $have_kubectl; then
 
     # --field-selector metadata.namespace!=kube-system
     kga() { kubectl get pod,service,deployment,replicaset,pvc,cm,crd $@; }
-    kgp() { kubectl get pods -o wide  $@; }
+    kgp() { kubectl get pods $@; }
     kdp() { kubectl describe pod $@; }
     kgs() { kubectl get services $@; }
     alias kcns=kubens

@@ -1,5 +1,11 @@
 * Shared Incoming 
 
+https://rauljordan.com/rust-concepts-i-wish-i-learned-earlier/
+
+Hacking the omron
+https://web.archive.org/web/20160630192311/https://www.moamindustries.com/blog/2016/4/20/hacking-a-uart-where-there-never-was-before
+https://github.com/ac-here/Project_Hack_Omron_BP_Monitor
+
 https://www.sigstore.dev
 https://slsa.dev
 https://www.chainguard.dev/unchained/what-an-sbom-can-do-for-you

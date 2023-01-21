@@ -1,0 +1,4 @@
+#!/bin/bash
+
+brew list         > $HOME/mac/homebrew-packages
+brew list --cask  > $HOME/mac/brew-cask-packages

@@ -1,8 +1,17 @@
 #!/bin/bash
 
+set -euo pipefail
+
+debug=''
+case $1 in
+    --debug)
+        set -x
+        debug=-v
+        shift
+        ;;
+esac
+
 function get_gcr_token() {
-    #    curl -L -s --user "_token:$(gcloud auth print-access-token)" 'https://us.gcr.io/v2/token?service=gcr.io&scope=registry:catalog:*' 
-    # echo "_token:$(gcloud auth print-access-token)" | base64
     gcloud auth print-access-token
 }
 
@@ -12,18 +21,25 @@ function get_gcr_token() {
 # curl -v -L -s -H "Authorization: Bearer $(get_gcr_token)"   https://us.gcr.io/v2/_catalog/gcr.io/wallaroo-dev-253816
 # exit
 
-regy=${1:?"Usage: $0 registry"}
+regy=${1:?"Usage: $0 [--debug] registry"}
 userpass=""
+#proto="--proto-default https"
+proto=''
+
+docurl() {
+    curl -L -s -k $debug $userpass $proto "$@"
+}
 
 case $regy in
     gcr.io*) userpass="--user oauth2accesstoken:$(gcloud auth print-access-token)";;
-    *) ;;
-#    *) echo Teach me how to auth to $auth; exit 1;;
+    *) userpass='';;
+    # localhost|127.0.0.1|192.168*) userpass='--user testuser:testpassword' ;;
+    # *) echo Teach me how to auth to auth to $regy; exit 1;;
 esac
 
-repos=$(curl -L -s $userpass $regy/v2/_catalog | jq -r '.repositories|.[]' )
+repos=$(docurl $regy/v2/_catalog | jq -r '.repositories|.[]' )
 
 for i in $repos; do
-    curl -L -s $userpass $regy/v2/$i/tags/list | printf "%-40s %s" "$i" "$(curl -s $regy/v2/$i/tags/list | jq -rc '.tags | .[]' | column)"
+    docurl $regy/v2/$i/tags/list | printf "%-40s %s" "$i" "$(docurl $regy/v2/$i/tags/list | jq -rc '.tags | .[]' | column)"
     echo     
 done
