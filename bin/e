@@ -2,19 +2,33 @@
 
 # filename=$( echo $1 | tr "[:upper:]" "[:lower:]" )
 
-# FILE can be either just a FILENAME or [+LINE[:COLUMN]] FILENAME.
-filename="$@"
+USAGE='FILE should be FILENAME[:LINE]'
+
+if [ $# -ne 1 ]; then
+    echo "$USAGE"
+    exit 1
+fi
+
+arr=(${1//:/ })
+case ${#arr[@]} in
+    1) filename="$1"
+       line="" ;;
+    2) filename="${arr[0]}"
+       line="+${arr[1]}" ;;
+    *) echo "$USAGE"
+       exit 1
+esac
 
 case $filename in
     *.doc|*.odp|*.ppt|*.ods|*.xls|*.odt) exec libreoffice --nologo "$filename";;
 
     *)
-	if emacsclient --no-wait "$filename" > /dev/null 2>&1; then
+	if emacsclient --no-wait "$line" "$filename" > /dev/null 2>&1; then
 	    emacsclient --eval '(raise-frame)'
 	    echo Sent to existing emacs
 	else
 	    echo Launching new emacs
-	    exec emacs "$filename" &
+	    exec emacs "$line" "$filename" &
 	fi
 	;;
 esac
