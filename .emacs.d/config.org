@@ -645,7 +645,8 @@ source: [[http://whattheemacsd.com/sane-defaults.el-01.html][Magnars Sveen]]
            ("C-x C-f" . helm-find-files)
            ("C-x C-r" . helm-recentf))
     :init
-;;    (require 'helm-config)
+    ;; what's this for now?
+    ;; (require 'helm-config)
     (defalias 'list-buffers 'helm-buffers-list)
     :config
     (setq helm-locate-command "mdfind -interpret -name %s %s"
