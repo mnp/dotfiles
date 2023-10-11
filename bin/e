@@ -23,12 +23,14 @@ case $filename in
     *.doc|*.odp|*.ppt|*.ods|*.xls|*.odt) exec libreoffice --nologo "$filename";;
 
     *)
-	if emacsclient --no-wait "$line" "$filename" > /dev/null 2>&1; then
-	    emacsclient --eval '(raise-frame)'
+        emacsclient --no-wait ${line:-} "$filename" > /dev/null 2>&1;
+                
+	if emacsclient --no-wait ${line:-} "$filename" > /dev/null 2>&1; then
+            emacsclient --eval '(raise-frame)'
 	    echo Sent to existing emacs
 	else
 	    echo Launching new emacs
-	    exec emacs "$line" "$filename" &
+	    exec emacs ${line:-} "$filename" &
 	fi
 	;;
 esac

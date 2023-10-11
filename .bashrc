@@ -152,6 +152,7 @@ CRTRS="\[\033[01;35m\]"
 BLUE="\[\033[01;34m\]"
 WHITE="\[\033[01;37m\]"
 MAGEN="\[\033[01;35m\]"
+LTGRNUL="\033[0;32;4m"
 
 INVERSE="\[\033[7m\]"
 
@@ -190,12 +191,14 @@ if $have_git; then
 	git grep $1 -- $git_grep_path
     }
 
+    # from: https://github.com/magicmonty/bash-git-prompt
+
     # GIT_PROMPT_ONLY_IN_REPO=1
     # GIT_PROMPT_FETCH_REMOTE_STATUS=0   # uncomment to avoid fetching remote status
     # GIT_PROMPT_IGNORE_SUBMODULES=1 # uncomment to avoid searching for changed files in submodules
     # GIT_PROMPT_WITH_VIRTUAL_ENV=0 # uncomment to avoid setting virtual environment infos for node/python/conda environments
     # GIT_PROMPT_SHOW_UPSTREAM=1 # uncomment to show upstream tracking branch
-    # GIT_PROMPT_SHOW_UNTRACKED_FILES=normal # can be no, normal or all; determines counting of untracked files
+    GIT_PROMPT_SHOW_UNTRACKED_FILES=no # can be no, normal or all; determines counting of untracked files
     # GIT_PROMPT_SHOW_CHANGED_FILES_COUNT=0 # uncomment to avoid printing the number of changed files
     # GIT_PROMPT_STATUS_COMMAND=gitstatus_pre-1.7.10.sh # uncomment to support Git older than 1.7.10
     # GIT_PROMPT_START=...    # uncomment for custom prompt start sequence
@@ -225,10 +228,6 @@ fi
 
 # disable ctrl-s software flow control
 stty -ixon
-
-my_prompt_command() {
-:
-}
 
 # This works in iterm and xterm
 function nametab() {
@@ -440,14 +439,12 @@ alias bye='exit'
 alias y='echo Oops\!'
 alias pf='perldoc -f'
 alias r='fc -s'
-alias g='grep -i --color=auto'
 alias grep='grep --color=auto'
 alias egrep='egrep --color=auto'
 alias fgrep='fgrep --color=auto'
 alias pg='pgrep -aif'
 alias jag='ag --java'
-
-alias gd='./gradlew'
+alias rag='ag --rust'
 
 # Quick column selectors.
 # ps -fe | grep bash | f1 | sort -u
@@ -594,6 +591,11 @@ cw ()
 {
     _xw_sub cat $1
 }
+
+# Allow ^ those to complete on execution path
+complete -c mw
+complete -c ew
+complete -c cw
 
 # edit find
 ef ()
@@ -752,12 +754,27 @@ aless(){ perl -e 'BEGIN{$f=shift;%cs=();} open(IN,"<", $f); while(<IN>){$c=0; ma
 alias dk=docker-compose
 
 if $have_kubectl; then
+    prompt_callback() {
+        local cc
+
+        if cc=$(kubectl config current-context); then
+            if [ $cc == kind-kind ]; then
+                echo -n " ${LTGRNUL}$cc${CLEAR}"
+            else
+                echo -n " ${LTRED}${INVERSE}$cc${CLEAR}"
+            fi
+        else
+            echo -n " (nok8s)"
+        fi
+    }
+
     alias k=kubectl
     alias kc-disk='kc get cm,pv,pvc,crd --field-selector metadata.namespace!=kube-system -A'
 
     # --field-selector metadata.namespace!=kube-system
     kga() { kubectl get pod,service,deployment,replicaset,pvc,cm,crd $@; }
     kgp() { kubectl get pods $@; }
+    kgpi() { kubectl get pods $@ -o custom-columns='NAME:.metadata.name,STATUS:.status.phase,IMAGE:.spec.containers[0].image,PULL_SECRETS:.spec.imagePullSecrets[*].name'; }
     kdp() { kubectl describe pod $@; }
     kgs() { kubectl get services $@; }
     alias kcns=kubens
@@ -804,8 +821,7 @@ if $have_docker; then
     	   ;;
         esac
     }
-    
-    
+      
     function dtag() {
         docker tag $(docker images -q | head -1) $1
     }
@@ -817,9 +833,11 @@ if $have_docker; then
     }
     
     function dbash () {
-        docker run --entrypoint bash -it $(docker images -q | head -1)
+        local image=${1:-$(docker images -q | head -1)}
+        docker run --entrypoint bash -it $image
     }
-    fi
+
+fi
 
 if [ -r ~/.bashrc-work ]; then
     . ~/.bashrc-work
@@ -842,3 +860,8 @@ export SDKMAN_DIR="$HOME/.sdkman"
 alias docker-minikube='eval $(minikube -p minikube docker-env)'
 
 . "$HOME/.cargo/env"
+
+export PYENV_ROOT="$HOME/.pyenv"
+command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"
+eval "$(pyenv init -)"
+

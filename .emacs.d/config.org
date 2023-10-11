@@ -26,6 +26,14 @@ Instant Reloader:
       user-mail-address "mitchell.perilstein@gmail.com")
 #+end_src
 
+* Timed expire hacks
+#+begin_src emacs-lisp
+;; should have been fixed in emacs 29?
+(add-to-list 'image-types 'svg)
+
+#+end_src
+
+
 * Customize settings
 
 Set up the customize file to its own separate file, instead of saving
@@ -286,19 +294,12 @@ match the same one on macOS.
 
 * List buffers
 
-;;; Use helm-buffers list
-
-;; ibuffer is the improved version of list-buffers.
-;;
-;; #+begin_src emacs-lisp
-;; ;; make ibuffer the default buffer lister.
-;; (defalias 'list-buffers 'ibuffer)
-;; #+end_src
-
-
-source: http://ergoemacs.org/emacs/emacs_buffer_management.html
+;ibuffer is the improved version of list-buffers.
+;source: http://ergoemacs.org/emacs/emacs_buffer_management.html
 
 #+begin_src emacs-lisp
+;(defalias 'list-buffers 'ibuffer)
+
 (add-hook 'dired-mode-hook 'auto-revert-mode)
 
 ;; Also auto refresh dired, but be quiet about it
@@ -307,7 +308,6 @@ source: http://ergoemacs.org/emacs/emacs_buffer_management.html
 #+end_src
 
 source: [[http://whattheemacsd.com/sane-defaults.el-01.html][Magnars Sveen]]
-
 
 * Persistent Scratch
 #+begin_src emacs-lisp
@@ -645,7 +645,7 @@ source: [[http://whattheemacsd.com/sane-defaults.el-01.html][Magnars Sveen]]
            ("C-x C-f" . helm-find-files)
            ("C-x C-r" . helm-recentf))
     :init
-    (require 'helm-config)
+;;    (require 'helm-config)
     (defalias 'list-buffers 'helm-buffers-list)
     :config
     (setq helm-locate-command "mdfind -interpret -name %s %s"
@@ -745,68 +745,68 @@ langauges.
 
 Also before loading languages.
 #+begin_src emacs-lisp
-(use-package lsp-mode
-  :ensure t
-  :hook ((c-mode          ; clangd
-          python-mode     ; pyright
-          rustic-mode
-          ) . lsp-deferred)
-  :commands lsp
-  :config
-  (setq lsp-auto-guess-root t)
-  (setq lsp-log-io nil)
-  (setq lsp-restart 'auto-restart)
-  (setq lsp-enable-symbol-highlighting t)
-  (setq lsp-enable-on-type-formatting nil)
-  (setq lsp-signature-auto-activate t)
-  (setq lsp-signature-render-documentation t)
-  (setq lsp-eldoc-hook nil)
-  (setq lsp-modeline-code-actions-enable t)
-  (setq lsp-modeline-diagnostics-enable t)
-  (setq lsp-headerline-breadcrumb-enable t)
-  (setq lsp-semantic-tokens-enable t)
-  (setq lsp-enable-folding t)
-  (setq lsp-enable-imenu t)
-  (setq lsp-enable-snippet t)
-  (setq read-process-output-max (* 1024 1024)) ;; 1MB
-  (setq lsp-idle-delay 0.5))
+  (use-package lsp-mode
+    :ensure t
+    :hook ((c-mode          ; clangd
+            python-mode     ; pyright
+            rustic-mode
+            ) . lsp-deferred)
+    :commands lsp
+    :config
+    (setq lsp-auto-guess-root t)
+    (setq lsp-log-io nil)
+    (setq lsp-restart 'auto-restart)
+    (setq lsp-enable-symbol-highlighting t)
+    (setq lsp-enable-on-type-formatting nil)
+    (setq lsp-signature-auto-activate t)
+    (setq lsp-signature-render-documentation t)
+    (setq lsp-eldoc-hook nil)
+    (setq lsp-modeline-code-actions-enable t)
+    (setq lsp-modeline-diagnostics-enable t)
+    (setq lsp-headerline-breadcrumb-enable t)
+    (setq lsp-semantic-tokens-enable t)
+    (setq lsp-enable-folding t)
+    (setq lsp-enable-imenu t)
+    (setq lsp-enable-snippet t)
+    (setq read-process-output-max (* 1024 1024)) ;; 1MB
+    (setq lsp-idle-delay 0.5))
 
-  ;; (use-package lsp-ui
-  ;;   :ensure t
-  ;;   :demand t
-  ;;   :config
-  ;;   (setq lsp-ui-flycheck-enable t)
-  ;;   (define-key lsp-ui-mode-map [remap xref-find-definitions] #'lsp-ui-peek-find-definitions)
-  ;;   (define-key lsp-ui-mode-map [remap xref-find-references] #'lsp-ui-peek-find-references)
-  ;;   :hook 
-  ;;   (lsp-mode . lsp-ui-mode))
+    ;; (use-package lsp-ui
+    ;;   :ensure t
+    ;;   :demand t
+    ;;   :config
+    ;;   (setq lsp-ui-flycheck-enable t)
+    ;;   (define-key lsp-ui-mode-map [remap xref-find-definitions] #'lsp-ui-peek-find-definitions)
+    ;;   (define-key lsp-ui-mode-map [remap xref-find-references] #'lsp-ui-peek-find-references)
+    ;;   :hook 
+    ;;   (lsp-mode . lsp-ui-mode))
 
-(use-package lsp-ui
-  :ensure t)
+  (use-package lsp-ui
+    :ensure t)
 
-(use-package yasnippet
-  :ensure t
-  :init (yas-global-mode))
+  (use-package yasnippet
+    :ensure t
+    :init (yas-global-mode))
 
-(use-package helm-lsp
-  :ensure t)
+  (use-package helm-lsp
+    :ensure t)
 
-(use-package lsp-treemacs
-  :ensure t)
+  ;; (use-package lsp-treemacs
+  ;;   :ensure t)
 
-(use-package dap-mode
-  :ensure t)
+  (use-package dap-mode
+    :ensure t)
 
-(use-package lsp-origami
-  :ensure t)
+  (use-package lsp-origami
+    :ensure t)
 
-(use-package company
-  :ensure t)
+  (use-package company
+    :ensure t)
 
-(use-package lsp-pyright
-  :ensure t)
+  (use-package lsp-pyright
+    :ensure t)
 
-(add-hook 'prog-mode-hook 'lsp)
+  (add-hook 'prog-mode-hook 'lsp)
 #+end_src
 
 #+RESULTS:
@@ -871,21 +871,22 @@ because that will override the mode.
 
 ** Yaml
    #+begin_src emacs-lisp
-(use-package toml-mode
-  :ensure t)
+     (use-package toml-mode
+       :ensure t)
 
-(use-package yaml-mode
-  :mode "\\.yml"
-  :ensure t)
+     (use-package yaml-mode
+       :mode "\\.yml"
+       :ensure t)
 
-(use-package highlight-indentation
-  :ensure t
-  :hook ((yaml-mode . highlight-indentation-current-column-mode)
-         (python-mode . highlight-indentation-current-column-mode))
-;  :init (progn
-;            (set-face-background 'highlight-indentation-face "#f3f3d3")
-;            (set-face-background 'highlight-indentation-current-column-face "#e3c3b3")))
-)
+     (use-package highlight-indentation
+       :ensure t
+       :hook ((yaml-mode . highlight-indentation-current-column-mode)
+              (python-mode . highlight-indentation-current-column-mode))
+       ; :init (progn
+                ; (set-face-background 'highlight-indentation-face "#535353")
+               ; (set-face-background 'highlight-indentation-current-column-face "#939393")))
+     )
+
    #+end_src
 
 ** python

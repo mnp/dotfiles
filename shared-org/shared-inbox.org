@@ -1,10 +1,20 @@
 * Shared Incoming 
 
+L-functions
+https://www.youtube.com/watch?v=4bzSFNCiKrk
+
+salad dressing
+https://imgur.com/ZDTLt3J
+
 https://rauljordan.com/rust-concepts-i-wish-i-learned-earlier/
 
 Hacking the omron
 https://web.archive.org/web/20160630192311/https://www.moamindustries.com/blog/2016/4/20/hacking-a-uart-where-there-never-was-before
 https://github.com/ac-here/Project_Hack_Omron_BP_Monitor
+
+** books
+https://www.amazon.com/Time-Ice-Winter-Voyage-Antarctica/dp/0070063990
+
 
 ** grade your product an app on its five revenue streams
 1. original sale
