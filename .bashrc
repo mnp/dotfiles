@@ -750,7 +750,7 @@ if $have_kubectl; then
         local cc
 
         if cc=$(kubectl config current-context); then
-            if [ $cc == kind-kind ]; then
+            if [[ $cc == kind-kind || $cc =~ "mitch" ]]; then
                 echo -n " ${LTGRNUL}$cc${CLEAR}"
             else
                 echo -n " ${LTRED}${INVERSE}$cc${CLEAR}"
@@ -767,6 +767,7 @@ if $have_kubectl; then
     kga() { kubectl get pod,service,deployment,replicaset,pvc,cm,crd $@; }
     kgp() { kubectl get pods $@; }
     kgpi() { kubectl get pods $@ -o custom-columns='NAME:.metadata.name,STATUS:.status.phase,IMAGE:.spec.containers[0].image,PULL_SECRETS:.spec.imagePullSecrets[*].name'; }
+    kgpw() { kubectl get pods $@ -o wide; }
     kdp() { kubectl describe pod $@; }
     kgs() { kubectl get services $@; }
     alias kcns=kubens
