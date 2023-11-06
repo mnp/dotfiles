@@ -120,14 +120,6 @@ fi
 BASH_COMPLETION=${BASH_COMPLETION:-/usr/local/opt/bash-completion/etc/bash_completion}
 test -f $BASH_COMPLETION && . $BASH_COMPLETION
 
-# if type pyenv > /dev/null 2>&1; then
-#     export PYENV_ROOT="$HOME/.pyenv"
-#     export PATH="$PYENV_ROOT/bin:$PATH"
-#     eval "$(pyenv init -)"
-# else
-#     path_append PATH /usr/local/Cellar/python/2.7.13_1/Frameworks/Python.framework/Versions/2.7/bin
-# fi
-
 # eval "`pip completion --bash`"
 
 # make less more friendly for non-text input files, see lesspipe(1)
@@ -861,7 +853,8 @@ alias docker-minikube='eval $(minikube -p minikube docker-env)'
 
 . "$HOME/.cargo/env"
 
-export PYENV_ROOT="$HOME/.pyenv"
-command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"
-eval "$(pyenv init -)"
-
+if type pyenv > /dev/null 2>&1; then
+    export PYENV_ROOT="$HOME/.pyenv"
+    command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"
+    eval "$(pyenv init -)"
+fi
