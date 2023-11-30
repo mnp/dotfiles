@@ -29,8 +29,7 @@ Instant Reloader:
 * Timed expire hacks
 #+begin_src emacs-lisp
 ;; should have been fixed in emacs 29?
-(add-to-list 'image-types 'svg)
-
+;; (add-to-list 'image-types 'svg)
 #+end_src
 
 
@@ -52,6 +51,18 @@ customize settings in [[file:init.el][init.el]].
 
   (add-to-list 'load-path (expand-file-name "~/.emacs.d/shared-elisp"))
   #+end_src
+
+* ts-fold
+#+begin_src emacs-lisp
+(use-package ts-fold
+  :load-path "~/.emacs.d/ts-fold")
+
+(use-package ts-fold-indicators
+   :load-path "~/.emacs.d/ts-fold")
+#+end_src
+
+#+RESULTS:
+
 
 * Theme
 
@@ -363,6 +374,26 @@ source: [[http://whattheemacsd.com/sane-defaults.el-01.html][Magnars Sveen]]
         (t (self-insert-command (or arg 1)))))
 #+end_src
 
+* Tree sitter
+#+begin_src emacs-lisp
+(defun my-ts-hook ()
+  (tree-sitter-mode) 
+  (ts-fold-mode)
+  (ts-fold-indicators-mode))
+
+(use-package tree-sitter
+  :bind (([f8] . ts-fold-toggle))
+  :hook
+  ((json-mode rust-mode sh-mode yaml-mode) 
+   .
+   my-ts-hook))
+
+(use-package tree-sitter-langs
+  :hook
+  (tree-sitter-after-on . tree-sitter-hl-mode))
+#+end_src
+
+
 * Narrow to enclosing thing
   #+begin_src emacs-lisp
     (use-package fancy-narrow
@@ -418,6 +449,8 @@ source: [[http://whattheemacsd.com/sane-defaults.el-01.html][Magnars Sveen]]
   (global-set-key [f5]            (lambda () (interactive) (revert-buffer t nil)))
   (global-set-key [f6]            (lambda () (interactive) (switch-to-buffer nil)))
   (global-set-key [f7]            'my-toggle-hideshow-all)
+  ;; f8 is ts-fold
+  ;; f9 is deft
   (global-set-key [f12]           'my-toggle-selective-display)
 
   (global-set-key [?\C-_]         'help-command)
@@ -635,73 +668,73 @@ source: [[http://whattheemacsd.com/sane-defaults.el-01.html][Magnars Sveen]]
 ** Helm
 
 #+begin_src emacs-lisp
-  (use-package helm
-    :ensure t
-    :diminish helm-mode
-    :bind (("C-c h" . helm-command-prefix)
-           ("C-x b" . helm-mini)
-           ("C-`" . helm-resume)
-           ("M-x" . helm-M-x)
-           ("C-x C-f" . helm-find-files)
-           ("C-x C-r" . helm-recentf))
-    :init
-    ;; what's this for now?
-    ;; (require 'helm-config)
-    (defalias 'list-buffers 'helm-buffers-list)
-    :config
-    (setq helm-locate-command "mdfind -interpret -name %s %s"
-          helm-ff-newfile-prompt-p nil
-          helm-M-x-fuzzy-match t)
-    (helm-mode 1)
-    :custom-face
-    (helm-selection ((t :background "LightYellow" :foreground "black"))))
+;  (use-package helm
+;    :ensure t
+;    :diminish helm-mode
+;    :bind (("C-c h" . helm-command-prefix)
+;           ("C-x b" . helm-mini)
+;           ("C-`" . helm-resume)
+;           ("M-x" . helm-M-x)
+;           ("C-x C-f" . helm-find-files)
+;           ("C-x C-r" . helm-recentf))
+;    :init
+;    ;; what's this for now?
+;    ;; (require 'helm-config)
+;    (defalias 'list-buffers 'helm-buffers-list)
+;    :config
+;    (setq helm-locate-command "mdfind -interpret -name %s %s"
+;          helm-ff-newfile-prompt-p nil
+;          helm-M-x-fuzzy-match t)
+;    (helm-mode 1)
+;    :custom-face
+;    (helm-selection ((t :background "LightYellow" :foreground "black"))))
 #+end_src
 
 
 *** Helm other
     #+begin_src emacs-lisp :tangle on
-  (use-package helm-projectile
-    :ensure t
-    :after helm-mode
-    :commands helm-projectile
-    :bind ("C-c p h" . helm-projectile))
-
-  (use-package helm-ag
-    :ensure t
-    :after helm-mode)
-
+;  (use-package helm-projectile
+;    :ensure t
+;    :after helm-mode
+;    :commands helm-projectile
+;    :bind ("C-c p h" . helm-projectile))
+;
+;  (use-package helm-ag
+;    :ensure t
+;    :after helm-mode)
+;
     #+end_src
 
 *** Helm grepint
     #+begin_src emacs-lisp
-(defun my-helm-grepint-root ()
-  "Uses `my-grep-root` if set from .dir-locals.el, or ascends to .git."
-  (if (boundp 'my-grep-root)
-      my-grep-root
-    (locate-dominating-file (file-name-as-directory
-                             (expand-file-name (file-truename default-directory)))
-                            (lambda (x)
-                              (or (file-exists-p (concat x "/.git"))
-                                  (file-exists-p (concat x "/setup.py"))
-                                  (file-exists-p (concat x "/Cargo.toml")))))))
+;; (defun my-helm-grepint-root ()
+;;   "Uses `my-grep-root` if set from .dir-locals.el, or ascends to .git."
+;;   (if (boundp 'my-grep-root)
+;;       my-grep-root
+;;     (locate-dominating-file (file-name-as-directory
+;;                              (expand-file-name (file-truename default-directory)))
+;;                             (lambda (x)
+;;                               (or (file-exists-p (concat x "/.git"))
+;;                                   (file-exists-p (concat x "/setup.py"))
+;;                                   (file-exists-p (concat x "/Cargo.toml")))))))
 
 ;; https://github.com/kopoli/helm-grepint
-(use-package helm-grepint
-  :ensure t
-  :config
-  (helm-grepint-add-grep-config myag
-    :command "ag"
-    :arguments "--nocolor --search-zip --nogroup :ignore-case-arg -- :search-pattern"
-    :ignore-case-arg "--ignore-case"
-    :root-directory-function my-helm-grepint-root)
-
-  ;; Always use ag, even under a git repo, because not all files
-  ;; are checked in yet. Also if working on a monorepo we want
-  ;; to ascend to project root, not all the way up to the .git dir.
-  (setq helm-grepint-grep-list '(myag))
-
-  :bind ("C-c g" . helm-grepint-grep-root)
-  ("C-c G" . helm-grepint-grep-root))
+;(use-package helm-grepint
+;  :ensure t
+;  :config
+;  (helm-grepint-add-grep-config myag
+;    :command "ag"
+;    :arguments "--nocolor --search-zip --nogroup :ignore-case-arg -- :search-pattern"
+;    :ignore-case-arg "--ignore-case"
+;    :root-directory-function my-helm-grepint-root)
+;
+;  ;; Always use ag, even under a git repo, because not all files
+;  ;; are checked in yet. Also if working on a monorepo we want
+;  ;; to ascend to project root, not all the way up to the .git dir.
+;  (setq helm-grepint-grep-list '(myag))
+;
+;  :bind ("C-c g" . helm-grepint-grep-root)
+;  ("C-c G" . helm-grepint-grep-root))
 
                                         ;(use-package helm-swoop
                                         ;  :ensure t
@@ -791,9 +824,6 @@ Also before loading languages.
 
   (use-package helm-lsp
     :ensure t)
-
-  ;; (use-package lsp-treemacs
-  ;;   :ensure t)
 
   (use-package dap-mode
     :ensure t)

@@ -575,7 +575,7 @@ mw ()
 # edit which
 ew ()
 {
-    _xw_sub $EDITOR $1
+    emacsclient --no-wait $(builtin type -path "$1")  ## not useful:  _xw_sub $EDITOR $1
 }
 
 # cat which

@@ -16,11 +16,19 @@ set -u
 RED=$(tput setaf 1)
 GREEN=$(tput setaf 2)
 NORM=$(tput sgr0)
+DELAY=0.01
 
 cmddir=${1:-.}
 cmdfiles=(`cd $cmddir; ls`)
 ncommands=${#cmdfiles[*]}
 idx=0
+
+type_string() { 
+    for (( i=0; i<${#1}; i++ )); do
+      echo -n "${1:$i:1}"
+      sleep $DELAY
+    done
+}
 
 prompt() {
     tput sc
@@ -28,6 +36,10 @@ prompt() {
     read -p "$RED $1 $NORM" -s -n 1
     tput rc
 }
+
+type_string "now is the time for x"
+
+exit 0
 
 while true; do
     clear
