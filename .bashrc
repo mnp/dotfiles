@@ -765,11 +765,12 @@ if $have_kubectl; then
 
     # --field-selector metadata.namespace!=kube-system
     kga() { kubectl get pod,service,deployment,replicaset,pvc,cm,crd $@; }
-    kgp() { kubectl get pods $@; }
-    kgpi() { kubectl get pods $@ -o custom-columns='NAME:.metadata.name,STATUS:.status.phase,IMAGE:.spec.containers[0].image,PULL_SECRETS:.spec.imagePullSecrets[*].name'; }
+    kgp() { kubectl get pods --sort-by '{.metadata.name}' $@; }
+    kgpi() { kubectl get pods --sort-by '{.metadata.name}' $@ -o custom-columns='NAME:.metadata.name,STATUS:.status.phase,IMAGE:.spec.containers[0].image,PULL_SECRETS:.spec.imagePullSecrets[*].name'; }
     kgpw() { kubectl get pods $@ -o wide; }
     kdp() { kubectl describe pod $@; }
-    kgs() { kubectl get services $@; }
+    kgs() { kubectl get services --sort-by '{.metadata.name}' $@; }
+    kge() { kubectl get events --sort-by='.lastTimestamp' $@; }
     alias kcns=kubens
 
     kcl() { kubectl logs -f pod/$(kc-getpod $1);  }

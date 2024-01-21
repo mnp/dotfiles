@@ -1,0 +1,13 @@
+#!/bin/bash
+
+# grep case sensitively only when there are caps in the search string
+
+insense='-i'
+what="$1"
+shift
+
+if [[ "$what" =~ [A-Z] ]]; then
+    insense=''
+fi
+
+exec grep $insense "$what" --color=auto "$@"

@@ -54,11 +54,11 @@ customize settings in [[file:init.el][init.el]].
 
 * ts-fold
 #+begin_src emacs-lisp
-(use-package ts-fold
-  :load-path "~/.emacs.d/ts-fold")
+;; (use-package ts-fold
+;;   :load-path "~/.emacs.d/ts-fold")
 
-(use-package ts-fold-indicators
-   :load-path "~/.emacs.d/ts-fold")
+;; (use-package ts-fold-indicators
+;;    :load-path "~/.emacs.d/ts-fold")
 #+end_src
 
 #+RESULTS:
@@ -97,67 +97,71 @@ Let's start with some sane defaults, shall we?
 Sources for this section include [[https://github.com/magnars/.emacs.d/blob/master/settings/sane-defaults.el][Magnars Sveen]] and [[http://pages.sachachua.com/.emacs.d/Sacha.html][Sacha Chua]].
 
 #+begin_src emacs-lisp
-(setq confirm-kill-emacs #'yes-or-no-p)
+    (setq confirm-kill-emacs #'yes-or-no-p)
 
-;; These functions are useful. Activate them.
-(put 'downcase-region 'disabled nil)
-(put 'upcase-region 'disabled nil)
-(put 'narrow-to-region 'disabled nil)
-(put 'dired-find-alternate-file 'disabled nil)
+    ;; These functions are useful. Activate them.
+    (put 'downcase-region 'disabled nil)
+    (put 'upcase-region 'disabled nil)
+    (put 'narrow-to-region 'disabled nil)
+    (put 'dired-find-alternate-file 'disabled nil)
 
-;; I prefer splitting over/under instead of left/right
-(setq split-width-threshold nil)
+    ;; I prefer splitting over/under instead of left/right
+    (setq split-width-threshold nil)
 
-;; Answering just 'y' or 'n' will do
-(defalias 'yes-or-no-p 'y-or-n-p)
+    ;; Answering just 'y' or 'n' will do
+    (defalias 'yes-or-no-p 'y-or-n-p)
 
-;; Keep all backup and auto-save files in one directory
-(setq backup-directory-alist '(("." . "~/.emacs.d/backups")))
-(setq auto-save-file-name-transforms '((".*" "~/.emacs.d/auto-save-list/" t)))
+    ;; Keep all backup and auto-save files in one directory
+    (setq backup-directory-alist '(("." . "~/.emacs.d/backups")))
+    (setq auto-save-file-name-transforms '((".*" "~/.emacs.d/auto-save-list/" t)))
 
-;; UTF-8 please
-(setq locale-coding-system 'utf-8) ; pretty
-(set-terminal-coding-system 'utf-8) ; pretty
-(set-keyboard-coding-system 'utf-8) ; pretty
-(set-selection-coding-system 'utf-8) ; please
-(prefer-coding-system 'utf-8) ; with sugar on top
+    ;; UTF-8 please
+    (setq locale-coding-system 'utf-8) ; pretty
+    (set-terminal-coding-system 'utf-8) ; pretty
+    (set-keyboard-coding-system 'utf-8) ; pretty
+    (set-selection-coding-system 'utf-8) ; please
+    (prefer-coding-system 'utf-8) ; with sugar on top
 
-;; Turn off the blinking cursor
-;(blink-cursor-mode -1)
+    ;; Turn off the blinking cursor
+    ;(blink-cursor-mode -1)
 
-(setq-default indent-tabs-mode nil)
-(setq-default indicate-empty-lines t)
-(setq-default fill-column 99)
+    (setq-default indent-tabs-mode nil)
+    (setq-default indicate-empty-lines t)
+    (setq-default fill-column 99)
 
-;; Don't count two spaces after a period as the end of a sentence.
-;; Just one space is needed.
-(setq sentence-end-double-space nil)
+    ;; Don't count two spaces after a period as the end of a sentence.
+    ;; Just one space is needed.
+    (setq sentence-end-double-space nil)
 
-;; delete the region when typing, just like as we expect nowadays.
-(delete-selection-mode t)
+    ;; delete the region when typing, just like as we expect nowadays.
+    (delete-selection-mode t)
 
-(show-paren-mode t)
+    (show-paren-mode t)
 
-(column-number-mode t)
+    (column-number-mode t)
 
-(global-visual-line-mode)
-(diminish 'visual-line-mode)
+    (global-visual-line-mode)
+    (diminish 'visual-line-mode)
 
-(setq uniquify-buffer-name-style 'forward)
+    ;; transparency
+    (set-frame-parameter (selected-frame) 'alpha '(95 . 95))
+    (add-to-list 'default-frame-alist '(alpha . (95 . 95)))
+  
+    (setq uniquify-buffer-name-style 'forward)
 
-;; NON interactive shell - just for M-! etc
-(setq shell-command-switch "-c")
-(setq shell-file-name "sh")
+    ;; NON interactive shell - just for M-! etc
+    (setq shell-command-switch "-c")
+    (setq shell-file-name "sh")
 
-;; will need -ic for interactive shell mode etc to get alias definitions from .bash_profile
+    ;; will need -ic for interactive shell mode etc to get alias definitions from .bash_profile
 
-(setq visible-bell nil)
+    (setq visible-bell nil)
 
-(global-auto-revert-mode 1)
+    (global-auto-revert-mode 1)
 
-;; Go to top of packages buffer after loading it, so the new items are visible
-(add-hook 'package--post-download-archives-hook
-          '(lambda () (goto-char (point-min))))
+    ;; Go to top of packages buffer after loading it, so the new items are visible
+    (add-hook 'package--post-download-archives-hook
+	      '(lambda () (goto-char (point-min))))
 #+end_src
 
 * Occur DWIM
@@ -668,73 +672,73 @@ source: [[http://whattheemacsd.com/sane-defaults.el-01.html][Magnars Sveen]]
 ** Helm
 
 #+begin_src emacs-lisp
-;  (use-package helm
-;    :ensure t
-;    :diminish helm-mode
-;    :bind (("C-c h" . helm-command-prefix)
-;           ("C-x b" . helm-mini)
-;           ("C-`" . helm-resume)
-;           ("M-x" . helm-M-x)
-;           ("C-x C-f" . helm-find-files)
-;           ("C-x C-r" . helm-recentf))
-;    :init
-;    ;; what's this for now?
-;    ;; (require 'helm-config)
-;    (defalias 'list-buffers 'helm-buffers-list)
-;    :config
-;    (setq helm-locate-command "mdfind -interpret -name %s %s"
-;          helm-ff-newfile-prompt-p nil
-;          helm-M-x-fuzzy-match t)
-;    (helm-mode 1)
-;    :custom-face
-;    (helm-selection ((t :background "LightYellow" :foreground "black"))))
+ (use-package helm
+   :ensure nil
+   :diminish helm-mode
+   :bind (("C-c h" . helm-command-prefix)
+          ("C-x b" . helm-mini)
+          ("C-`" . helm-resume)
+          ("M-x" . helm-M-x)
+          ("C-x C-f" . helm-find-files)
+          ("C-x C-r" . helm-recentf))
+   :init
+   ;; what's this for now?
+   ;; (require 'helm-config)
+   (defalias 'list-buffers 'helm-buffers-list)
+   :config
+   (setq helm-locate-command "mdfind -interpret -name %s %s"
+         helm-ff-newfile-prompt-p nil
+         helm-M-x-fuzzy-match t)
+   (helm-mode 1)
+   :custom-face
+   (helm-selection ((t :background "LightYellow" :foreground "black"))))
 #+end_src
 
 
 *** Helm other
     #+begin_src emacs-lisp :tangle on
-;  (use-package helm-projectile
-;    :ensure t
-;    :after helm-mode
-;    :commands helm-projectile
-;    :bind ("C-c p h" . helm-projectile))
-;
-;  (use-package helm-ag
-;    :ensure t
-;    :after helm-mode)
-;
+ (use-package helm-projectile
+   :ensure t
+   :after helm-mode
+   :commands helm-projectile
+   :bind ("C-c p h" . helm-projectile))
+
+ (use-package helm-ag
+   :ensure t
+   :after helm-mode)
+
     #+end_src
 
 *** Helm grepint
     #+begin_src emacs-lisp
-;; (defun my-helm-grepint-root ()
-;;   "Uses `my-grep-root` if set from .dir-locals.el, or ascends to .git."
-;;   (if (boundp 'my-grep-root)
-;;       my-grep-root
-;;     (locate-dominating-file (file-name-as-directory
-;;                              (expand-file-name (file-truename default-directory)))
-;;                             (lambda (x)
-;;                               (or (file-exists-p (concat x "/.git"))
-;;                                   (file-exists-p (concat x "/setup.py"))
-;;                                   (file-exists-p (concat x "/Cargo.toml")))))))
+(defun my-helm-grepint-root ()
+  "Uses `my-grep-root` if set from .dir-locals.el, or ascends to .git."
+  (if (boundp 'my-grep-root)
+      my-grep-root
+    (locate-dominating-file (file-name-as-directory
+                             (expand-file-name (file-truename default-directory)))
+                            (lambda (x)
+                              (or (file-exists-p (concat x "/.git"))
+                                  (file-exists-p (concat x "/setup.py"))
+                                  (file-exists-p (concat x "/Cargo.toml")))))))
 
 ;; https://github.com/kopoli/helm-grepint
-;(use-package helm-grepint
-;  :ensure t
-;  :config
-;  (helm-grepint-add-grep-config myag
-;    :command "ag"
-;    :arguments "--nocolor --search-zip --nogroup :ignore-case-arg -- :search-pattern"
-;    :ignore-case-arg "--ignore-case"
-;    :root-directory-function my-helm-grepint-root)
-;
-;  ;; Always use ag, even under a git repo, because not all files
-;  ;; are checked in yet. Also if working on a monorepo we want
-;  ;; to ascend to project root, not all the way up to the .git dir.
-;  (setq helm-grepint-grep-list '(myag))
-;
-;  :bind ("C-c g" . helm-grepint-grep-root)
-;  ("C-c G" . helm-grepint-grep-root))
+(use-package helm-grepint
+ :ensure t
+ :config
+ (helm-grepint-add-grep-config myag
+   :command "ag"
+   :arguments "--nocolor --search-zip --nogroup :ignore-case-arg -- :search-pattern"
+   :ignore-case-arg "--ignore-case"
+   :root-directory-function my-helm-grepint-root)
+
+ ;; Always use ag, even under a git repo, because not all files
+ ;; are checked in yet. Also if working on a monorepo we want
+ ;; to ascend to project root, not all the way up to the .git dir.
+ (setq helm-grepint-grep-list '(myag))
+
+ :bind ("C-c g" . helm-grepint-grep-root)
+ ("C-c G" . helm-grepint-grep-root))
 
                                         ;(use-package helm-swoop
                                         ;  :ensure t
@@ -779,65 +783,66 @@ langauges.
 
 Also before loading languages.
 #+begin_src emacs-lisp
-  (use-package lsp-mode
-    :ensure t
-    :hook ((c-mode          ; clangd
-            python-mode     ; pyright
-            rustic-mode
-            ) . lsp-deferred)
-    :commands lsp
-    :config
-    (setq lsp-auto-guess-root t)
-    (setq lsp-log-io nil)
-    (setq lsp-restart 'auto-restart)
-    (setq lsp-enable-symbol-highlighting t)
-    (setq lsp-enable-on-type-formatting nil)
-    (setq lsp-signature-auto-activate t)
-    (setq lsp-signature-render-documentation t)
-    (setq lsp-eldoc-hook nil)
-    (setq lsp-modeline-code-actions-enable t)
-    (setq lsp-modeline-diagnostics-enable t)
-    (setq lsp-headerline-breadcrumb-enable t)
-    (setq lsp-semantic-tokens-enable t)
-    (setq lsp-enable-folding t)
-    (setq lsp-enable-imenu t)
-    (setq lsp-enable-snippet t)
-    (setq read-process-output-max (* 1024 1024)) ;; 1MB
-    (setq lsp-idle-delay 0.5))
+    (use-package lsp-mode
+      :ensure t
+      :hook ((c-mode          ; clangd
+	      python-mode     ; pyright
+	      rustic-mode
+	      ) . lsp)
+      :commands lsp
+      :config
+      (setq lsp-auto-guess-root t)
+      (setq lsp-log-io nil)
+      (setq lsp-restart 'auto-restart)
+      (setq lsp-enable-symbol-highlighting t)
+      (setq lsp-enable-on-type-formatting nil)
+      (setq lsp-signature-auto-activate t)
+      (setq lsp-signature-render-documentation t)
+      (setq lsp-eldoc-hook nil)
+      (setq lsp-modeline-code-actions-enable t)
+      (setq lsp-modeline-diagnostics-enable t)
+      (setq lsp-headerline-breadcrumb-enable t)
+      (setq lsp-semantic-tokens-enable t)
+      (setq lsp-enable-folding t)
+      (setq lsp-enable-imenu t)
+      (setq lsp-enable-snippet t)
+      (setq read-process-output-max (* 1024 1024)) ;; 1MB
+      (setq lsp-idle-delay 0.5))
 
-    ;; (use-package lsp-ui
-    ;;   :ensure t
-    ;;   :demand t
-    ;;   :config
-    ;;   (setq lsp-ui-flycheck-enable t)
-    ;;   (define-key lsp-ui-mode-map [remap xref-find-definitions] #'lsp-ui-peek-find-definitions)
-    ;;   (define-key lsp-ui-mode-map [remap xref-find-references] #'lsp-ui-peek-find-references)
-    ;;   :hook 
-    ;;   (lsp-mode . lsp-ui-mode))
+      ;; (use-package lsp-ui
+      ;;   :ensure t
+      ;;   :demand t
+      ;;   :config
+      ;;   (setq lsp-ui-flycheck-enable t)
+      ;;   (define-key lsp-ui-mode-map [remap xref-find-definitions] #'lsp-ui-peek-find-definitions)
+      ;;   (define-key lsp-ui-mode-map [remap xref-find-references] #'lsp-ui-peek-find-references)
+      ;;   :hook 
+      ;;   (lsp-mode . lsp-ui-mode))
 
-  (use-package lsp-ui
-    :ensure t)
+    (use-package lsp-ui
+      :ensure t
+      :commands lsp-ui-mode)
 
-  (use-package yasnippet
-    :ensure t
-    :init (yas-global-mode))
+    (use-package yasnippet
+      :ensure t
+      :init (yas-global-mode))
 
-  (use-package helm-lsp
-    :ensure t)
+    (use-package helm-lsp
+      :ensure t)
 
-  (use-package dap-mode
-    :ensure t)
+    (use-package dap-mode
+      :ensure t)
 
-  (use-package lsp-origami
-    :ensure t)
+    (use-package lsp-origami
+      :ensure t)
 
-  (use-package company
-    :ensure t)
+    (use-package company
+      :ensure t)
 
-  (use-package lsp-pyright
-    :ensure t)
+    (use-package lsp-pyright
+      :ensure t)
 
-  (add-hook 'prog-mode-hook 'lsp)
+    (add-hook 'prog-mode-hook 'lsp)
 #+end_src
 
 #+RESULTS:
@@ -908,6 +913,10 @@ because that will override the mode.
      (use-package yaml-mode
        :mode "\\.yml"
        :ensure t)
+
+    (use-package indent-bars
+      :load-path "~/tmp/experimental-emacs"
+      :hook ((yaml-mode) . indent-bars-mode))
 
      (use-package highlight-indentation
        :ensure t

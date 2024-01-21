@@ -1,5 +1,14 @@
 * Shared Incoming 
 
+** veg
+https://protocol.bryanjohnson.com/#step-1-meal-prep
+
+** memes
+pipe clamps https://i.imgur.com/uAxm30F.jpg
+
+installation wizard https://i.imgur.com/qOetTi8.png
+
+** x
 1910 calculus
 https://www.gutenberg.org/files/33283/33283-pdf.pdf
 
@@ -29,7 +38,10 @@ https://www.amazon.com/Time-Ice-Winter-Voyage-Antarctica/dp/0070063990
 windows: 1-5
 
 
-** 
+** misc
+origami
+https://imgur.com/gallery/5Lu7P92
+
 https://www.sigstore.dev
 https://slsa.dev
 https://www.chainguard.dev/unchained/what-an-sbom-can-do-for-you
