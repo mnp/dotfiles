@@ -1,4 +1,12 @@
 * Shared Incoming 
+** SPI chip rev eng
+https://github.com/AkechiShiro/slides-talks/blob/main/UYBHYS2022/Talk%20SPI%20chips.pdf
+
+** carroll
+small lymphocytes
+monocytes
+path review
+richter syndrome
 
 ** veg
 https://protocol.bryanjohnson.com/#step-1-meal-prep
@@ -273,4 +281,24 @@ https://web.archive.org/web/20161009151935/http://www.hiswasymposium.com/assets/
 ** [2020-05-19 Tue] sqs vs sns patterns
 
 https://medium.com/awesome-cloud/aws-difference-between-sqs-and-sns-61a397bf76c5
+* 2024
+** 2024-01 January
+*** 2024-01-25 Thursday
+**** pot holder
+https://imgur.com/gallery/84alSpm
+*** 2024-01-30 Tuesday
+**** vore.website backup [2024-01-30 Tue 16:49]
+
+https://daniel.haxx.se/blog/feed
+https://krebsonsecurity.com/feed/
+https://m.xkcd.com/rss.xml
+https://magnus.therning.org/feed.xml
+https://moth.monster/blog/feed.xml
+https://nullprogram.com/feed/
+https://popehat.substack.com/Feed
+https://spectrum.ieee.org/rss
+https://wingolog.org/feed/atom
+https://www.johndcook.com/blog/feed
+https://www.oglaf.com/feeds/rss/
+
 

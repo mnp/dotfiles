@@ -1,0 +1,2 @@
+# Meta-, arg 0 yank-nth-arg -- insert the previous command, like M-.
+"\e,": "\e0\M-\C-y"

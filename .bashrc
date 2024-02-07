@@ -770,7 +770,8 @@ if $have_kubectl; then
     kgpw() { kubectl get pods $@ -o wide; }
     kdp() { kubectl describe pod $@; }
     kgs() { kubectl get services --sort-by '{.metadata.name}' $@; }
-    kge() { kubectl get events --sort-by='.lastTimestamp' $@; }
+    kge() { kubectl get events --sort-by='.metadata.creationTimestamp' $@; }
+
     alias kcns=kubens
 
     kcl() { kubectl logs -f pod/$(kc-getpod $1);  }
