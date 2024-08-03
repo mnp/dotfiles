@@ -1,14 +1,19 @@
+# hints from https://kiranrao.ca/2024/06/21/git-config.html
+
 [user]
 	name = Mitchell Perilstein
 	email = mitch@wallaroo.ai
 [github]
 [push]
 	default = simple
+	autoSetupRemote = true
+
 [alias]
 	stashed = stash list --pretty=format:'%gd: %Cred%h%Creset %Cgreen[%ar]%Creset %s'
 	lg = log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit
         co = checkout
-        
+        please = push --force-with-lease
+
 # for $deity's sake, check that anything we're getting is complete and sane on a regular basis
 [transfer]
         fsckobjects = true
@@ -45,3 +50,8 @@
 # https://codeinthehole.com/guides/resolving-conflicts-during-a-git-rebase/#resolve-conflicts-safely
 [rerere]
 	enabled = true
+[maintenance]
+	repo = /Users/mnp/prj/platform-B
+
+[credential]
+	helper = store

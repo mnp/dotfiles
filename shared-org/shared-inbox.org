@@ -1,8 +1,26 @@
 * Shared Incoming 
+
+** writing political
+make a mindmap and explainer showing links from Thiel, Musk, Ellison, Sacks to Trump, Vance, DeSantis, etc
+
+https://www.techwontsave.us/episode/230_silicon_valley_is_backing_donald_trump_w_jacob_silverman
+https://www.nytimes.com/2023/05/24/us/politics/david-sacks-desantis-twitter-musk.html
+
+
+** workout
+800 	1 X { 	
+    8x25 	Other 	(Freestyle) 	Build 	80% Effort
+    1x100 	Warm-Down 	(Freestyle) 		50% Effort
+    4x50 	Other 	(Freestyle) 	Build 	80% Effort
+    1x100 	Warm-Down 	(Freestyle) 		50% Effort
+    2x100 	Other 	(Freestyle) 	Build 	20% Effort
+    
+https://swimworkouts.net/workouts/4898  ook mailinator ookook
+
 ** SPI chip rev eng
 https://github.com/AkechiShiro/slides-talks/blob/main/UYBHYS2022/Talk%20SPI%20chips.pdf
 
-** carroll
+** jenn carroll
 small lymphocytes
 monocytes
 path review
@@ -80,6 +98,10 @@ dont-touch-my-tabs https://addons.mozilla.org/en-US/firefox/addon/dont-touch-my-
 
 
 * To Read
+
+hyperion cantos dan simmons - jung
+phenomenon of man Teilhard de Chardin
+
 
 https://ntrs.nasa.gov/api/citations/19720005243/downloads/19720005243.pdf
 https://www.nasa.gov/pdf/293253main_62682main_jerry_madden_forum7.pdf
@@ -300,5 +322,27 @@ https://spectrum.ieee.org/rss
 https://wingolog.org/feed/atom
 https://www.johndcook.com/blog/feed
 https://www.oglaf.com/feeds/rss/
+http://feeds.feedburner.com/TomMoertelsBlog
 
+** 2024-02 February
+*** 2024-02-07 Wednesday
+**** Sync [2024-02-07 Wed 18:05]
+  https://www.youtube.com/shorts/Idh9Ngw_zIA
+Qi LEDs
+** 2024-05 May
+*** 2024-05-09 Thursday
+**** MCD reading [2024-05-09 Thu 11:01]
+  john c wright - softish distant future scifi 
+dodge or fall from stephenson
+*** 2024-05-10 Friday
+**** Sync [2024-05-10 Fri 16:32]
+  https://b.tuxes.uk/avoiding-emacs-bankruptcy.html
 
+  minimal suggestions
+** 2024-07 July
+*** 2024-07-19 Friday
+**** Sync [2024-07-19 Fri 12:29]
+  https://journals.lww.com/acsm-msse/fulltext/2000/01000/shoulder_impingement_in_front_crawl_swimming__ii_.6.aspx
+Shoulder impingement in front-crawl swimming: II. analysis of stroking technique
+and https://www.youtube.com/watch?v=yn2mthu5mRY
+and https://www.youtube.com/watch?v=vnayCVeF4LE

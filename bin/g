@@ -10,4 +10,4 @@ if [[ "$what" =~ [A-Z] ]]; then
     insense=''
 fi
 
-exec grep $insense "$what" --color=auto "$@"
+exec egrep $insense "$what" --color=auto "$@"
