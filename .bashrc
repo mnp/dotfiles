@@ -3,13 +3,20 @@ echo bashrc noninteractive section
 
 . ~/lib/shlib.bash
 
-set_have_cmd_vars git bat brew terraform gzcat zcat oocalc kubectl docker lesspipe
+# golang
+test -d $HOME/go/bin && path_append PATH $HOME/go/bin
+
+# set a $have_ var for each of these commands, true if we have them
+set_have_cmd_vars git bat brew terraform gzcat zcat oocalc kubectl kubesafe docker lesspipe glow
 
 for d in /usr/man /usr/share/man /usr/local/man $HOME/perl5/man; do
     path_append MANPATH $d
 done
 export MANPATH
 export PATH
+
+export LANG=en_US.UTF-8
+export LC_ALL=en_US.UTF-8
 
 # emacsclient and etags on osx, needs to be before /usr/local
 macemacs=/Applications/Emacs.app/Contents/MacOS/bin-x86_64-10_14/
@@ -25,6 +32,9 @@ fi
 # osx
 test -d /opt/local/bin && path_append PATH /opt/local/bin 
 #test -d /Library/Frameworks/Mono.framework/Home/bin && path_append PATH /Library/Frameworks/Mono.framework/Home/bin
+
+# psql is part of "brew install libpq" on macos
+test -d /usr/local/opt/libpq/bin && path_append PATH /usr/local/opt/libpq/bin
 
 # pony
 #if [ -d ~/.local/share/ponyup/bin ]; then
@@ -46,9 +56,6 @@ test -d ~/.local/bin && path_append PATH ~/.local/bin
 
 # node
 test -d ~/node_modules/.bin && path_append PATH ~/node_modules/.bin
-
-# golang
-test -d $HOME/go/bin && path_append PATH $HOME/go/bin
 
 # rust, cargo, etc
 test -r $HOME/.cargo/env && . $HOME/.cargo/env
@@ -127,7 +134,7 @@ if $have_lesspipe; then
     eval "$(lesspipe)"
     # TODO: bat and m integrate
 fi
-export LESS=-inXR
+export LESS=-Ri     # causes trouble: -FinXRr
 
 # happy terminal
 if [ -d $HOME/terminfo ]; then
@@ -160,6 +167,9 @@ if [ 0 -eq $EUID ]; then
 else
     PS1COLOR=$LTGRN
 fi
+
+# don't exit on ctrl-d
+set -o ignoreeof 
 
 if $have_git; then
     alias gsm=' git status --untracked-files=no --ignore-submodules'
@@ -282,6 +292,12 @@ else
     PREPAGER=less
 fi
 
+if $have_glow; then
+    markdown() { glow -w 100 --pager "$1"; }
+else
+    markdown() { $PREPAGER "$1"; }
+fi
+
 # my do it all superdeal - consider customized mailcap type alternative
 m()
 {
@@ -290,6 +306,10 @@ m()
 	ls $LS_OPTIONS -l "$1"
 	return
     fi
+
+    # work cases
+    #    declare -F work_m_checks "$1" >& /dev/null && work_m_checks "$1" && return
+    work_m_checks "$1" && return
 
     # text cases
     case "$1" in
@@ -309,6 +329,7 @@ m()
             fi
 	    return
 	    ;;
+	*.md) markdown "$1"; return;;
 	*.jar) jar tvf "$1" | $PAGER ; return;;
 	*.gz)  $ZCAT "$1" | $PAGER ; return;;
 	*.bz2) bzcat "$1" | $PAGER ; return;;
@@ -357,6 +378,12 @@ mvrt ()
     mv "$1"/"$(ls -rt "$1"|tail -1)" $2
 }
 
+
+# make dir and cd there
+mkcd () {
+  \mkdir -p "$1"
+  cd "$1"
+}
 
 # edit the last "ls -lrt"
 ert ()
@@ -412,6 +439,7 @@ alias lh='ls -lhS'
 
 function jc() { jq -C . $@ | less -r; }
 function cj() { curl -s $1 | jq -C . | less -r; }
+function dusk() { du -sk ${1:-.}/* | sort -n; }
 
 alias mlp='m `ls -rt /tmp/*pdf|tail -1`'
 alias rm='rm -i'
@@ -461,11 +489,6 @@ function pc ()
 {
     nc -z $(echo $@ | sed 's/:/ /g')
     echo $?
-}
-
-function fj ()
-{
-    find ${1:-.} -type f -name \*.java
 }
 
 #
@@ -588,6 +611,8 @@ cw ()
 complete -c mw
 complete -c ew
 complete -c cw
+
+fnp() { find $2 -name $1 -print ; }
 
 # edit find
 ef ()
@@ -746,10 +771,36 @@ aless(){ perl -e 'BEGIN{$f=shift;%cs=();} open(IN,"<", $f); while(<IN>){$c=0; ma
 alias dk=docker-compose
 
 if $have_kubectl; then
+
+    if [[ $have_kubesafe && $SHLVL -eq 1 ]]; then
+        alias kubectl='kubesafe kubectl'
+        alias k='kubesafe kubectl'
+        alias helm='kubesafe helm'
+        source <(kubesafe completion bash)
+    else
+        source <(kubectl completion bash)
+        alias k=kubectl
+    fi
+    complete -F __start_kubectl k
+
+    alias kcns=kubens
+    alias kc-disk='kc get cm,pv,pvc,crd --field-selector metadata.namespace!=kube-system -A'
+
+    # --field-selector metadata.namespace!=kube-system
+    kgpa() { kubectl get pod $@ -A; }
+    kgp() { kubectl get pods --sort-by '{.metadata.name}' $@; }
+    kpf() { kubectl port-forward $@; }
+    kgpi() { kubectl get pods --sort-by '{.metadata.name}' $@ -o custom-columns='NAME:.metadata.name,STATUS:.status.phase,IMAGE:.spec.containers[0].image,PULL_SECRETS:.spec.imagePullSecrets[*].name'; }
+    kgpw() { kubectl get pods $@ -o wide; }
+    kdp() { kubectl describe pod $@; }
+    kgs() { kubectl get services --sort-by '{.metadata.name}' $@; }
+
+    kcl() { kubectl logs -f pod/$(kubectl-getpod $1);  }
+
     prompt_callback() {
         local cc
 
-        if cc=$(kubectl config current-context); then
+        if cc=$(kubectl config current-context 2>&1); then
             if [[ $cc == kind-kind || $cc =~ "mitch" ]]; then
                 echo -n " ${LTGRNUL}$cc${CLEAR}"
             else
@@ -760,36 +811,15 @@ if $have_kubectl; then
         fi
     }
 
-    alias k=kubectl
-    alias kc-disk='kc get cm,pv,pvc,crd --field-selector metadata.namespace!=kube-system -A'
-
-    # --field-selector metadata.namespace!=kube-system
-    kga() { kubectl get pod,service,deployment,replicaset,pvc,cm,crd $@; }
-    kgp() { kubectl get pods --sort-by '{.metadata.name}' $@; }
-    kgpi() { kubectl get pods --sort-by '{.metadata.name}' $@ -o custom-columns='NAME:.metadata.name,STATUS:.status.phase,IMAGE:.spec.containers[0].image,PULL_SECRETS:.spec.imagePullSecrets[*].name'; }
-    kgpw() { kubectl get pods $@ -o wide; }
-    kdp() { kubectl describe pod $@; }
-    kgs() { kubectl get services --sort-by '{.metadata.name}' $@; }
-    kge() { kubectl get events --sort-by='.metadata.creationTimestamp' $@; }
-
-    alias kcns=kubens
-
-    kcl() { kubectl logs -f pod/$(kc-getpod $1);  }
-    kcs() {
-        local pod="$(kubectl getpod ${1:?'Pod expected'})"
-        shift
-        kubectl exec -it "$pod" -- ${@:-sh};
-    }
-
-    source <(kubectl completion bash)
-    complete -F __start_kubectl k
-
     if [ -d ${HOME}/.krew/bin ]; then
         path_append PATH "${HOME}/.krew/bin"
     fi
 fi
 
 if $have_docker; then
+    alias di='docker images'
+    alias did='docker images --digests'
+    
     # Last Container operations
     lc ()
     {
@@ -851,9 +881,6 @@ export SDKMAN_DIR="$HOME/.sdkman"
 [[ -f ~/.config/tabtab/__tabtab.zsh ]] && . ~/.config/tabtab/__tabtab.zsh || true
 
 
-
-alias docker-minikube='eval $(minikube -p minikube docker-env)'
-
 . "$HOME/.cargo/env"
 
 if type pyenv > /dev/null 2>&1; then
@@ -861,3 +888,11 @@ if type pyenv > /dev/null 2>&1; then
     command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"
     eval "$(pyenv init -)"
 fi
+
+export DOCKER_CLI_HINTS=false
+
+
+# opencode
+export PATH=/Users/mnp/.opencode/bin:$PATH
+
+export RIPGREP_CONFIG_PATH=~/.config/ripgrep

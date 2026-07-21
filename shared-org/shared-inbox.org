@@ -1,5 +1,24 @@
 * Shared Incoming 
 
+** good electrolyte writeup
+https://eatbeautiful.net/homemade-electrolyte-powder-easy-natural-diy-sports-drink/
+
+** stephen pressfield
+- historical fiction
+
+** SAP
+nile red: polyvinyl acetate -> ethanol
+https://www.youtube.com/watch?v=QzP3vx8XadU
+
+** car
+
+dashcam
+https://www.amazon.com/dp/B0BY2RHVZY?th=1
+
+chargepoint flex
+https://www.amazon.com/gp/product/B07WXZDHGV
+
+
 ** writing political
 make a mindmap and explainer showing links from Thiel, Musk, Ellison, Sacks to Trump, Vance, DeSantis, etc
 
@@ -8,6 +27,9 @@ https://www.nytimes.com/2023/05/24/us/politics/david-sacks-desantis-twitter-musk
 
 
 ** workout
+https://workoutsoffthebeatenpath.com/2025/02/23/workouts-off-the-beaten-path-february-24-28-2025/
+
+
 800 	1 X { 	
     8x25 	Other 	(Freestyle) 	Build 	80% Effort
     1x100 	Warm-Down 	(Freestyle) 		50% Effort
@@ -346,3 +368,29 @@ dodge or fall from stephenson
 Shoulder impingement in front-crawl swimming: II. analysis of stroking technique
 and https://www.youtube.com/watch?v=yn2mthu5mRY
 and https://www.youtube.com/watch?v=vnayCVeF4LE
+** 2024-08 August
+*** 2024-08-04 Sunday
+**** Sync [2024-08-04 Sun 16:46]
+shoulder exercises - fares ksebati
+scapular pushups
+alphabet - ball on wall, pull in shoulder blade, spell letters
+internal/external rotation - weight or band
+alt superman
+catcow tilts
+*** 2024-08-05 Monday
+**** 5-4-3-2-1 grounding technique [2024-08-05 Mon 09:43]
+  Feeling anxious or overwhelmed? This technique can help. All you have to do is identify:
+
+    5 things you can see
+    4 things you can feel
+    3 things you can hear
+    2 things you can smell
+    1 thing you can taste
+
+This simple yet powerful exercise uses your senses to anchor you in the present moment, helping you find some calm amidst the chaos.
+** 2024-09 September
+*** 2024-09-03 Tuesday
+**** Sync [2024-09-03 Tue 11:37]
+scrape HN for monthly who's hiring and who's looking posts vs time
+chart and correlate to https://www.trueup.io/job-trend 
+

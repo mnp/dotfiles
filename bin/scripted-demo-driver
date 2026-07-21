@@ -1,16 +1,25 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Bash comments are echoed
 # Other lines are executed with a wait prompt afterward
 
 input=${1?'Input script expected'}
 
-cat "$input" | while read; do    
-    if [[ "$REPLY" =~ ^# ]]; then
-        echo "comment $REPLY";
+wait_for_user() {		# prompt
+    echo -n "$1 (>)"
+    read -N1 -rs < /dev/tty
+    echo
+}
+
+cat "$input" | while read line; do
+    if [[ "$line" =~ ^#! ]]; then
+	:
+    elif [[ "$line" =~ ^$ ]]; then
+	:
+    elif [[ "$line" =~ ^# ]]; then
+        wait_for_user "$line"
     else
-        echo run $REPLY;
-        echo ...
-        read -N1 -rs
+	wait_for_user "$line"
+	eval "$line"
     fi
 done

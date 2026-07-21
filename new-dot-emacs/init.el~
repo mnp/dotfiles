@@ -1,0 +1,214 @@
+;; -*- Lisp-Interaction -*-
+
+(add-to-list 'load-path (expand-file-name "~/.emacs.d/shared-elisp"))
+
+(add-to-list 'package-archives
+             '("melpa" . "http://melpa.org/packages/") t)
+
+(add-to-list 'package-archives
+             '("gnu" . "https://elpa.gnu.org/packages/") t)
+
+(if window-system (server-start))
+
+(require 'browse-url)
+(require 'lsp-mode)
+(add-hook 'rustic-mode-hook #'lsp)
+(add-hook 'python-mode-hook #'lsp)
+(setq lsp-ruff-server-command '("ruff" "server" "--preview"))
+
+;; Answering just 'y' or 'n' will do
+(defalias 'yes-or-no-p 'y-or-n-p)
+
+(use-package browse-kill-ring
+  :ensure t
+  :init (browse-kill-ring-default-keybindings)
+  :bind ("C-x 4 y" . browse-kill-ring))   ; extra for finger memory
+
+(use-package yasnippet
+  :ensure t
+  :init (yas-global-mode))
+
+;;; Edit multiple regions in the same way simultaneously. Bound to C-;
+(use-package iedit
+  :ensure t)
+
+(use-package deft
+      :ensure t
+      :custom
+      (deft-extensions '("org" "md" "txt"))
+      (deft-directory "~/org")
+      (deft-use-filename-as-title t)
+          ;;        deft-text-mode 'org-mode
+      :bind (([f9] . my-deft)
+             :map deft-mode-map
+             ("<backspace>" . 'deft-filter-decrement)))
+
+(defun my-deft ()
+  "Show deft buffer, or kill it."
+  (interactive)
+  (if (equal (buffer-name) "*Deft*")
+      (kill-buffer deft-buffer)
+    (deft)))
+
+;; persistent-scratch
+(use-package persistent-scratch
+  :ensure t
+  :config
+  (persistent-scratch-setup-default))
+
+(defun pop-to-scratch ()
+  "If in *scratch*, bury it, otherwise pop to it."
+  (interactive nil)
+  (if (equal (buffer-name) "*scratch*")
+      (bury-buffer)
+    (switch-to-buffer "*scratch*")))
+
+(defun buffer-mode (buffer-or-string)
+  "Returns the major mode associated with a buffer."
+  (buffer-local-value 'major-mode (get-buffer buffer-or-string)))
+
+(defun most-recent-mode-buffer (mode buffs)
+  "search list of buffers and return most recently accessed mode buffer"
+  (cond ((null buffs) nil)
+        ((equal mode (buffer-mode (car buffs))) (car buffs))
+        (t (most-recent-mode-buffer mode (cdr buffs)))))
+
+(defun switch-to-most-recent-org-buffer ()
+  "if in org mode, jump to most recent other buffer, otherwise jump to most recently accessed org-mode buffer"
+  (interactive)
+  (if (equal major-mode 'org-mode)
+      (switch-to-buffer nil)
+    (switch-to-buffer (most-recent-mode-buffer 'org-mode (buffer-list)))))
+
+(load-library "duplicate-line.el")
+(use-package duplicate-line
+  :bind (("M-p" . duplicate-previous-line)
+         ("M-n" . duplicate-following-line)))
+
+(use-package indent-bars
+  :hook ((python-mode yaml-mode) . indent-bars-mode)
+)
+
+(use-package calc
+ :init (load-library "my-calc-extras")
+ :bind ("M-#" . calc))
+
+;; This binds c-.
+;; we've stolen c-. (from org-time-stamp, so we need to rebind that)
+(use-package dot-mode
+  :ensure t
+  :init (add-hook 'find-file-hooks (lambda () (dot-mode 1)))
+  :bind ("C-." . dot-mode))
+
+(use-package elfeed
+  :init (setq elfeed-feeds
+	      '("http://nullprogram.com/feed/"
+		"https://planet.emacslife.com/atom.xml"
+		"https://daniel.haxx.se/blog/feed"
+		"https://krebsonsecurity.com/feed/"
+		"https://m.xkcd.com/rss.xml"
+		"https://magnus.therning.org/feed.xml"
+		"https://moth.monster/blog/feed.xml"
+		"https://pluralistic.net/feed/"
+		"https://popehat.substack.com/Feed"
+		"https://spectrum.ieee.org/rss"
+		"https://wingolog.org/feed/atom"
+		"https://www.johndcook.com/blog/feed"
+		"https://www.oglaf.com/feeds/rss/")))
+
+(defun get-shell-file-env (FILE VAR)
+  "Use bash to source FILE in a temporary subshell and report the value of env VAR."
+  (let ((F (expand-file-name FILE)))
+    (if (file-readable-p F)
+        (shell-command-to-string
+         (format "sh -c '. %s; /bin/echo -n ${%s}' 2>/dev/null" F VAR))
+      nil)))
+
+(defun work()
+  "switch to main work context"
+  (interactive nil)
+  (let ((workdir (get-shell-file-env "~/.work" "WORK")))
+    (message workdir)
+    (find-file workdir)))
+
+(defun workb()
+  "switch to work-b context"
+  (interactive nil)
+  (let ((workdir (get-shell-file-env "~/.workb" "WORKB")))
+    (message workdir)
+    (find-file workdir)))
+
+(defun task()
+  "switch to main task context"
+  (interactive nil)
+  (let ((taskdir (get-shell-file-env "~/.task" "TASK")))
+    (message taskdir)
+    (find-file taskdir)))
+
+(defun taskb()
+  "switch to b task context"
+  (interactive nil)
+  (let ((taskdir (get-shell-file-env "~/.taskb" "TASKB")))
+    (message taskdir)
+    (find-file taskdir)))
+
+(global-set-key "" 'ffap)
+(global-set-key "\C-x\C-b" 'electric-buffer-list)
+(global-set-key [?\C-_]         'help-command)
+(global-set-key "\C-h"          'backward-delete-char)
+
+(global-set-key [f1]            'switch-to-most-recent-org-buffer)
+(global-set-key [f3]            'pop-to-scratch)
+(global-set-key [f5]            (lambda () (interactive) (revert-buffer t nil)))
+(global-set-key [f6]            (lambda () (interactive) (switch-to-buffer nil)))
+;; f9 is deft
+
+(setq visible-bell nil)
+
+(when window-system
+  (set-face-attribute 'default nil :height 140) 
+
+  (menu-bar-mode 1)
+  (tool-bar-mode -1)
+  (scroll-bar-mode -1)
+;  (tooltip-mode -1)
+)
+
+
+(global-auto-revert-mode 1)
+
+(setq auto-mode-alist (cons '("Dockerfile" . dockerfile-mode) auto-mode-alist))
+
+(load-theme 'misterioso t)
+(set-face-attribute 'cursor nil :background "yellow")
+
+
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(custom-safe-themes
+   '("19a2c0b92a6aa1580f1be2deb7b8a8e3a4857b6c6ccf522d00547878837267e7"
+     "3e374bb5eb46eb59dbd92578cae54b16de138bc2e8a31a2451bf6fdb0f3fd81b"
+     "72ed8b6bffe0bfa8d097810649fd57d2b598deef47c992920aef8b5d9599eefe"
+     "2ff9ac386eac4dffd77a33e93b0c8236bb376c5a5df62e36d4bfa821d56e4e20"
+     "b1a691bb67bd8bd85b76998caf2386c9a7b2ac98a116534071364ed6489b695d"
+     "0a076beea7570c3047225baf40783d7ce1576b8b98cdcd3e5622808875ab8c00" default))
+ '(fill-column 100)
+ '(highlight-indent-guides-method 'fill)
+ '(package-selected-packages
+   '(amber-glow-theme browse-kill-ring claude-code deft dockerfile-mode dot-mode elfeed elfeed-summary
+		      embark gruvbox-theme highlight-indent-guides highlight-indentation iedit
+		      indent-bars json-navigator kele lsp-ui message-view-patch orderless
+		      persistent-scratch rustic terraform-mode vertico yaml-mode yasnippet))
+ '(safe-local-variable-values
+   '((my-grep-root . "/Users/mnp/prj/platform-B/sdk") (my-grep-root . "/Users/mnp/prj/platform/sdk")
+     (my-grep-root . "/Users/mnp/prj/platform/.github")))
+ '(split-height-threshold 40))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )

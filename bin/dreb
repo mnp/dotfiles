@@ -6,4 +6,10 @@
 #
 #    If image is not given, runs the most recently created one. 
 
-docker run --entrypoint bash --rm -it ${1:-$(docker images -q | head -1)}
+case $(basename $0) in
+    dreb) entrypoint=bash;;
+    dres) entrypoint=sh;;
+    *) echo "say $0 what now?"; exit 1;;
+esac
+
+docker run --entrypoint $entrypoint --rm -it -v `pwd`:/dreb-mount ${1:-$(docker images -q | head -1)}

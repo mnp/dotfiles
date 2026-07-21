@@ -26,13 +26,6 @@ Instant Reloader:
       user-mail-address "mitchell.perilstein@gmail.com")
 #+end_src
 
-* Timed expire hacks
-#+begin_src emacs-lisp
-;; should have been fixed in emacs 29?
-;; (add-to-list 'image-types 'svg)
-#+end_src
-
-
 * Customize settings
 
 Set up the customize file to its own separate file, instead of saving
@@ -380,21 +373,21 @@ source: [[http://whattheemacsd.com/sane-defaults.el-01.html][Magnars Sveen]]
 
 * Tree sitter
 #+begin_src emacs-lisp
-(defun my-ts-hook ()
-  (tree-sitter-mode) 
-  (ts-fold-mode)
-  (ts-fold-indicators-mode))
+;; (defun my-ts-hook ()
+;;   (tree-sitter-mode) 
+;;   (ts-fold-mode)
+;;   (ts-fold-indicators-mode))
 
-(use-package tree-sitter
-  :bind (([f8] . ts-fold-toggle))
-  :hook
-  ((json-mode rust-mode sh-mode yaml-mode) 
-   .
-   my-ts-hook))
+;; (use-package tree-sitter
+;;   :bind (([f8] . ts-fold-toggle))
+;;   :hook
+;;   ((json-mode rust-mode sh-mode yaml-mode) 
+;;    .
+;;    my-ts-hook))
 
-(use-package tree-sitter-langs
-  :hook
-  (tree-sitter-after-on . tree-sitter-hl-mode))
+;; (use-package tree-sitter-langs
+;;   :hook
+;;   (tree-sitter-after-on . tree-sitter-hl-mode))
 #+end_src
 
 
@@ -463,6 +456,7 @@ source: [[http://whattheemacsd.com/sane-defaults.el-01.html][Magnars Sveen]]
   (global-set-key (kbd "<home>")  'beginning-of-buffer)
   (global-set-key (kbd "M-SPC")   'my-just-one-white)
   (global-set-key "\C-cr"         'align-regexp)
+
   #+end_src
 
 * Custom Fun
@@ -659,10 +653,10 @@ source: [[http://whattheemacsd.com/sane-defaults.el-01.html][Magnars Sveen]]
    #+begin_src emacs-lisp
 ;; This binds c-.
 ;; we've stolen c-. (from org-time-stamp, so we need to rebind that)
-(use-package dot-mode
-  :ensure t
-  :init (add-hook 'find-file-hooks (lambda () (dot-mode 1)))
-  :bind ("C-." . dot-mode))
+;(use-package dot-mode
+;  :ensure t
+;  :init (add-hook 'find-file-hooks (lambda () (dot-mode 1)))
+;  :bind ("C-." . dot-mode))
    #+end_src
 ** iedit
    #+begin_src emacs-lisp
@@ -671,29 +665,29 @@ source: [[http://whattheemacsd.com/sane-defaults.el-01.html][Magnars Sveen]]
    #+end_src
 ** Helm
 
-#+begin_src emacs-lisp
- (use-package helm
-   :ensure nil
-   :diminish helm-mode
-   :bind (("C-c h" . helm-command-prefix)
-          ("C-x b" . helm-mini)
-          ("C-`" . helm-resume)
-          ("M-x" . helm-M-x)
-          ("C-x C-f" . helm-find-files)
-          ("C-x C-r" . helm-recentf))
-   :init
-   ;; what's this for now?
-   ;; (require 'helm-config)
-   (defalias 'list-buffers 'helm-buffers-list)
-   :config
-   (setq helm-locate-command "mdfind -interpret -name %s %s"
-         helm-ff-newfile-prompt-p nil
-         helm-M-x-fuzzy-match t)
-   (helm-mode 1)
-   :custom-face
-   (helm-selection ((t :background "LightYellow" :foreground "black"))))
-#+end_src
-
+;#+begin_src emacs-lisp
+; (use-package helm
+;   :ensure nil
+;   :diminish helm-mode
+;   :bind (("C-c h" . helm-command-prefix)
+;          ("C-x b" . helm-mini)
+;          ("C-`" . helm-resume)
+;          ("M-x" . helm-M-x)
+;          ("C-x C-f" . helm-find-files)
+;          ("C-x C-r" . helm-recentf))
+;   :init
+;   ;; what's this for now?
+;   ;; (require 'helm-config)
+;   (defalias 'list-buffers 'helm-buffers-list)
+;   :config
+;   (setq helm-locate-command "mdfind -interpret -name %s %s"
+;         helm-ff-newfile-prompt-p nil
+;         helm-M-x-fuzzy-match t)
+;   (helm-mode 1)
+;   :custom-face
+;   (helm-selection ((t :background "LightYellow" :foreground "black"))))
+;#+end_src
+;
 
 *** Helm other
     #+begin_src emacs-lisp :tangle on

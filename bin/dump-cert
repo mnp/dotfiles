@@ -1,3 +1,13 @@
 #!/bin/bash
 
-openssl x509 -inform PEM -in $1 -text -noout | egrep '(Before|After |DNS|Issuer|Subject):' | sed 's/^ *//'
+# look at a file, determine if it's PEM or base64, decode if necessary, then dump it.
+
+( if head -1 $1 | grep -q 'BEGIN CERTIFICATE'; then
+    echo -- this looks like plain PEM >&2
+    openssl x509 -inform PEM -in $1 -text -noout
+else
+    echo -- maybe this is base64 >&2
+    base64 -d < $1 | openssl x509 -inform PEM -text -noout
+fi ) | egrep '(Before|After |DNS|Issuer|Subject):' | sed 's/^ *//'
+
+

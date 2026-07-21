@@ -4,10 +4,10 @@ if [ $# -lt 1 ]; then
     echo ,* *~ .*~ \#*\#  *.pyc __pycache__ .pytest_cache .mypy_cache .ipynb_checkpoints
     /bin/rm -rf ,* *~ .*~ \#*\# *.pyc  __pycache__ .pytest_cache .mypy_cache .ipynb_checkpoints
 else
-    for i in $@; do
+    for i in "$@"; do
 	if [ -d "$i" ]; then
-	    echo ---- Cleaning $i ----
-	    ( builtin cd $i
+	    echo ---- Cleaning "$i" ----
+	    ( builtin cd "$i"
 	      echo ,* *~ .*~ \#*\#  *.pyc __pycache__
 	      /bin/rm -rf ,* *~ .*~ \#*\#  *.pyc __pycache__ .pytest_cache .mypy_cache .ipynb_checkpoints)
 	else

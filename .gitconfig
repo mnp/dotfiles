@@ -1,4 +1,6 @@
-# hints from https://kiranrao.ca/2024/06/21/git-config.html
+# https://blog.gitbutler.com/how-git-core-devs-configure-git/
+
+# other hints from https://kiranrao.ca/2024/06/21/git-config.html
 
 [user]
 	name = Mitchell Perilstein
@@ -12,6 +14,7 @@
 	stashed = stash list --pretty=format:'%gd: %Cred%h%Creset %Cgreen[%ar]%Creset %s'
 	lg = log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit
         co = checkout
+	cp = cherry-pick
         please = push --force-with-lease
 
 # for $deity's sake, check that anything we're getting is complete and sane on a regular basis
@@ -19,6 +22,9 @@
         fsckobjects = true
 [fetch]
         fsckobjects = true
+	prune = true
+	pruneTags = true
+	all = true
 [receive]
         fsckObjects = true 
 [difftool]
@@ -50,8 +56,19 @@
 # https://codeinthehole.com/guides/resolving-conflicts-during-a-git-rebase/#resolve-conflicts-safely
 [rerere]
 	enabled = true
+	autoupdate = true
+
 [maintenance]
 	repo = /Users/mnp/prj/platform-B
 
 [credential]
 	helper = store
+
+[branch]
+	sort = -committerdate	# sort descending by date, instead of alpha by name
+[tag]
+	sort = version:refname	# sort using semver as numbers instead of as alpha 
+[diff]
+	algorithm = histogram
+[help]
+	autocorrect = prompt

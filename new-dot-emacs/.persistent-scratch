@@ -1,0 +1,157 @@
+(["*scratch*" ";; This buffer is for text that is not saved, and for Lisp evaluation.
+;; To create a file, visit it with ‘C-x C-f’ and enter text in its buffer.
+
+
+curl https://localhost:5601/v1/generate    -H \"Authorization: Bearer $API_KEY\"     -H \"Content-Type: application/json\"   \\
+    -d '{
+            \"model\":\"DYNAMIC-FIELD-INT_llama8b_pp8_tp1_ub1\",
+            \"provider\":\"default\",
+            \"prompt\": \"What is the capital of Mexico?\",
+            \"max_length\":256
+         }'
+14 11
+
+kubectl apply -f - <<'EOF'
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: aviator-logs
+  namespace: wallaroo
+spec:
+  accessModes: [\"ReadWriteOnce\"]
+  storageClassName: openebs-hostpath
+  resources:
+    requests:
+      storage: 5Gi
+EOF
+
+
+UserID: mitchell
+Password: cB326$A\\[WDO
+
+ •  Wildcard DNS entry *.cs.d-matrix.ai detected. Remove the wildcard DNS entry or the cs.d-matrix.ai search domain from resolv.conf.
+ •  Network communication between the pods network CIDR 10.244.0.0/17 and the services network CIDR 10.244.128.0/17 is currently disrupted on this
+    node. This issue may prevent pods from properly interacting with services. To resolve this, please review and adjust the firewall configuration
+    on this node to ensure it allows traffic between these network CIDRs.
+
+we pasted over /etc/resolv.conf to avoid the dns problem and uninstalled docker-ce and containerd, then rebooted.
+
+sudo ./wallaroo install --license license.yaml --admin-console-password wally1
+
+alias k='k0s kubectl'
+  alias kgp='k0s kubectl get pod'
+  kgpa() { k0s kubectl get pod $@ -A; }
+  kgpi() { k0s kubectl get pods --sort-by '{.metadata.name}' $@ -o custom-columns='NAME:.metadata.name,STATUS:.status.phase,IMAGE:.spec.containers[0].image,PULL_SECRETS:.spec.imagePullSecrets[*].name'; }
+  kgs() { k0s kubectl get services --sort-by '{.metadata.name}' $@; }
+  kge() { k0s kubectl get events --sort-by='.metadata.creationTimestamp' $@; }
+
+Device plugin chart
+ - /tools was not present on the box - commented it out of chart as unneeded
+ - image pull through proxy.replicated.com was not working (image not known to them??) so I used mitch-dev in GCR, created a secret and pointed the chart to it.
+
+
+k8s
+----
+
+# Set up the creds
+mkdir ~/.kube
+sudo cp /var/lib/embedded-cluster/k0s/pki/admin.conf .kube/config
+sudo chown $USER:$USER .kube/config
+
+# Put in your .bashrc then log out and back in
+export KUBECONFIG=~/.kube/config
+alias k='k0s kubectl'
+alias kgp='k0s kubectl get pod'
+
+---------------------------------------------------------------------------------------------------
+
+glen markley
+610 637 7991
+
+church
+glenn
+610 256 7963 
+
+
+Probable root cause
+
+1. There is some node instability evident due to autoscale churn. I think GCP auto scaled down during the upgrade and then scaled them back up.
+2. Model upload inside an orchestration took 52 seconds in one case. That one log was 96 seconds until finish. This might have been slowed by other orchestrations that were all uploading at once, but I don't have evidence of them. I also don't have evidence the generatl nodes are under provisioned as initially suspected.
+3. There was very likely some output buffering from the Orchestration tasks into their logs which led to some log visibility delay. The typical Python buffer is 8192 bytes and that log above we did capture was only 4470, so it's possible the whole thing was cached until exit at 96 seconds, followed by some transit through the database etc, before it was available to the user.
+4. Unrelated: There are some unknown Plateau instances hanging around that we should help them clean up.
+
+Suggested mitigations
+
+1. Dampen scale-down aggressiveness around upgrades (or maintain higher min nodes / longer scale-down delay on key pools) so transient rollout valleys don’t trigger disruptive node turnover.
+2. It might help future debugging if Wallaroo added timestamps in our portion (WALLAROO:) of the orchestration logs.
+3. Also it would help if customers would add timestamps when printing (eg by using the logging package).
+4. Customers who need the logs sooner (at the expense of throughput) can add flush=True or sys.stdout.flush() to their orchestration printing to eliminate the buffering issue.
+
+
+
+
+
+class SupportedAccelerations(str, Enum):
+    \"\"\"This class defines the supported accelerations.\"\"\"
+    _None = \"none\"
+    CUDA = \"cuda\"
+    Jetson = \"jetson\"
+    OpenVINO = \"openvino\"
+    QAIC = \"qaic\"
+    ROCM = \"rocm\"
+
+
+---------------------------------------------------------------------------------------------------
+
+(add-to-list 'auto-mode-alist '(\"\\\\.json\\\\'\" . json-ts-mode))
+
+(defun json-ts-mode-hook-func ()
+  (lsp-deferred)
+  (setq indent-tabs-mode nil))
+(add-hook 'json-ts-mode-hook #'json-ts-mode-hook-func)
+
+Taco soup - a pound of meat browned and seasoned with taco seasoning. Once meat is cooked add a can of: corn, green chilies, tomato paste, diced tomatoes, and black beans. Simmer 15 minutes, eat with cheese and chips.
+
+---------------------------------------------------------------------------------------------------
+
+wavelen (m) x f (MHz) = 300
+
+HF: 3-30 MHz
+VHF: 30-300 MHz
+UHF: 300-3000 Mhz
+
+---------------------------------------------------------------------------------------------------
+
+
+
+(defun my-smerge-keep-all-upper ()
+  \"Keep upper version for all conflicts in buffer.\"
+  (interactive)
+  (save-excursion
+    (goto-char (point-min))
+    (while (smerge-find-conflict)
+      (smerge-keep-upper))))
+
+
+(use-package kele
+  :config
+  (kele-mode 1)
+  :bind-keymap
+  (\"s-k\" . kele-command-map))
+
+
+-----------------------------------------------------------------------------
+
+
+-----------------------------------------------------------------------------
+
+
+
+* OOMKill
+An engine repeately restarting; last time was due to an OOMKill (probably the other times too) at 2025-11-12T00:10:00Z in namespace mfa-score-pipeline-market-staging-111. There was also sidekick pod engine-sidekick-mfa-market-v2-staging-1970-768d57f6df-gtjkm in the same deployment.
+
+Their pipeline nodes are c3-highcpu-8 which have 8 vCPU and 16 GB memory. I would like to discuss recommending to them a smaller number of bigger machines. Next one up is c3-highcpu-22, which have 22 vCPU and 48 GB ram. Or the c3-highmem-8 which has 8 vCPU and 64 GB.
+
+
+
+" (479 . 149) lisp-interaction-mode nil nil])
