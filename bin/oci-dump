@@ -1,0 +1,23 @@
+#!/bin/bash
+
+registry=${1:?"missing registry"}
+
+repos=$(oras repo ls $registry)
+for repo in $repos; do
+    echo $repo
+    for tag in $(oras repo tags $registry/$repo:$tag); do
+        type=$(oras manifest fetch $registry/$repo:$tag | jq -r .config.mediaType)
+        echo "    tag: $tag"
+        echo "    type: $type"
+
+        # abbrev: (.digest | .[-8:])
+        oras manifest fetch $registry/$repo:$tag | jq -r '.config | [ .mediaType, .digest, .size] | @tsv' | \
+            read type digest size
+        printf "        layer: %s %s %s\n" $type $digest $size
+
+        oras manifest fetch $registry/$repo:$tag | jq -r '.layers | .[] | [.mediaType, .digest, .size] | @tsv' | \
+            while read type digest size; do
+                printf "        layer: %s %s %s\n" $type $digest $size
+            done
+    done
+done

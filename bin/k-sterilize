@@ -1,0 +1,7 @@
+#!/bin/bash
+
+# Remove metadata from an object so it can be applied later. Eg:
+#   k -n ns1 get thing | k-sterilize | k -n ns2 apply -f - 
+
+kubectl get "$@" -o yaml | \
+  yq '.metadata={"name":.metadata.name,.annotations={"deployment.kubernetes.io/revision": "1"}},del(.status)'

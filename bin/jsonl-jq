@@ -1,0 +1,3 @@
+#!/bin/bash
+
+while read x; do echo $x | egrep '^{' | jq "$@"; done

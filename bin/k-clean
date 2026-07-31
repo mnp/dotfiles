@@ -1,0 +1,4 @@
+#!/bin/bash
+
+kubectl delete pod $(kubectl get po --no-headers=true -o custom-columns=:.metadata.name) $@
+kubectl delete job $(kubectl get job --no-headers=true -o custom-columns=:.metadata.name) $@

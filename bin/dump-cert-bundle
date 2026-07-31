@@ -1,0 +1,18 @@
+#!/bin/bash
+
+# Dump interesting fields from a cert bundle in order. Note: to validate the bundle against a key,
+# plain "openssl verify" is not what you want because it will only validate the first cert in the
+# chain. We'll need to load the key and bundle into a server like nginx as a smoke test.
+#
+# Reference: https://stackoverflow.com/questions/20409534/how-does-an-ssl-certificate-chain-bundle-work
+
+cd $(mktemp -d)
+
+split -p BEGIN ${1:?"Must pass a cert bundle file"}
+
+for i in x??; do
+    openssl x509 -inform PEM -in $i -text -noout | egrep '(Before|After |DNS|Issuer|Subject):' | sed 's/^ *//'
+    echo
+done
+
+

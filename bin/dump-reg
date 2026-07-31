@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+REG=${1:?USAGE: $0 REGISTRY}
+
+for repo in $(oras repo ls --insecure $REG | grep -v embedded-cluster); do
+    printf "%-45s " $repo
+    oras repo tags --insecure ${REG}/$repo | tr "\n" " "
+    echo
+done

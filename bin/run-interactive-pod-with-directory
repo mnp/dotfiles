@@ -1,0 +1,47 @@
+#!/bin/bash
+
+# Limitations: 1M configmap
+
+name="e2e-$RANDOM"
+secret=regcred
+
+# This will not recurse into subdirs; only top level files will be captured
+( cd resources
+  kubectl create configmap $name --from-file=$(readlink keras_ccfraud.onnx) --from-file=$(readlink dev_smoke_test.json)
+)
+
+cat << EOF | kubectl apply -f -
+apiVersion: v1
+kind: Pod
+metadata:
+  name: $name
+  labels:
+    app: e2e-test
+spec:
+  imagePullSecrets:
+    - name: $secret
+  containers:
+  - name: $name
+    image: ghcr.io/wallaroolabs/selftest:main
+    command: ["sleep", "9999"]
+    imagePullPolicy: Always
+    env:
+      - name: XX
+        value: yy
+    volumeMounts:
+      - name: resources
+        mountPath: /foo
+  volumes:
+    - name: resources
+      configMap:
+        name: $name
+  restartPolicy: Never
+EOF
+
+cleanup()
+{
+    kubectl delete pod $name
+    kubectl delete cm  $name
+}
+
+# trap cleanup EXIT
